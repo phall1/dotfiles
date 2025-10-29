@@ -1,0 +1,103 @@
+#!/bin/sh
+# chezmoi modify_ script -> ~/.codex/config.toml
+#
+# Two-writer reconciliation. The `lazycodex-ai` installer and Codex itself
+# write machine-specific state into config.toml (hook trust hashes, project
+# trust levels, marketplace caches, last_updated timestamps). chezmoi must NOT
+# clobber that state -- only enforce the portable OmO + model settings below.
+#
+# A modify_ script receives the file's current contents on stdin and writes
+# the replacement to stdout, so we MERGE our managed settings into whatever
+# is already on disk instead of overwriting the file.
+#
+# Managed (enforced) keys win on conflict; everything else on disk -- hook
+# trust hashes, project paths, marketplace caches, etc. -- is preserved.
+# Requires tomlq (from brew install yq) or falls back to sed merge.
+
+set -eu
+
+# Portable OmO + Codex settings that should follow you across machines.
+# These are the "opinionated defaults" for oh-my-openagent usage.
+MANAGED_TOML='model = "gpt-5.5"
+model_reasoning_effort = "high"
+approval_policy = "never"
+sandbox_mode = "danger-full-access"
+network_access = "enabled"
+
+[features]
+goals = true
+unified_exec = true
+child_agents_md = true
+multi_agent = true
+plugin_hooks = true
+plugins = true
+js_repl = false
+
+[features.multi_agent_v2]
+enabled = true
+max_concurrent_threads_per_session = 10000
+
+[notice]
+hide_world_writable_warning = true
+hide_full_access_warning = true
+
+[plugins."omo@sisyphuslabs"]
+enabled = true
+
+[plugins."omo@sisyphuslabs".mcp_servers.git_bash]
+enabled = false
+
+[agents.codex-ultrawork-reviewer]
+config_file = "./agents/codex-ultrawork-reviewer.toml"
+
+[agents.explorer]
+config_file = "./agents/explorer.toml"
+
+[agents.librarian]
+config_file = "./agents/librarian.toml"
+
+[agents.metis]
+config_file = "./agents/metis.toml"
+
+[agents.momus]
+config_file = "./agents/momus.toml"
+
+[agents.plan]
+config_file = "./agents/plan.toml"
+'
+
+# Read current file from stdin
+current="$(cat)"
+[ -n "$current" ] || current=""
+
+# If tomlq is available, do a proper TOML merge
+if command -v tomlq >/dev/null 2>&1; then
+    # Merge: managed wins on conflict, current preserved otherwise
+    printf '%s\n%s' "$MANAGED_TOML" "$current" | tomlq -t 'reduce .[] as $item ({}; . * $item)' -
+else
+    # Fallback: prepend managed settings. This is "good enough" because TOML
+    # uses "last key wins" semantics for duplicate top-level keys. The managed
+    # block comes first, but if Codex wrote a conflicting key later in the
+    # file... actually that would lose. So we need a smarter fallback.
+    #
+    # Better fallback: write managed first, then append current but skip
+    # any lines that set keys we manage. This is imperfect but functional.
+    printf '%s\n' "$MANAGED_TOML"
+    # Filter out lines that would conflict with managed settings
+    printf '%s\n' "$current" | awk '
+        /^model[[:space:]]*=/ { next }
+        /^model_reasoning_effort[[:space:]]*=/ { next }
+        /^approval_policy[[:space:]]*=/ { next }
+        /^sandbox_mode[[:space:]]*=/ { next }
+        /^network_access[[:space:]]*=/ { next }
+        /^\[features\]$/ { skip=1; next }
+        /^\[features\.multi_agent_v2\]$/ { skip=1; next }
+        /^\[notice\]$/ { skip=1; next }
+        /^\[plugins\."omo@sisyphuslabs"\]$/ { skip=1; next }
+        /^\[plugins\."omo@sisyphuslabs"\.mcp_servers\.git_bash\]$/ { skip=1; next }
+        /^\[agents\./ { skip=1; next }
+        skip && /^\[/ { skip=0 }
+        skip { next }
+        { print }
+    '
+fi

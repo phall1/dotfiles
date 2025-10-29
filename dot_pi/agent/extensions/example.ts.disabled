@@ -1,0 +1,69 @@
+// ── Example Extension ────────────────────────────────────────────────
+// Rename to example.ts to activate.
+// Pi auto-discovers *.ts files in this directory.
+//
+// Test with: pi -e ~/.pi/agent/extensions/example.ts
+// Hot reload: /reload
+
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import { Type } from "@sinclair/typebox";
+
+export default function (pi: ExtensionAPI) {
+  // ── Event: session start ────────────────────────────────────────
+  pi.on("session_start", async (_event, ctx) => {
+    // ctx.ui.notify("Example extension loaded", "info");
+  });
+
+  // ── Event: intercept dangerous bash commands ────────────────────
+  // pi.on("tool_call", async (event, ctx) => {
+  //   if (event.toolName === "bash" && event.input.command?.includes("rm -rf")) {
+  //     const ok = await ctx.ui.confirm("⚠️  Dangerous!", "Allow rm -rf?");
+  //     if (!ok) return { block: true, reason: "Blocked by user" };
+  //   }
+  // });
+
+  // ── Custom tool ─────────────────────────────────────────────────
+  // pi.registerTool({
+  //   name: "example_tool",
+  //   label: "Example",
+  //   description: "An example tool",
+  //   parameters: Type.Object({
+  //     message: Type.String({ description: "A message" }),
+  //   }),
+  //   async execute(toolCallId, params, signal, onUpdate, ctx) {
+  //     return {
+  //       content: [{ type: "text", text: `Echo: ${params.message}` }],
+  //       details: {},
+  //     };
+  //   },
+  // });
+
+  // ── Custom command ──────────────────────────────────────────────
+  // pi.registerCommand("example", {
+  //   description: "An example command",
+  //   handler: async (args, ctx) => {
+  //     ctx.ui.notify(`Example: ${args || "(no args)"}`, "info");
+  //   },
+  // });
+
+  // ── Keyboard shortcut ──────────────────────────────────────────
+  // pi.registerShortcut("ctrl+shift+e", {
+  //   description: "Example shortcut",
+  //   handler: async (ctx) => {
+  //     ctx.ui.notify("Shortcut triggered!", "info");
+  //   },
+  // });
+
+  // ── Status line (footer) ───────────────────────────────────────
+  // pi.on("agent_start", async (_event, ctx) => {
+  //   ctx.ui.setStatus("example", "🔧 Working...");
+  // });
+  // pi.on("agent_end", async (_event, ctx) => {
+  //   ctx.ui.setStatus("example", "");
+  // });
+
+  // ── Widget (above editor) ─────────────────────────────────────
+  // pi.on("session_start", async (_event, ctx) => {
+  //   ctx.ui.setWidget("example", ["📝 Widget line 1", "   Widget line 2"]);
+  // });
+}

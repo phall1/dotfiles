@@ -1,0 +1,44 @@
+#!/bin/sh
+# chezmoi modify_ script -> ~/.claude/settings.json
+#
+# Two-writer reconciliation. `herdr` (a Homebrew tool installed via
+# scripts/bootstrap-darwin.sh) injects agent-state hooks live into
+# ~/.claude/settings.json and versions them itself (`herdr integration install
+# claude`). chezmoi must NOT clobber or track those hooks -- only the portable
+# flags below. A modify_ script receives the file's current contents on
+# stdin and writes the replacement to stdout, so we MERGE our portable,
+# cross-machine feature flags into whatever is already on disk instead of
+# overwriting the file.
+#
+# Managed (enforced) keys win on conflict; everything else on disk -- herdr's
+# hooks, permissions.defaultMode, skipAutoPermissionPrompt, etc. -- is
+# preserved untouched. Requires jq.
+
+set -eu
+
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+
+managed='{
+  "enabledPlugins": {
+    "rust-analyzer-lsp@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true
+  },
+  "theme": "dark",
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
+  "alwaysThinkingEnabled": true,
+  "showThinkingSummaries": true,
+  "editorMode": "vim",
+  "showTurnDuration": true,
+  "terminalProgressBarEnabled": true,
+  "awaySummaryEnabled": true,
+  "spinnerTipsEnabled": false,
+  "autoUpdatesChannel": "latest",
+  "feedbackSurveyRate": 0,
+  "env": {
+    "CLAUDE_CODE_ENABLE_TELEMETRY": "0"
+  }
+}'
+
+printf '%s' "$current" | jq --argjson managed "$managed" '. * $managed'

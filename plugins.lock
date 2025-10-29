@@ -1,0 +1,22 @@
+# Pinned zsh plugin SHAs. Bootstrap reads this and clones to
+# $XDG_DATA_HOME/zsh/plugins/<name> (default ~/.local/share/zsh/plugins/<name>).
+#
+# Format: <name> <github-owner/repo> <git-sha>
+# Pin SHAs (immutable, drift-detectable), not branches. Bump with:
+#   1. cd ~/.local/share/zsh/plugins/<name> && git fetch && git checkout <new-sha>
+#   2. update this file
+#   3. commit "chore(zsh): bump <plugin> to <short-sha>"
+
+# Prompt + deferral primitive.
+powerlevel10k            romkatv/powerlevel10k                      604f19a9eaa18e76db2e60b8d446d5f879065f90
+zsh-defer                romkatv/zsh-defer                          53a26e287fbbe2dcebb3aa1801546c6de32416fa
+
+# UX plugins.
+fzf-tab                  Aloxaf/fzf-tab                             0983009f8666f11e91a2ee1f88cfdb748d14f656
+zsh-autosuggestions      zsh-users/zsh-autosuggestions              85919cd1ffa7d2d5412f6d3fe437ebdbeeec4fc5
+fast-syntax-highlighting zdharma-continuum/fast-syntax-highlighting 3d574ccf48804b10dca52625df13da5edae7f553
+zsh-completions          zsh-users/zsh-completions                  64f802936cc368202957e1db42e9305eaaddda4d
+
+# Tools we depend on for perf hygiene. Not sourced by .zshrc;
+# bootstrap symlinks executable into ~/.local/bin/ via plugins.bin file.
+zsh-bench                romkatv/zsh-bench                          28b1b1bc888159f0a2cf50f9d29381758341aba1

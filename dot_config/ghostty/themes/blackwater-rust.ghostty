@@ -1,0 +1,31 @@
+# blackwater-rust — blackened water with oxidized signal accents
+
+background = #071012
+foreground = #c5d0cd
+cursor-color = #45d0bd
+selection-background = #1d3035
+selection-foreground = #e6efeb
+
+palette = 0=#081114
+palette = 8=#425250
+
+palette = 1=#e45f57
+palette = 9=#ff786f
+
+palette = 2=#7fae8b
+palette = 10=#9bc7a4
+
+palette = 3=#d6a84f
+palette = 11=#e5bc65
+
+palette = 4=#6f9fbd
+palette = 12=#8bb7d7
+
+palette = 5=#9b8ac5
+palette = 13=#b3a4d8
+
+palette = 6=#45d0bd
+palette = 14=#62e6d2
+
+palette = 7=#c5d0cd
+palette = 15=#e6efeb

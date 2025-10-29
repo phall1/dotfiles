@@ -1,0 +1,43 @@
+{
+  // ── Keybindings ───────────────────────────────────────────────────
+  // Override any default keybinding. Each action takes a key string or array.
+  // Full list: /hotkeys in pi, or see docs/keybindings.md
+  //
+  // Format: "modifier+key" — modifiers: ctrl, shift, alt (combinable)
+  //
+  // ── Cursor Movement ───────────────────────────────────────────────
+  // "cursorUp": ["up"],
+  // "cursorDown": ["down"],
+  // "cursorLeft": ["left", "ctrl+b"],
+  // "cursorRight": ["right", "ctrl+f"],
+  // "cursorWordLeft": ["alt+left", "ctrl+left", "alt+b"],
+  // "cursorWordRight": ["alt+right", "ctrl+right", "alt+f"],
+  // "cursorLineStart": ["home", "ctrl+a"],
+  // "cursorLineEnd": ["end", "ctrl+e"],
+  //
+  // ── Deletion ──────────────────────────────────────────────────────
+  // "deleteWordBackward": ["ctrl+w", "alt+backspace"],
+  // "deleteWordForward": ["alt+d", "alt+delete"],
+  // "deleteToLineStart": ["ctrl+u"],
+  // "deleteToLineEnd": ["ctrl+k"],
+  //
+  // ── Session ───────────────────────────────────────────────────────
+  // "newSession": "ctrl+shift+n",
+  // "tree": "ctrl+shift+t",
+  // "fork": "ctrl+shift+f",
+  // "resume": "ctrl+shift+r",
+  //
+  // ── Display ───────────────────────────────────────────────────────
+  // "expandTools": "ctrl+o",
+  // "toggleThinking": "ctrl+t",
+  //
+  // ── Emacs-style example ───────────────────────────────────────────
+  // "cursorUp": ["up", "ctrl+p"],
+  // "cursorDown": ["down", "ctrl+n"],
+  //
+  // ── Vim-style example ─────────────────────────────────────────────
+  // "cursorUp": ["up", "alt+k"],
+  // "cursorDown": ["down", "alt+j"],
+  // "cursorLeft": ["left", "alt+h"],
+  // "cursorRight": ["right", "alt+l"]
+}

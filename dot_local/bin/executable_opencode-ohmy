@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# opencode-ohmy — OpenCode with oh-my-openagent plugin
+#
+# Runs opencode with a separate config dir (~/.config/oc/opencode/) that loads
+# the oh-my-openagent plugin and your custom skills/agents.
+# Skills, agents, commands, and plugins are symlinked back to the main config
+# so you maintain one canonical set of artifacts.
+#
+# Usage:
+#   opencode-ohmy                    # TUI mode
+#   opencode-ohmy run "do something" # headless
+#   opencode-ohmy run --agent steve-jobs  # with specific agent
+#
+# vs:
+#   opencode                         # vanilla mode (default)
+
+exec env XDG_CONFIG_HOME="$HOME/.config/oc" opencode "$@"

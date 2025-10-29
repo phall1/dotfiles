@@ -1,0 +1,6 @@
+# Executables to symlink into ~/.local/bin/ from cloned plugin dirs.
+# Format: <plugin-name> <relative-script-path> [symlink-name]
+# Bootstrap creates: ~/.local/bin/<symlink-name|script-basename>
+#                    -> $ZSH_PLUGIN_DIR/<plugin-name>/<relative-script-path>
+
+zsh-bench  zsh-bench  zsh-bench

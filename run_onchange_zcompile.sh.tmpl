@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Re-runs whenever the hash below changes, i.e., when any of these source
+# files change. Pre-compiles zsh bytecode for faster startup.
+#
+# {{ include "dot_zshrc" | sha256sum }}
+# {{ include "dot_zshenv" | sha256sum }}
+# {{ include "dot_p10k.zsh" | sha256sum }}
+
+set -euo pipefail
+
+"{{ .chezmoi.sourceDir }}/dot_local/bin/executable_dot-zcompile"

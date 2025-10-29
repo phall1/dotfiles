@@ -1,0 +1,18 @@
+# Per-directory work override — git auto-includes this for any repo under ~/work/.
+# NOT tracked by chezmoi / git. Copy to ~/.gitconfig-work on machines that have
+# work repos and edit with the work-specific identity.
+#
+# Usage:
+#   cp ~/dotfiles/scripts/.gitconfig-work.example ~/.gitconfig-work
+#   $EDITOR ~/.gitconfig-work
+
+[user]
+	name = Patrick Hall
+	email = patrick@your-work-domain.com
+	# signingkey = AAAA1111  # uncomment if your work setup signs commits
+
+# [commit]
+#	gpgsign = true
+
+# [core]
+#	sshCommand = "ssh -i ~/.ssh/work_id_ed25519"

@@ -1,0 +1,171 @@
+# Blackwater Rust — blackened water with oxidized signal accents.
+
+# Increase timeout for git operations (default 500ms is too aggressive)
+command_timeout = 2000
+
+add_newline = false
+
+format = """$directory $git_branch$git_state$git_status$aws$gcloud${custom.github}$cmd_duration${custom.spectre}$direnv$nix_shell$rust$golang$python$nodejs$bun$terraform$docker_context$package
+$character"""
+
+[directory]
+style = "#6f9fbd"
+format = "[$path]($style)"
+truncation_length = 3
+truncate_to_repo = true
+
+[character]
+success_symbol = "[❯](#45d0bd)"
+error_symbol = "[❯](#e45f57)"
+vimcmd_symbol = "[❮](#9b8ac5)"
+
+# ── Git ──────────────────────────────────────────────────────────────────────
+[git_branch]
+format = "[$branch]($style)"
+style = "#7fae8b"
+symbol = ""
+
+[git_status]
+format = "[$all_status$ahead_behind]($style)"
+style = "#60706e"
+conflicted = "[!](#e45f57)"
+untracked = "[?](#45d0bd)"
+modified = "[~](#d6a84f)"
+staged = "[+](#7fae8b)"
+renamed = "[»](#60706e)"
+deleted = "[✕](#e45f57)"
+stashed = "[≡](#60706e)"
+ahead = "[↑${count}](#c5d0cd)"
+behind = "[↓${count}](#60706e)"
+diverged = "[↕${ahead_count}↓${behind_count}](#e45f57)"
+ignore_submodules = true
+
+[git_state]
+format = '[$state( $progress_current/$progress_total)]($style) '
+style = "italic #60706e"
+
+[cmd_duration]
+format = "[$duration]($style)"
+style = "#c27a4a"
+min_time = 2000
+
+# ── Cloud / infra ────────────────────────────────────────────────────────────
+[aws]
+format = '[$profile]($style) '
+style = '#6f9fbd'
+symbol = ''
+[aws.region_aliases]
+us-east-1 = 'va'
+[aws.profile_aliases]
+CompanyGroupFrobozzOnCallAccess = 'Frobozz'
+
+[gcloud]
+format = '[$active]($style) '
+style = '#6f9fbd'
+symbol = ''
+
+[docker_context]
+format = '[docker:$context]($style) '
+style = '#60706e'
+symbol = ''
+only_with_files = true
+
+[terraform]
+format = '[tf:$version $workspace]($style) '
+style = '#9b8ac5'
+symbol = ''
+
+# ── Language / runtime contexts ──────────────────────────────────────────────
+# These only render when you're inside a project with the relevant files.
+
+[direnv]
+format = '[$allowed]($style) '
+style = '#60706e'
+symbol = ''
+allowed_msg = '✓'
+denied_msg = '✗'
+loaded_msg = '✓'
+unloaded_msg = ''
+disabled = false
+
+[nix_shell]
+format = '[nix:$state$name]($style) '
+style = '#6f9fbd'
+symbol = ''
+impure_msg = ''
+pure_msg = 'pure'
+
+[rust]
+format = '[rs:$version]($style) '
+style = '#c27a4a'
+symbol = ''
+
+[golang]
+format = '[go:$version]($style) '
+style = '#45d0bd'
+symbol = ''
+
+[python]
+format = "[py:$virtualenv]($style) "
+style = "#7fae8b"
+
+[nodejs]
+format = '[node:$version]($style) '
+style = '#7fae8b'
+symbol = ''
+detect_extensions = []
+detect_files = ['.node-version', '.nvmrc']
+detect_folders = []
+
+[bun]
+format = '[bun:$version]($style) '
+style = '#d6a84f'
+symbol = ''
+
+[package]
+format = '[$version]($style) '
+style = '#60706e'
+symbol = ''
+display_private = true
+
+# ── GitHub account ───────────────────────────────────────────────────────────
+# Shows the active gh CLI account in the prompt.
+# Reads directly from gh's config file — no subprocess/network overhead.
+# Per-repo override: GH_USER env var or .github-account file at repo root.
+[custom.github]
+command = '''
+  # 1. per-repo file override
+  root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -n "$root" ] && [ -f "$root/.github-account" ]; then
+    head -1 "$root/.github-account" | tr -d '[:space:]'
+    exit 0
+  fi
+  # 2. env-var override (works great with direnv)
+  if [ -n "$GH_USER" ]; then
+    echo "$GH_USER"
+    exit 0
+  fi
+  # 3. default: parse active user straight from gh config yaml
+  cfg="${GH_CONFIG_DIR:-$HOME/.config/gh}/hosts.yml"
+  [ -f "$cfg" ] || exit 0
+  awk '/^[^ ]/{host=$0} host && /^    user:/{gsub(/^    user: */,""); print; exit}' "$cfg"
+'''
+when = 'test -f "${GH_CONFIG_DIR:-$HOME/.config/gh}/hosts.yml"'
+format = ' [$output](#9b8ac5)'
+
+# ── Firecrew / Spectre ──────────────────────────────────────────────────────
+# Shows spectre daemon state + session count when active.
+# Hidden when daemon isn't running (zero noise).
+[custom.spectre]
+command = '''
+  sock="${SPECTRE_SOCKET:-/tmp/spectre.sock}"
+  [ -S "$sock" ] || exit 1
+  count=$(xx list 2>/dev/null | grep -c "^  " 2>/dev/null || echo 0)
+  if [ "$count" -gt 0 ]; then
+    echo "xx:${count}"
+  else
+    echo "xx"
+  fi
+'''
+when = 'test -S "${SPECTRE_SOCKET:-/tmp/spectre.sock}"'
+format = ' [$output](#60706e)'

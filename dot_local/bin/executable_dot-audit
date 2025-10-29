@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+# dot-audit — drift detection.
+# Reports what's diverged from tracked state. Exits 0 always; this is a report.
+
+set -uo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+
+DIM=$'\033[2m'; RST=$'\033[0m'; YLW=$'\033[33m'; GRN=$'\033[32m'
+
+hdr() { printf "\n${DIM}# %s${RST}\n" "$*"; }
+
+hdr "dotfiles repo"
+cd "$DOTFILES"
+if [[ -n "$(git status --porcelain)" ]]; then
+  printf "${YLW}dirty:${RST}\n"
+  git status --short | sed 's/^/  /'
+else
+  printf "${GRN}clean${RST}\n"
+fi
+
+ahead_behind=$(git rev-list --left-right --count "@{u}...HEAD" 2>/dev/null || echo "0	0")
+behind=$(echo "$ahead_behind" | cut -f1)
+ahead=$(echo "$ahead_behind" | cut -f2)
+[[ "$ahead"  -gt 0 ]] && printf "  ${YLW}%d commits ahead of upstream${RST}\n"  "$ahead"
+[[ "$behind" -gt 0 ]] && printf "  ${YLW}%d commits behind upstream${RST}\n"   "$behind"
+
+hdr "submodules"
+sm=$(git submodule status 2>/dev/null)
+if [[ -n "$sm" ]]; then
+  echo "$sm" | sed 's/^/  /'
+else
+  printf "${DIM}none${RST}\n"
+fi
+
+if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/.local/share/chezmoi" ]]; then
+  hdr "chezmoi state"
+  chezmoi status 2>/dev/null | sed 's/^/  /' || printf "${DIM}clean${RST}\n"
+fi
+
+case "$(uname -s)" in
+  Darwin)
+    if command -v brew >/dev/null 2>&1 && [[ -f "$DOTFILES/Brewfile" ]]; then
+      hdr "Brewfile drift"
+      brew bundle check --file="$DOTFILES/Brewfile" --no-upgrade 2>&1 | sed 's/^/  /' || true
+    fi
+    ;;
+esac
+
+hdr "claude features delta"
+known="$HOME/.claude/state/known-features.json"
+if [[ -f "$known" ]]; then
+  diff_count=$(jq '.new_since_last_check | length' "$known" 2>/dev/null || echo 0)
+  if [[ "$diff_count" -gt 0 ]]; then
+    printf "${YLW}%d new feature(s) since last check${RST} — run /discover to see\n" "$diff_count"
+  else
+    printf "${GRN}up to date${RST}\n"
+  fi
+else
+  printf "${DIM}no state cached yet (whats-new cron not seeded)${RST}\n"
+fi
+
+exit 0

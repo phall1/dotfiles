@@ -1,0 +1,109 @@
+#!/usr/bin/env bash
+# dot-doctor — health check orchestrator. Thin.
+#
+# Sources every `$DOTFILES/checks/*.sh` (global) and every
+# `$DOTFILES/*/dot-checks.sh` (per-package, colocated). Each file calls the
+# `ok` / `warn` / `fail` / `require_bin` / `want_bin` / `hdr` helpers exported
+# below.
+#
+# Adding a check = drop a file. Disabling = `DOT_SKIP=zsh,claude dot-doctor`.
+# Listing = `dot-doctor --list`.
+#
+# Exit codes: 0 all green, 1 warnings only, 2 failures.
+
+set -uo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/share}/dotfiles"
+mkdir -p "$STATE_DIR"
+
+RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'; DIM=$'\033[2m'; RST=$'\033[0m'
+
+warns=0
+fails=0
+current_check=""
+
+# --- helpers exported to check scripts -------------------------------------
+ok()   { printf "  ${GRN}✓${RST} %s\n" "$*"; }
+warn() { printf "  ${YLW}⚠${RST} %s\n" "$*"; warns=$((warns+1)); }
+fail() { printf "  ${RED}✗${RST} %s\n" "$*"; fails=$((fails+1)); }
+hdr()  { printf "\n${DIM}# %s${RST}\n" "$*"; }
+
+require_bin() {
+  local bin="$1" hint="${2:-}"
+  if command -v "$bin" >/dev/null 2>&1; then ok "$bin"
+  else fail "$bin missing${hint:+ — $hint}"; fi
+}
+want_bin() {
+  local bin="$1" hint="${2:-}"
+  if command -v "$bin" >/dev/null 2>&1; then ok "$bin"
+  else warn "$bin missing${hint:+ — $hint}"; fi
+}
+
+# Portable mtime → hours-ago. Returns nonzero if file missing.
+file_age_h() {
+  local f="$1" mtime
+  mtime=$(date -r "$f" +%s 2>/dev/null) || return 1
+  echo $(( ($(date +%s) - mtime) / 3600 ))
+}
+
+export -f ok warn fail hdr require_bin want_bin file_age_h 2>/dev/null || true
+
+# --- check discovery -------------------------------------------------------
+discover_checks() {
+  # Single flat directory: $DOTFILES/checks/*.sh
+  # Naming convention: 00-, 10-, … for ordered global checks; <pkg>.sh for per-tool checks.
+  [[ -d "$DOTFILES/checks" ]] && find "$DOTFILES/checks" -maxdepth 1 -type f -name '*.sh' | sort
+}
+
+skip_list=",${DOT_SKIP:-},"
+
+# --- modes -----------------------------------------------------------------
+case "${1:-}" in
+  --list)
+    discover_checks | while read -r f; do
+      name="${f#$DOTFILES/}"
+      printf "%s\n" "$name"
+    done
+    exit 0
+    ;;
+  -h|--help)
+    cat <<EOF
+dot-doctor — health check the dotfiles substrate.
+
+Usage: dot-doctor [--list]
+
+Env:
+  DOT_SKIP=name1,name2   Skip checks whose filename stem matches (e.g. zsh,claude)
+
+Add a check: drop a *.sh file in \$DOTFILES/checks/ or \$DOTFILES/<pkg>/dot-checks.sh.
+EOF
+    exit 0
+    ;;
+esac
+
+# --- run -------------------------------------------------------------------
+for f in $(discover_checks); do
+  stem=$(basename "$f" .sh); stem="${stem#dot-checks}"; [[ -z "$stem" ]] && stem=$(basename "$(dirname "$f")")
+  # match either the file's stem or the directory name
+  parent=$(basename "$(dirname "$f")")
+  if [[ "$skip_list" == *",$stem,"* ]] || [[ "$skip_list" == *",$parent,"* ]]; then
+    hdr "$stem ${DIM}(skipped)${RST}"
+    continue
+  fi
+  current_check="$stem"
+  # shellcheck disable=SC1090
+  source "$f"
+done
+
+hdr "Summary"
+if [[ "$fails" -gt 0 ]]; then
+  printf "${RED}%d failures${RST}, ${YLW}%d warnings${RST}\n" "$fails" "$warns"
+  exit 2
+elif [[ "$warns" -gt 0 ]]; then
+  printf "${YLW}%d warnings${RST}, no failures\n" "$warns"
+  exit 1
+else
+  printf "${GRN}all green${RST}\n"
+  exit 0
+fi

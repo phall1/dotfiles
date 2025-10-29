@@ -1,0 +1,39 @@
+#:schema https://github.com/joshmedeski/sesh/raw/main/sesh.schema.json
+
+# ── Sesh Configuration ──────────────────────────────────────
+# Docs: https://github.com/joshmedeski/sesh
+
+# Default startup command for new sessions (opens nvim)
+[default_session]
+startup_command = "nvim"
+preview_command = "eza --all --git --icons --color=always {}"
+
+# Session ordering: tmux first, then configured, then zoxide
+sort_order = ["tmux", "config", "zoxide"]
+
+# Cache for faster repeated lookups (stale-while-revalidate, 5s TTL)
+cache = true
+
+# Use last 2 directory components for session names (e.g. "projects/sesh")
+dir_length = 2
+
+# Hide scratch/temp sessions from the picker
+blacklist = ["scratch"]
+
+# ── Named Sessions ──────────────────────────────────────────
+# Add project-specific sessions below. Example:
+#
+# [[session]]
+# name = "dotfiles"
+# path = "~/dotfiles"
+# startup_command = "nvim"
+#
+# [[session]]
+# name = "myproject"
+# path = "~/projects/myproject"
+# startup_command = "nvim"
+# windows = ["git"]
+#
+# [[window]]
+# name = "git"
+# startup_script = "lazygit"

@@ -1,0 +1,83 @@
+#!/usr/bin/env bash
+# git-clean-branches — delete local branches whose upstream was deleted.
+#
+# Typical use: GitHub auto-deletes the remote branch on PR merge, leaving
+# the local branch behind. This script fetches with --prune, finds branches
+# marked [gone], and deletes them. Branches currently checked out in other
+# worktrees are skipped (they must be cleaned up from the worktree first).
+#
+# Usage: git-clean-branches [-n|--dry-run] [-D|--force]
+
+set -uo pipefail
+
+dry_run=0
+force=0
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--dry-run)
+      dry_run=1
+      ;;
+    -D|--force)
+      force=1
+      ;;
+    -h|--help)
+      cat <<'EOF'
+Usage: git-clean-branches [options]
+
+Options:
+  -n, --dry-run   Print branches that would be deleted without deleting them.
+  -D, --force     Use `git branch -D` instead of `-d` (delete even if unmerged).
+  -h, --help      Show this help.
+EOF
+      exit 0
+      ;;
+    *)
+      echo "unknown argument: $1" >&2
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+echo "==> pruning stale remote-tracking refs..."
+git fetch --prune
+
+# Branches with a gone upstream, excluding those checked out in other worktrees
+# (worktree lines start with '+').
+mapfile -t gone < <(git branch -vv | awk '!/^\+/ && /: gone]/ {print $1}')
+# Worktree branches with gone upstreams — report but do not auto-delete.
+mapfile -t gone_worktrees < <(git branch -vv | awk '/^\+/ && /: gone]/ {print $2}')
+
+if [[ ${#gone[@]} -eq 0 ]]; then
+  echo "==> no local branches with gone upstreams to clean up."
+else
+  echo "==> local branches to clean up (${#gone[@]}):"
+  printf '  %s\n' "${gone[@]}"
+
+  if [[ $dry_run -eq 1 ]]; then
+    echo "==> dry-run: no branches deleted."
+  else
+    flag="-d"
+    [[ $force -eq 1 ]] && flag="-D"
+
+    deleted=0
+    failed=0
+    for b in "${gone[@]}"; do
+      if git branch "$flag" "$b"; then
+        deleted=$((deleted + 1))
+      else
+        failed=$((failed + 1))
+        echo "    warning: failed to delete $b" >&2
+      fi
+    done
+    echo "==> deleted: $deleted, failed: $failed"
+  fi
+fi
+
+if [[ ${#gone_worktrees[@]} -gt 0 ]]; then
+  echo
+  echo "==> skipped worktree branches with gone upstreams (${#gone_worktrees[@]}):"
+  printf '  %s\n' "${gone_worktrees[@]}"
+  echo "    remove or switch the worktree, then re-run to delete these."
+fi

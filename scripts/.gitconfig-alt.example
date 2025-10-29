@@ -1,0 +1,16 @@
+# Per-machine alt identity — read by ~/.local/bin/git-identity when a repo
+# runs `git identity alt`. NOT tracked by chezmoi / git.
+#
+# Easiest setup:
+#   ~/dotfiles/scripts/setup-alt-identity.sh
+# That writes this file interactively, generates the SSH key, and runs
+# `gh auth login` into the alt GH_CONFIG_DIR.
+#
+# Manual setup:
+#   cp ~/dotfiles/scripts/.gitconfig-alt.example ~/.gitconfig-alt
+#   $EDITOR ~/.gitconfig-alt
+
+[user]
+    name = your-alt-username
+    email = your-alt-email@example.com
+    # signingkey = AAAA1111  # uncomment if alt account signs commits

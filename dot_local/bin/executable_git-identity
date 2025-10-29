@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+# git-identity — apply or inspect a git identity for the current repo.
+#
+# Subcommands:
+#   (none)|show   print the identity this repo will commit as
+#   alt           apply ~/.gitconfig-alt to this repo; rewrite origin to the
+#                 github.com-alt SSH alias so the alt key is used
+#   primary       drop local identity overrides; restore github.com remote
+#
+# Why: secondary GitHub identity glue stays per-machine. ~/.gitconfig-alt is
+# never tracked, so the public dotfiles carry the mechanism but not the name.
+
+set -uo pipefail
+
+git rev-parse --show-toplevel >/dev/null 2>&1 || {
+  echo "git-identity: not inside a git repo" >&2
+  exit 1
+}
+
+ALT_CFG="$HOME/.gitconfig-alt"
+SSH_HOST_ALT="github.com-alt"
+
+cmd_show() {
+  local name email url flavor="primary"
+  name=$(git config user.name 2>/dev/null || true)
+  email=$(git config user.email 2>/dev/null || true)
+  url=$(git config --get remote.origin.url 2>/dev/null || echo "(no remote)")
+
+  case "$url" in
+    *@${SSH_HOST_ALT}:*) flavor="alt" ;;
+  esac
+
+  printf "identity: %s\n" "$flavor"
+  printf "  name:   %s\n" "$name"
+  printf "  email:  %s\n" "$email"
+  printf "  origin: %s\n" "$url"
+}
+
+cmd_alt() {
+  [[ -f "$ALT_CFG" ]] || {
+    echo "git-identity: $ALT_CFG missing — run ~/dotfiles/scripts/setup-alt-identity.sh first" >&2
+    exit 1
+  }
+
+  local name email signingkey
+  name=$(git config -f "$ALT_CFG" user.name 2>/dev/null || true)
+  email=$(git config -f "$ALT_CFG" user.email 2>/dev/null || true)
+  signingkey=$(git config -f "$ALT_CFG" user.signingkey 2>/dev/null || true)
+
+  [[ -n "$name" && -n "$email" ]] || {
+    echo "git-identity: $ALT_CFG must define user.name and user.email" >&2
+    exit 1
+  }
+
+  git config --local user.name "$name"
+  git config --local user.email "$email"
+  if [[ -n "$signingkey" ]]; then
+    git config --local user.signingkey "$signingkey"
+    git config --local commit.gpgsign true
+  fi
+
+  # Origin URL rewrite so the SSH host alias selects the alt key.
+  local url new=""
+  url=$(git config --get remote.origin.url 2>/dev/null || true)
+  case "$url" in
+    git@${SSH_HOST_ALT}:*) ;;
+    git@github.com:*)       new="git@${SSH_HOST_ALT}:${url#git@github.com:}" ;;
+    https://github.com/*)   new="git@${SSH_HOST_ALT}:${url#https://github.com/}" ;;
+    ssh://git@github.com/*) new="git@${SSH_HOST_ALT}:${url#ssh://git@github.com/}" ;;
+    "") ;;
+    *) echo "git-identity: unrecognized origin URL '$url' — remote not rewritten" >&2 ;;
+  esac
+  if [[ -n "$new" && "$new" != "$url" ]]; then
+    git remote set-url origin "$new"
+  fi
+
+  cmd_show
+}
+
+cmd_primary() {
+  git config --local --unset user.name 2>/dev/null || true
+  git config --local --unset user.email 2>/dev/null || true
+  git config --local --unset user.signingkey 2>/dev/null || true
+  git config --local --unset commit.gpgsign 2>/dev/null || true
+
+  local url new=""
+  url=$(git config --get remote.origin.url 2>/dev/null || true)
+  case "$url" in
+    git@${SSH_HOST_ALT}:*) new="git@github.com:${url#git@${SSH_HOST_ALT}:}" ;;
+  esac
+  if [[ -n "$new" ]]; then
+    git remote set-url origin "$new"
+  fi
+
+  cmd_show
+}
+
+case "${1:-show}" in
+  show)             cmd_show ;;
+  alt)              cmd_alt ;;
+  primary)          cmd_primary ;;
+  -h|--help|help)   sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//' ;;
+  *)
+    echo "git-identity: unknown subcommand '$1' (use: show, alt, primary)" >&2
+    exit 1
+    ;;
+esac

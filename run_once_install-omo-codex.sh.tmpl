@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# run_once_install-omo-codex.sh.tmpl
+# Installs oh-my-openagent (Light Edition for Codex CLI) via lazycodex-ai.
+# Runs once per machine. Re-run by deleting chezmoi script state:
+#   chezmoi state delete-bucket --bucket=scriptState
+
+set -euo pipefail
+
+# Check if Codex CLI is installed
+if ! command -v codex &>/dev/null; then
+  echo "⚠️  Codex CLI not found. Skipping OmO install."
+  echo "   Install Codex CLI first: https://github.com/openai/codex"
+  exit 0
+fi
+
+# Check if OmO is already installed
+if [ -d "$HOME/.codex/plugins/cache/sisyphuslabs/omo" ]; then
+  echo "✓ oh-my-openagent (Codex) already installed"
+  exit 0
+fi
+
+echo "Installing oh-my-openagent for Codex CLI..."
+npx lazycodex-ai install --no-tui --codex-autonomous
+
+echo "✓ oh-my-openagent installed"

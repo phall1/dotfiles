@@ -1,0 +1,201 @@
+auto-update = download
+
+# ===========================
+# QUICK TERMINAL (dropdown)
+# ===========================
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+
+# ===========================
+# FONTS
+# ===========================
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+adjust-cell-width = -8%
+adjust-cell-height = -2%
+font-thicken = true
+font-thicken-strength = 50
+
+# ===========================
+# COLORS — Blackwater Rust (blackened water, oxidized signal accents)
+# ===========================
+background = #071012
+foreground = #c5d0cd
+cursor-color = #45d0bd
+cursor-style = block
+cursor-style-blink = false
+selection-background = #1d3035
+selection-foreground = #e6efeb
+
+# ANSI 16 — low-noise blackwater base with rust/sonar state colors.
+palette = 0=#081114
+palette = 1=#e45f57
+palette = 2=#7fae8b
+palette = 3=#d6a84f
+palette = 4=#6f9fbd
+palette = 5=#9b8ac5
+palette = 6=#45d0bd
+palette = 7=#c5d0cd
+palette = 8=#425250
+palette = 9=#ff786f
+palette = 10=#9bc7a4
+palette = 11=#e5bc65
+palette = 12=#8bb7d7
+palette = 13=#b3a4d8
+palette = 14=#62e6d2
+palette = 15=#e6efeb
+
+# ===========================
+# WINDOW & APPEARANCE
+# ===========================
+window-padding-x = 4
+window-padding-y = 4
+window-padding-balance = true
+background-opacity = 1.0
+background-blur = false
+# "transparent" = clean look, tab bar only shows with 2+ tabs
+# "tabs" = always shows tab bar (good if you use tabs a lot)
+# "hidden" = no titlebar at all (tabs become separate windows)
+macos-titlebar-style = transparent
+macos-window-buttons = hidden
+macos-icon = xray
+macos-window-shadow = true
+# Non-native fullscreen avoids macOS's slow space-swap animation.
+macos-non-native-fullscreen = visible-menu
+minimum-contrast = 1.1
+
+# Unfocused split dimming
+unfocused-split-opacity = 0.85
+split-divider-color = #1d3035
+
+# ===========================
+# CURSOR & MOUSE
+# ===========================
+cursor-click-to-move = true
+mouse-hide-while-typing = true
+mouse-shift-capture = never
+
+# ===========================
+# SCROLLBACK & CLIPBOARD
+# ===========================
+scrollback-limit = 50000
+copy-on-select = false
+selection-clear-on-typing = true
+
+# ===========================
+# SHELL INTEGRATION
+# ===========================
+shell-integration = detect
+shell-integration-features = cursor,sudo,title,ssh-terminfo,ssh-env
+
+# ===========================
+# KEYBINDINGS - SPLITS
+# ===========================
+keybind = super+d=new_split:right
+keybind = super+shift+d=new_split:down
+keybind = super+ctrl+arrow_left=goto_split:left
+keybind = super+ctrl+arrow_right=goto_split:right
+keybind = super+ctrl+arrow_up=goto_split:up
+keybind = super+ctrl+arrow_down=goto_split:down
+keybind = super+bracket_left=goto_split:previous
+keybind = super+bracket_right=goto_split:next
+
+# Split resize (Cmd+Opt+arrows)
+keybind = super+alt+arrow_left=resize_split:left,20
+keybind = super+alt+arrow_right=resize_split:right,20
+keybind = super+alt+arrow_up=resize_split:up,20
+keybind = super+alt+arrow_down=resize_split:down,20
+
+# Zoom split
+keybind = super+shift+enter=toggle_split_zoom
+keybind = super+ctrl+equal=equalize_splits
+
+# Close
+keybind = super+w=close_surface
+keybind = super+shift+w=close_window
+
+# ===========================
+# KEYBINDINGS - TABS
+# ===========================
+keybind = super+t=new_tab
+keybind = super+1=goto_tab:1
+keybind = super+2=goto_tab:2
+keybind = super+3=goto_tab:3
+keybind = super+4=goto_tab:4
+keybind = super+5=goto_tab:5
+keybind = super+9=last_tab
+keybind = super+shift+arrow_left=previous_tab
+keybind = super+shift+arrow_right=next_tab
+keybind = ctrl+tab=next_tab
+keybind = ctrl+shift+tab=previous_tab
+
+# ===========================
+# KEYBINDINGS - WINDOWS
+# ===========================
+keybind = super+n=new_window
+keybind = super+shift+n=toggle_fullscreen
+
+# ===========================
+# KEYBINDINGS - FONT SIZE
+# ===========================
+keybind = super+plus=increase_font_size:1
+keybind = super+minus=decrease_font_size:1
+keybind = super+0=reset_font_size
+
+# ===========================
+# KEYBINDINGS - SCROLLBACK
+# ===========================
+keybind = super+arrow_up=scroll_page_up
+keybind = super+arrow_down=scroll_page_down
+keybind = super+home=scroll_to_top
+keybind = super+end=scroll_to_bottom
+
+# Jump prompt-by-prompt via OSC 133 marks (requires shell integration)
+keybind = super+shift+arrow_up=jump_to_prompt:-1
+keybind = super+shift+arrow_down=jump_to_prompt:1
+
+# ===========================
+# KEYBINDINGS - MISC
+# ===========================
+keybind = super+comma=open_config
+keybind = super+shift+comma=reload_config
+keybind = super+k=clear_screen
+
+# ===========================
+# QUICK TERMINAL
+# ===========================
+quick-terminal-screen = main
+quick-terminal-animation-duration = 0.15
+quick-terminal-position = top
+
+# ===========================
+# TIER 1 UPGRADES
+# ===========================
+# Notify when a long-running command finishes in an unfocused tab/window.
+notify-on-command-finish = unfocused
+
+# Keep zoomed-split state when navigating between splits.
+split-preserve-zoom = navigation
+
+# Apply background-opacity to cells that paint their own bg (nvim, tmux).
+background-opacity-cells = true
+
+# Eliminate dark fringing around colored text without thinning glyphs.
+alpha-blending = linear-corrected
+
+# Extend nearest cell's bg color into the window padding.
+window-padding-color = extend
+
+# Make the glyph under the block cursor invert cleanly.
+cursor-text = cell-background
+
+# ===========================
+# NICETIES
+# ===========================
+# Let macOS Shortcuts.app drive Ghostty (new tabs, send text, run actions).
+macos-shortcuts = allow
+
+# Only show URL preview tooltips for proper OSC 8 hyperlinks.
+link-previews = osc8
+
+# Subtle cursor trail — bloom removed, it glowed everything (not just bright cells).
+custom-shader = shaders/cursor_blaze.glsl

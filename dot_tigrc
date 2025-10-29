@@ -1,0 +1,2 @@
+# Use relative-compact date format (e.g., "2m", "3h", "5d")
+set main-view-date = relative-compact

@@ -1,0 +1,4 @@
+# Source trees for compiled tools — owned by their Cargo/etc projects, not
+# copied into $HOME. Templates and run_onchange hooks read these via `include`,
+# which works regardless of this ignore.
+src

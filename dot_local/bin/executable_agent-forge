@@ -1,0 +1,70 @@
+#!/usr/bin/env bash
+# agent-forge — headless agent creation via OpenCode
+# Usage:
+#   agent-forge "an agent that reviews my PRs for security issues"
+#   agent-forge                     # interactive (opens TUI)
+#   agent-forge --list              # list existing agents
+#   agent-forge --edit <name>       # iterate on an existing agent
+
+set -euo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+AGENT_DIR="$DOTFILES/opencode/.config/opencode"
+
+case "${1:-}" in
+  --list|-l)
+    echo "=== Skills ==="
+    for f in "$AGENT_DIR"/skill/*/SKILL.md; do
+      name=$(basename "$(dirname "$f")")
+      desc=$(sed -n 's/^description: *//p' "$f" | head -1)
+      printf "  %-20s %s\n" "$name" "$desc"
+    done
+    echo ""
+    echo "=== Agents ==="
+    for f in "$AGENT_DIR"/agent/*.md; do
+      [ -f "$f" ] || continue
+      name=$(basename "$f" .md)
+      printf "  %s\n" "$name"
+    done
+    echo ""
+    echo "=== Commands ==="
+    for f in "$AGENT_DIR"/command/*.md; do
+      [ -f "$f" ] || continue
+      name=$(basename "$f" .md)
+      desc=$(sed -n 's/^description: *//p' "$f" | head -1)
+      printf "  %-20s %s\n" "$name" "$desc"
+    done
+    exit 0
+    ;;
+  --edit|-e)
+    if [ -z "${2:-}" ]; then
+      echo "Usage: agent-forge --edit <agent-name>" >&2
+      exit 1
+    fi
+    prompt="Load the agent-forge skill. I want to iterate on my existing agent named '${2}'. Read its current definition, then ask me what needs changing."
+    oc run --dir "$DOTFILES" "$prompt"
+    exit 0
+    ;;
+  --help|-h)
+    echo "agent-forge — create and manage custom OpenCode agents"
+    echo ""
+    echo "Usage:"
+    echo "  agent-forge \"<description>\"   Create a new agent from a description"
+    echo "  agent-forge                    Open interactive TUI for agent creation"
+    echo "  agent-forge --list             List all existing agents/skills/commands"
+    echo "  agent-forge --edit <name>      Iterate on an existing agent"
+    echo "  agent-forge --help             Show this help"
+    exit 0
+    ;;
+  "")
+    # No args — open TUI pointed at dotfiles
+    oc --dir "$DOTFILES"
+    exit 0
+    ;;
+  *)
+    # Positional arg(s) = the agent idea description
+    prompt="Load the agent-forge skill. Here is my agent idea: $*"
+    oc run --dir "$DOTFILES" "$prompt"
+    exit 0
+    ;;
+esac

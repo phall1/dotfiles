@@ -39,3 +39,30 @@ ec2-all() {
         --query 'Reservations[].Instances[].[Tags[?Key==`Name`].Value|[0],InstanceId,State.Name]' \
         --output table
 }
+
+pgclidock() {
+  local user="${1:-postgres}"
+  local db="${2:-$user}"
+  local host="${3:-localhost}"
+  local port="${4:-5432}"
+
+  if command -v pgcli >/dev/null 2>&1; then
+    PGPASSWORD="${PGPASSWORD:-}" pgcli -h "$host" -p "$port" -U "$user" -d "$db"
+  else
+    echo "pgcli not found, install with: sudo apt install postgresql-client"
+  fi
+}
+
+pgdock() {
+  local user="${1:-postgres}"
+  local db="${2:-$user}"
+  local host="${3:-localhost}"
+  local port="${4:-5432}"
+
+  if command -v psql >/dev/null 2>&1; then
+    PGPASSWORD="${PGPASSWORD:-}" psql -h "$host" -p "$port" -U "$user" -d "$db"
+  else
+    echo "psql not found, install with: sudo apt install postgresql-client"
+  fi
+}
+

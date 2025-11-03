@@ -1,0 +1,21 @@
+# Secrets and API keys
+.zsh_secrets
+**/secrets
+**/*.secret
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Editor directories
+.vscode/
+.idea/
+
+# Local machine-specific configs
+*.local

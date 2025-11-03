@@ -51,7 +51,7 @@ If you don't want to use the install script:
 brew install stow antidote starship
 
 # Link configs (run from dotfiles directory)
-stow zsh tmux git starship bin
+./stow-all.sh
 
 # Install tmux plugin manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
@@ -78,7 +78,7 @@ cp zsh/.zsh_secrets.example ~/.zsh_secrets
 ```bash
 cd ~/dotfiles
 git pull
-stow -R zsh tmux git starship bin  # Restow everything
+./stow-all.sh  # Restow every package
 ```
 
 ## Uninstalling

@@ -15,7 +15,7 @@ brew install stow
 
 echo ""
 echo "📝 Linking dotfiles with stow..."
-stow zsh tmux git starship bin
+./stow-all.sh
 
 echo ""
 echo "🎨 Installing additional dependencies..."

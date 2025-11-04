@@ -73,5 +73,9 @@ eval $(thefuck --alias)
 
 # Starship prompt (must be last)
 
-eval "$(mise activate zsh)"
+# Only activate mise if we're in or under a directory with a .mise.toml or .tool-versions
+if mise direnv activate >/dev/null 2>&1; then
+  eval "$(mise activate bash)"  # or zsh/fish depending on your shell
+fi
+
 eval "$(starship init zsh)"

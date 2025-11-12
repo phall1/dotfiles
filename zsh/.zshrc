@@ -64,6 +64,20 @@ done
 export PATH="$HOME/bin:$PATH"
 export PATH="/opt/homebrew/bin/:$PATH"
 
+# Atuin shell history
+[ -f "$HOME/.atuin/bin/env" ] && source "$HOME/.atuin/bin/env"
+
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# Created by `pipx` on 2025-09-23 17:58:04
+export PATH="$PATH:/Users/Patrick.Hall/.local/bin"
+export PATH="$NVM_DIR/versions/node/$(nvm current)/bin:$PATH"
+nvm use default >/dev/null
+
+
+
 
 #############
 # Stuff that's supposed to be at the end?
@@ -79,3 +93,10 @@ if mise direnv activate >/dev/null 2>&1; then
 fi
 
 eval "$(starship init zsh)"
+
+# bun completions
+[ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"
+
+. "$HOME/.atuin/bin/env"
+
+eval "$(atuin init zsh)"

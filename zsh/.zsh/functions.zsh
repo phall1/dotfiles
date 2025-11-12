@@ -66,3 +66,17 @@ pgdock() {
   fi
 }
 
+
+eyebreak() {
+  echo "Starting a 20-minute eye break timer..."
+  # This runs the sleep command in the background (&)
+  # so you get your terminal prompt back immediately.
+  (
+    sleep 1200 # 1200 seconds = 20 minutes
+    
+    # 'osascript' is the command to run AppleScript on macOS
+    osascript -e 'display notification "Look 20 feet away for 20 seconds." with title "Eye Break!"'
+  ) &
+}
+
+

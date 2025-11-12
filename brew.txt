@@ -2,6 +2,7 @@ fzf
 neovim
 tmux
 ripgrep
+jq
 
 lazygit
 jesseduffield/lazydocker/lazydocker

@@ -20,7 +20,9 @@ setopt HIST_IGNORE_DUPS SHARE_HISTORY
 source $(brew --prefix)/share/antidote/antidote.zsh
 antidote load ~/.zsh_plugins.txt
 
+# Use vi mode and set escape key timeout to avoid delays
 set -o vi
+KEYTIMEOUT=1
 
 ######## ALIASES
 alias vim=nvim
@@ -29,7 +31,34 @@ alias sz='source ~/.zshrc'
 alias ghostconf='vim ~/.config/ghostty/config'
 alias promptconf='vim ~/.config/starship.toml'
 
+# Listing files 
+# # 1. The basic 'ls' replacement
+# --icons: adds the file icons
+# --group-directories-first: always puts folders at the top (cleaner)
+alias ls='eza --icons --group-directories-first'
 
+# 2. 'll' (Long List) - The most popular one
+# -l: long format (permissions, size, etc.)
+# --git: adds a column showing git status (dirty, new, ignored)
+# --header: adds a header row (Permissions, Size, User, etc.)
+alias ll='eza --icons --group-directories-first -l --git --header'
+
+# 3. 'la' (List All) - For hidden files
+# -a: all files (including .files)
+alias la='eza --icons --group-directories-first -a'
+
+# 4. 'lt' (Tree view)
+# --tree: shows a directory tree (replaces the 'tree' command)
+# --level=2: only goes 2 folders deep so it doesn't flood your screen
+# alias lt='eza --icons --tree --level=2'
+# alias ls='lsd'
+# alias l='lsd -l'
+# alias la='lsd -a'      # <--- This is likely the "lsa" you remember
+# alias lla='lsd -la'
+# alias lt='lsd --tree'
+# alias ll='eza --icons --long --git'
+#
+#
 # NEOVIM
 alias nvimrc='nvim ~/.config/nvim/init.lua'
 
@@ -99,4 +128,5 @@ eval "$(starship init zsh)"
 
 . "$HOME/.atuin/bin/env"
 
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
+export PATH=$PATH:/Users/Patrick.Hall/go/bin

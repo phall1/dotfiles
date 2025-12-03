@@ -16,8 +16,8 @@ setopt HIST_IGNORE_DUPS SHARE_HISTORY
 
 # MISE let's let the mise tools win
 
-# Antidote plugin management
-source $(brew --prefix)/share/antidote/antidote.zsh
+# Antidote plugin management (hardcoded path for speed)
+source /opt/homebrew/share/antidote/antidote.zsh
 antidote load ~/.zsh_plugins.txt
 
 # Use vi mode and set escape key timeout to avoid delays
@@ -93,18 +93,45 @@ done
 export PATH="$HOME/bin:$PATH"
 export PATH="/opt/homebrew/bin/:$PATH"
 
-# Atuin shell history
-[ -f "$HOME/.atuin/bin/env" ] && source "$HOME/.atuin/bin/env"
-
+# Lazy-load NVM (only loads when you actually use node/npm/nvm)
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+export PATH="$NVM_DIR/versions/node/v20.19.5/bin:$PATH"  # Direct path to default node
+
+# Lazy load function - NVM will only initialize when you call it
+nvm() {
+  unset -f nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  nvm "$@"
+}
+
+node() {
+  unset -f nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  node "$@"
+}
+
+npm() {
+  unset -f nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  npm "$@"
+}
+
+npx() {
+  unset -f nvm node npm npx
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+  [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+  npx "$@"
+}
 
 # Created by `pipx` on 2025-09-23 17:58:04
 export PATH="$PATH:/Users/Patrick.Hall/.local/bin"
-export PATH="$NVM_DIR/versions/node/$(nvm current)/bin:$PATH"
-nvm use default >/dev/null
 
+
+# BUNX stuff
+export PATH="/Users/Patrick.Hall/.bun/bin:$PATH"
 
 
 
@@ -112,7 +139,12 @@ nvm use default >/dev/null
 # Stuff that's supposed to be at the end?
 #############
 
-eval $(thefuck --alias)
+# Lazy-load thefuck (only loads when you use it)
+fuck() {
+  unset -f fuck
+  eval $(thefuck --alias)
+  fuck "$@"
+}
 
 # Starship prompt (must be last)
 
@@ -126,7 +158,5 @@ eval "$(starship init zsh)"
 # bun completions
 [ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"
 
-. "$HOME/.atuin/bin/env"
 
-eval "$(atuin init zsh --disable-up-arrow)"
 export PATH=$PATH:/Users/Patrick.Hall/go/bin

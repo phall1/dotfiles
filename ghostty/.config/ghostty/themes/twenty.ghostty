@@ -1,0 +1,41 @@
+# Twenty - Brand Identity Theme
+# Based on the Twenty Brand Guide: Industrial, Swiss, Minimal.
+# With a hint of hacker aesthetic.
+
+background = #252a2b
+foreground = #EEEEE5
+cursor-color = #00FF9F
+selection-background = #3F3F34
+selection-foreground = #00FF9F
+
+# Black (Brand Dark Blue variant / Dark Neutral)
+palette = 0=#1A1C1D
+palette = 8=#4A4A3F
+
+# Red (Alert - slightly more vivid)
+palette = 1=#E05A55
+palette = 9=#FF6B66
+
+# Green (Terminal green with olive undertone)
+palette = 2=#5FD068
+palette = 10=#7AE582
+
+# Yellow (Brand Gold - with a hint of phosphor)
+palette = 3=#D4D090
+palette = 11=#F7F5DA
+
+# Blue (Cooler, more electric)
+palette = 4=#5A9EA8
+palette = 12=#7AC4D0
+
+# Purple (Cyberpunk magenta hint)
+palette = 5=#B88AB0
+palette = 13=#D9A8D0
+
+# Cyan (Terminal cyan - the hacker classic)
+palette = 6=#4ECDC4
+palette = 14=#7EEEE6
+
+# White (Brand White & Dimmed)
+palette = 7=#C5C5BE
+palette = 15=#EEEEE5

@@ -1,0 +1,30 @@
+
+# intel
+https://www.thecipherbrief.com/feed
+https://intelnews.org/feed
+https://feeds.feedburner.com/blogspot/vpAFr
+https://www.bellingcat.com/feed
+http://www.oryxspioenkop.com/feeds/posts/default
+https://www.longwarjournal.org/feed
+
+# mil
+https://warontherocks.com/feed
+https://breakingdefense.com/feed
+https://www.defenseone.com/rss/all
+https://www.thewarzone.com/feed
+
+# finance/economy
+http://feeds.reuters.com/Reuters/worldNews
+http://feeds.reuters.com/reuters/businessNews
+https://www.ft.com/rss/home
+https://foreignpolicy.com/feed
+https://geopoliticalfutures.com/feed
+https://thediplomat.com/feed
+https://news.un.org/feed/subscribe/en/news/all/rss.xml
+
+# all
+https://www.goodnewsnetwork.org/feed/
+https://www.positive.news/feed
+
+
+

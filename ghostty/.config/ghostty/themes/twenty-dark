@@ -1,0 +1,67 @@
+# ----------------------------------------------------------------
+# Theme: Twenty (Soft Industrial)
+# Description: Optimized for UI/UX using the Brand's "Dark Blue" base
+# ----------------------------------------------------------------
+
+# CORE COLORS
+# Background: Dark Blue - A soft charcoal/slate, easier on the eyes than pure black
+background = #2D3132
+# Foreground: White - Warm off-white for primary text readability
+foreground = #EEEEE5
+
+# UI ELEMENTS
+# Cursor: Gold - High visibility against the charcoal background
+cursor-color = #F7F5DA
+cursor-text = #2D3132
+
+# Selection: Light Blue - Distinct visual indicator for highlighting text
+selection-background = #636D70
+selection-foreground = #F7F5DA
+
+# ----------------------------------------------------------------
+# ANSI PALETTE MAPPING
+# optimized for coding syntax (Variables, Strings, Comments)
+# ----------------------------------------------------------------
+
+# BLACKS (Used for terminal background overrides or very dim text)
+# 0: Pure Black (Darker than background, for depth)
+palette = 0=#000000
+# 8: Dark Neutral (For Comments / Ignored files - subtle but readable)
+palette = 8=#3F3F34
+
+# REDS (Used for Errors/Deletions)
+# Mapped to Light Neutral: A "Rust" tone fitting the industrial palette
+palette = 1=#838178
+palette = 9=#838178
+
+# GREENS (Used for Strings/Success/Additions)
+# Mapped to Gold: High contrast, indicates "active" or "safe"
+palette = 2=#F7F5DA
+palette = 10=#F7F5DA
+
+# YELLOWS (Used for Warnings)
+# Mapped to Light Neutral (Shared with Red to maintain monochrome feel)
+# or we can reuse Gold. Let's use Light Neutral to differentiate from Green strings.
+palette = 3=#838178
+palette = 11=#838178
+
+# BLUES (Used for Functions/Keywords)
+# Mapped to Light Blue: A muted slate blue
+palette = 4=#636D70
+palette = 12=#636D70
+
+# MAGENTAS (Used for Constants/Numbers)
+# Mapped to White: Highest contrast for important data
+palette = 5=#EEEEE5
+palette = 13=#EEEEE5
+
+# CYANS (Used for Special definitions)
+# Mapped to Light Blue (Repeating the cool tone)
+palette = 6=#636D70
+palette = 14=#636D70
+
+# WHITES
+# 7: White
+palette = 7=#EEEEE5
+# 15: Gold (Extra bright highlights)
+palette = 15=#F7F5DA

@@ -26,6 +26,9 @@ vim.opt.updatetime = 300         -- faster updates
 vim.opt.timeoutlen = 400         -- shorter key sequence timeout
 vim.opt.mouse = "a"              -- enable mouse support
 
+-- Colorscheme
+vim.cmd("colorscheme twenty")
+
 -- Lazy.nvim bootstrap
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then

@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# -------- Homebrew --------
+if command -v brew >/dev/null 2>&1; then
+  log "Updating Homebrew..."
+  brew update
+  brew upgrade
+  brew cleanup
+fi
+
+# -------- Cargo --------
+if command -v cargo >/dev/null 2>&1; then
+  log "Updating Cargo-installed crates..."
+
+  # If you use cargo-install-update (cargo install cargo-update)
+  if command -v cargo-install-update >/dev/null 2>&1; then
+    cargo install-update -a
+  else
+    log "cargo-install-update not found; skipping bulk Cargo update."
+    # Optional: maintain an explicit list instead
+    # CARGO_BINS=(
+    #   "bat"
+    #   "ripgrep"
+    # )
+    # for crate in "${CARGO_BINS[@]}"; do
+    #   cargo install "$crate"
+    # done
+  fi
+fi
+
+# -------- Go tools --------
+if command -v go >/dev/null 2>&1; then
+  log "Updating Go tools..."
+  GO_TOOLS=(
+    # "golang.org/x/tools/gopls@latest"
+    # "github.com/jesseduffield/lazygit@latest"
+  )
+  for mod in "${GO_TOOLS[@]}"; do
+    go install "$mod"
+  done
+fi
+
+# -------- Node / npm (if you care) --------
+if command -v npm >/dev/null 2>&1; then
+  log "Updating global npm packages..."
+  npm update -g
+fi
+
+# -------- pipx (CLI Python tools) --------
+if command -v pipx >/dev/null 2>&1; then
+  log "Updating pipx packages..."
+  pipx upgrade-all
+fi

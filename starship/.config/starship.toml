@@ -1,49 +1,52 @@
+# Twenty Theme for Starship
+# Company colors with hacker aesthetic
+
 format = """
-[▸](dim cyan) $directory $git_branch$git_state$git_status $aws$cmd_duration
+[▸](#4ECDC4) $directory $git_branch$git_state$git_status $aws$cmd_duration
 $python$character"""
 
 [directory]
-style = "bold white"
+style = "bold #EEEEE5"
 format = "[$path]($style)"
 truncation_length = 3
 truncate_to_repo = true
 
 [character]
-success_symbol = "[›](bold cyan)"
-error_symbol = "[›](bold red)"
-vimcmd_symbol = "[‹](bold cyan)"
+success_symbol = "[›](bold #00FF9F)"
+error_symbol = "[›](bold #E05A55)"
+vimcmd_symbol = "[‹](bold #4ECDC4)"
 
 [git_branch]
 format = "[$symbol$branch]($style)"
-style = "bold purple"
+style = "bold #5FD068"
 symbol = ""
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
-style = "white"
-conflicted = " [⚡](bold red)"
-untracked = " [◌](dim white)"
-modified = " [△](yellow)"
-staged = " [✓](green)"
-renamed = " [→](cyan)"
-deleted = " [✕](red)"
-stashed = " [≡](cyan)"
-ahead = " [↑${count}](green)"
-behind = " [↓${count}](red)"
-diverged = " [↕${ahead_count}↓${behind_count}](red)"
+style = "#F7F5DA"
+conflicted = " [⚡](bold #E05A55)"
+untracked = " [◌](#5A6A6D)"
+modified = " [△](#D4D090)"
+staged = " [✓](#5FD068)"
+renamed = " [→](#4ECDC4)"
+deleted = " [✕](#E05A55)"
+stashed = " [≡](#4ECDC4)"
+ahead = " [↑${count}](#5FD068)"
+behind = " [↓${count}](#E05A55)"
+diverged = " [↕${ahead_count}↓${behind_count}](#E05A55)"
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '
-style = "italic yellow"
+style = "italic #D4D090"
 
 [cmd_duration]
 format = "[◇ $duration]($style)"
-style = "dim white"
+style = "#5A6A6D"
 min_time = 1000
 
 [python]
-format = "[‹$virtualenv› ](dim cyan)"
-style = "dim cyan"
+format = "[‹$virtualenv› ](#4ECDC4)"
+style = "#4ECDC4"
 
 
 ################ 
@@ -51,11 +54,11 @@ style = "dim cyan"
 ################ 
 [env_var.AWS_ACCOUNT_ID]
 format = '[$env_value]($style) '
-style = 'dim white'
+style = '#5A6A6D'
 
 [aws]
-format = '[⬡ $profile](bold cyan) '
-style = 'cyan'
+format = '[⬡ $profile](bold #4ECDC4) '
+style = '#4ECDC4'
 symbol = ''
 [aws.region_aliases]
 us-east-1 = 'va'

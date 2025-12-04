@@ -2,6 +2,17 @@
 
 My portable development environment configuration.
 
+## How It Works
+
+This repo uses [GNU Stow](https://www.gnu.org/software/stow/) to manage symlinks. Each top-level directory is a "package" that mirrors the structure of your home directory. When you run `stow <package>`, it creates symlinks from your home directory to the files in that package.
+
+```
+~/dotfiles/starship/.config/starship.toml  →  ~/.config/starship.toml
+~/dotfiles/zsh/.zshrc                      →  ~/.zshrc
+```
+
+Stow figures out the target path by removing the package name prefix. This keeps configs organized and version-controlled while your system sees them in the expected locations.
+
 ## Quick Start
 
 ```bash
@@ -13,32 +24,43 @@ chmod +x install.sh
 
 ## What's Included
 
-- **Zsh**: Custom shell configuration with vi mode, history, and modular config files
-- **Tmux**: Terminal multiplexer with vim-style navigation and custom theme
+- **Zsh**: Shell config with vi mode, history, and modular config files
+- **Neovim**: Editor config with LSP, Treesitter, and Twenty theme
+- **Ghostty**: Terminal config with Twenty theme (hacker edition)
+- **Starship**: Fast shell prompt with Twenty theme
+- **Tmux**: Terminal multiplexer with vim-style navigation
 - **Git**: Global git configuration
-- **Starship**: Modern, fast shell prompt
-- **Scripts**: Custom utility scripts in `bin/`
 
 ## Structure
 
-This repo uses [GNU Stow](https://www.gnu.org/software/stow/) for managing symlinks:
-
 ```
 dotfiles/
+├── ghostty/          # Ghostty terminal → ~/.config/
+│   └── .config/
+│       └── ghostty/
+│           ├── config
+│           └── themes/
+│               ├── twenty.ghostty
+│               └── twenty-dark
+├── neovim/           # Neovim → ~/.config/
+│   └── .config/
+│       └── nvim/
+│           ├── init.lua
+│           └── colors/
+│               └── twenty.lua
+├── starship/         # Starship prompt → ~/.config/
+│   └── .config/
+│       └── starship.toml
 ├── zsh/              # Zsh configs → ~/
 │   ├── .zshrc
 │   ├── .zsh_plugins.txt
-│   └── .zsh/         # Modular configs
+│   └── .zsh/
 ├── tmux/             # Tmux config → ~/
 │   └── .tmux.conf
 ├── git/              # Git config → ~/
 │   └── .gitconfig
-├── starship/         # Starship config → ~/.config/
-│   └── .config/
-│       └── starship.toml
-├── bin/              # Scripts → ~/bin/
-│   └── gh-actions-check
 ├── brew.txt          # Homebrew packages
+├── stow-all.sh       # Stow all packages
 └── install.sh        # Setup script
 ```
 
@@ -85,5 +107,5 @@ git pull
 
 ```bash
 cd ~/dotfiles
-stow -D zsh tmux git starship bin  # Remove all symlinks
+./stow-all.sh -D  # Remove all symlinks
 ```

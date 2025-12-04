@@ -1,0 +1,14 @@
+theme = Gruvbox Dark Hard
+# theme = Nord
+# theme = Monokai Classic
+# theme = Night Lion V1
+# theme = Terminal Basic Dark
+# theme = Cyberdyne
+theme = twenty.ghostty
+font-family = Intel One Mono
+
+font-size = 24
+
+background-blur = true
+
+macos-non-native-fullscreen = true

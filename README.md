@@ -1,6 +1,6 @@
 # Dotfiles
 
-My portable development environment configuration.
+Portable development environment configuration.
 
 ## How It Works
 

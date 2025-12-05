@@ -126,7 +126,8 @@ require("lazy").setup({
         config = function()
             require("nvim-treesitter.configs").setup({
                 ensure_installed = {
-                    "python", "go", "rust", "typescript", "lua", "bash", "json", "yaml", "toml", "terraform"
+                    "python", "go", "rust", "typescript", "lua", "bash", "json", "yaml", "toml", "terraform",
+                    "markdown", "markdown_inline", "mermaid",
                 },
                 highlight = { enable = true },
                 indent = { enable = true },
@@ -257,6 +258,157 @@ require("lazy").setup({
             model = "codellama:latest",
         },
     },
+    -- =========================================================================
+    -- MARKDOWN EDITING SUITE
+    -- =========================================================================
+
+    -- render-markdown.nvim: In-buffer rendering (conceals ugly syntax)
+    {
+        "MeanderingProgrammer/render-markdown.nvim",
+        dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
+        ft = { "markdown", "opencode_output" },
+        opts = {
+            anti_conceal = { enabled = false },
+            file_types = { "markdown", "opencode_output" },
+            heading = {
+                enabled = true,
+                sign = true,
+                icons = { "# ", "## ", "### ", "#### ", "##### ", "###### " },
+            },
+            code = {
+                enabled = true,
+                sign = true,
+                style = "full",
+                border = "thin",
+            },
+            bullet = {
+                enabled = true,
+                icons = { "●", "○", "◆", "◇" },
+            },
+            checkbox = {
+                enabled = true,
+                unchecked = { icon = "☐ " },
+                checked = { icon = "☑ " },
+            },
+            quote = { enabled = true },
+            pipe_table = { enabled = true, style = "full" },
+            link = { enabled = true },
+        },
+    },
+
+    -- markdown-preview.nvim: Browser sync with Mermaid support
+    {
+        "iamcco/markdown-preview.nvim",
+        cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+        ft = { "markdown" },
+        build = "cd app && npm install",
+        init = function()
+            vim.g.mkdp_auto_close = 0
+            vim.g.mkdp_theme = "dark"
+        end,
+        keys = {
+            { "<leader>mp", "<cmd>MarkdownPreviewToggle<cr>", desc = "Markdown Preview" },
+        },
+    },
+
+    -- image.nvim: Render images IN-TERMINAL (Ghostty/Kitty protocol)
+    {
+        "3rd/image.nvim",
+        ft = { "markdown" },
+        opts = {
+            backend = "kitty", -- Ghostty uses Kitty protocol
+            processor = "magick_cli", -- Use ImageMagick CLI
+            integrations = {
+                markdown = {
+                    enabled = true,
+                    clear_in_insert_mode = false,
+                    download_remote_images = true,
+                    only_render_image_at_cursor = false,
+                    filetypes = { "markdown" },
+                },
+            },
+            max_width = 100,
+            max_height = 12,
+            max_height_window_percentage = 50,
+            max_width_window_percentage = nil,
+            window_overlap_clear_enabled = true,
+            window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+        },
+    },
+
+    -- vim-table-mode: Auto-align tables as you type
+    {
+        "dhruvasagar/vim-table-mode",
+        ft = { "markdown" },
+        init = function()
+            vim.g.table_mode_corner = "|"
+        end,
+        keys = {
+            { "<leader>tm", "<cmd>TableModeToggle<cr>", desc = "Toggle Table Mode" },
+        },
+    },
+
+    -- mkdnflow.nvim: Link navigation and list management
+    {
+        "jakewvincent/mkdnflow.nvim",
+        ft = { "markdown" },
+        opts = {
+            modules = {
+                bib = false,
+                buffers = true,
+                conceal = false, -- render-markdown handles this
+                cursor = true,
+                folds = false,
+                links = true,
+                lists = true,
+                maps = true,
+                paths = true,
+                tables = false, -- vim-table-mode handles this
+                yaml = false,
+            },
+            links = {
+                style = "markdown",
+                transform_explicit = false,
+            },
+            lists = {
+                indent_new_list_items = true,
+            },
+            mappings = {
+                MkdnEnter = { { "n", "v" }, "<CR>" },
+                MkdnTab = false,
+                MkdnSTab = false,
+                MkdnNextLink = { "n", "<Tab>" },
+                MkdnPrevLink = { "n", "<S-Tab>" },
+                MkdnNextHeading = { "n", "]]" },
+                MkdnPrevHeading = { "n", "[[" },
+                MkdnGoBack = { "n", "<BS>" },
+                MkdnGoForward = { "n", "<Del>" },
+                MkdnFollowLink = false, -- using <CR> instead
+                MkdnDestroyLink = { "n", "<M-CR>" },
+                MkdnToggleToDo = { { "n", "v" }, "<C-Space>" },
+                MkdnNewListItem = false,
+                MkdnNewListItemBelowInsert = { "n", "o" },
+                MkdnNewListItemAboveInsert = { "n", "O" },
+                MkdnExtendList = false,
+                MkdnUpdateNumbering = { "n", "<leader>nn" },
+                MkdnTableNextCell = { "i", "<Tab>" },
+                MkdnTablePrevCell = { "i", "<S-Tab>" },
+                MkdnTableNextRow = false,
+                MkdnTablePrevRow = { "i", "<M-CR>" },
+                MkdnTableNewRowBelow = { "n", "<leader>ir" },
+                MkdnTableNewRowAbove = { "n", "<leader>iR" },
+                MkdnTableNewColAfter = { "n", "<leader>ic" },
+                MkdnTableNewColBefore = { "n", "<leader>iC" },
+                MkdnFoldSection = { "n", "<leader>mf" },
+                MkdnUnfoldSection = { "n", "<leader>mF" },
+            },
+        },
+    },
+
+    -- =========================================================================
+    -- END MARKDOWN SUITE
+    -- =========================================================================
+
     {
         "sudo-tee/opencode.nvim",
         config = function()
@@ -264,14 +416,7 @@ require("lazy").setup({
         end,
         dependencies = {
             "nvim-lua/plenary.nvim",
-            {
-                "MeanderingProgrammer/render-markdown.nvim",
-                opts = {
-                    anti_conceal = { enabled = false },
-                    file_types = { 'markdown', 'opencode_output' },
-                },
-                ft = { 'markdown', 'Avante', 'copilot-chat', 'opencode_output' },
-            },
+            "MeanderingProgrammer/render-markdown.nvim", -- now a top-level plugin
             -- Optional, for file mentions and commands completion, pick only one
             'saghen/blink.cmp',
             -- 'hrsh7th/nvim-cmp',

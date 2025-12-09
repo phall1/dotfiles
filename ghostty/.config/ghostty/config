@@ -1,14 +1,61 @@
-theme = Gruvbox Dark Hard
-# theme = Nord
-# theme = Monokai Classic
-# theme = Night Lion V1
-# theme = Terminal Basic Dark
-# theme = Cyberdyne
 theme = twenty.ghostty
-font-family = Intel One Mono
 
 font-size = 24
 
 background-blur = true
 
+## Full screen
 macos-non-native-fullscreen = true
+
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
+
+############
+# FONTS ####
+#
+# The "Undetected" Config
+# font-family = "Geist Mono" 
+font-family = "IBM Plex Mono"
+font-size = 13.5
+font-feature = "cv01, cv02" # Force sharper, techier glyphs if available
+
+# Colors: "Twenty" Palette (Dark Blue & Gold)
+background = #1a1b1c
+foreground = #eeeee5
+cursor-color = #f7f5da
+cursor-style = block
+cursor-style-blink = false
+
+# The secret sauce: High contrast & slight blur
+# font-thicken = true
+background-opacity = 0.98
+background-blur = 10
+
+# Minimalist Interface
+window-padding-x = 12
+window-padding-y = 12
+# window-padding-balance = false
+macos-titlebar-style = hidden
+
+# -------------
+
+# # ----------
+# font-family = "Monaspace Neon"
+# font-style = "Regular"
+# font-size = 14
+# # Enables cursive italics which contrasts nicely with the industrial vibe
+# font-feature = "calt", "ss01", "ss02"
+
+# -------
+# font-family = "FiraCode Nerd Font Mono"
+# font-style = "Retina"
+# font-size = 13.5
+# font-feature = "ss03", "cv14" # Customizes the '$' and 'i' to look cleaner
+
+
+# font-family = "Monaspace Krypton"
+# font-style = "Wide SemiBold"
+# font-size = 13
+# # This makes the font feel more like a technical schematic
+# font-feature = "ss01" # Changes the style of certain characters to be more techy
+
+

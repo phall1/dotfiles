@@ -30,6 +30,7 @@ alias zshrc='vim ~/.zshrc'
 alias sz='source ~/.zshrc'
 alias ghostconf='vim ~/.config/ghostty/config'
 alias promptconf='vim ~/.config/starship.toml'
+alias pc='process-compose'
 
 # Listing files 
 # # 1. The basic 'ls' replacement
@@ -160,3 +161,9 @@ eval "$(starship init zsh)"
 
 
 export PATH=$PATH:/Users/Patrick.Hall/go/bin
+
+# AsyncAPI CLI Autocomplete
+
+ASYNCAPI_AC_ZSH_SETUP_PATH=/Users/Patrick.Hall/Library/Caches/@asyncapi/cli/autocomplete/zsh_setup && test -f $ASYNCAPI_AC_ZSH_SETUP_PATH && source $ASYNCAPI_AC_ZSH_SETUP_PATH; # asyncapi autocomplete setup
+
+

@@ -89,3 +89,24 @@ function y() {
 	[ -n "$cwd" ] && [ "$cwd" != "$PWD" ] && builtin cd -- "$cwd"
 	rm -f -- "$tmp"
 }
+
+# Copy a file to the clipboard (as a file object, not text)
+function copyfile() {
+  local filepath
+  # Get absolute path (handles relative paths like ../file.txt)
+  if [[ "$1" == /* ]]; then
+    filepath="$1"
+  else
+    filepath="$PWD/$1"
+  fi
+  
+  osascript -e 'on run {f}' -e 'set the clipboard to POSIX file f' -e 'end run' "$filepath"
+  echo "Copied $1 to clipboard."
+}
+
+
+header() {
+  printf "\n\n\033[1;32m========================================\n"
+  printf "   %s\n" "$1"
+  printf "========================================\033[0m\n\n"
+}

@@ -1,6 +1,14 @@
 -- Yank to clipboard
 vim.opt.clipboard = "unnamedplus"
 
+-- Ensure user-local binaries are on PATH (GUI launches may miss shell PATH)
+do
+	local local_bin = vim.fn.expand("~/.local/bin")
+	if not vim.env.PATH:find(local_bin, 1, true) then
+		vim.env.PATH = local_bin .. ":" .. vim.env.PATH
+	end
+end
+
 -- Mapleader key
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
@@ -152,10 +160,24 @@ require("lazy").setup({
 		end,
 	},
 
-	-- gitsigns!!
+	-- Git signs + inline blame on cursor line
 	{
 		"lewis6991/gitsigns.nvim",
+		event = { "BufReadPre", "BufNewFile" },
+		opts = {
+			-- Shows commit info as virtual text for the current line
+			current_line_blame = true,
+			current_line_blame_opts = {
+				delay = 200,
+				virt_text_pos = "eol",
+				ignore_whitespace = true,
+			},
+			current_line_blame_formatter = "<author>, <author_time:%Y-%m-%d> • <summary>",
+		},
 	},
+
+	-- `:Git blame` split view (similar to old :Gblame)
+	{ "tpope/vim-fugitive" },
 
 	-- LSP + Autocomplete
 	{
@@ -233,7 +255,6 @@ require("lazy").setup({
 
 			require("mason-lspconfig").setup({
 				ensure_installed = {
-					"pyright",
 					"gopls",
 					"ts_ls",
 					"terraformls",
@@ -246,11 +267,33 @@ require("lazy").setup({
 							capabilities = capabilities,
 						})
 					end,
+					["pyright"] = function()
+						-- Explicitly disabled: ty replaces pyright
+					end,
 					["rust_analyzer"] = function()
 						-- rustaceanvim handles this
 					end,
 				},
 			})
+
+			-- Python LSP: ty (replaces pyright)
+			if vim.lsp.config and vim.lsp.enable then
+				-- Optional: Only required if you need to update the language server settings
+				vim.lsp.config("ty", {
+					capabilities = capabilities,
+					cmd = { "ty", "server" },
+					filetypes = { "python" },
+					root_markers = { ".venv", "pyproject.toml", "uv.lock", "setup.py", "setup.cfg", "requirements.txt" },
+					settings = {
+						ty = {
+							-- ty language server settings go here
+						},
+					},
+				})
+
+				-- Required: Enable the language server
+				vim.lsp.enable("ty")
+			end
 
 			-- Diagnostics style
 			local signs = { Error = "✘", Warn = "▲", Hint = "⚑", Info = "»" }
@@ -469,6 +512,20 @@ require("lazy").setup({
 		},
 	},
 })
+
+-- Git blame helpers
+vim.api.nvim_create_user_command("BlameOn", function()
+	require("gitsigns").toggle_current_line_blame(true)
+end, {})
+vim.api.nvim_create_user_command("BlameOff", function()
+	require("gitsigns").toggle_current_line_blame(false)
+end, {})
+vim.api.nvim_create_user_command("BlameToggle", function()
+	require("gitsigns").toggle_current_line_blame()
+end, {})
+
+-- Fugitive-style blame split (left-side blame like old :Gblame)
+vim.cmd("command! -nargs=* Gblame Git blame --date=short --abbrev=8 <args>")
 
 -- Quit mapping
 vim.keymap.set("n", "<leader>q", ":q<CR>", { silent = true })

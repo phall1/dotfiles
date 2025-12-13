@@ -5,18 +5,18 @@
 local M = {}
 
 M.colors = {
-    bg = "#252a2b", -- Slightly darker, more terminal-like
+    bg = "#181b1c", -- Deepened main background for sleeker feel
     fg = "#EEEEE5", -- Brand White
-    selection = "#3F3F34", -- Brand Dark Neutral (for selections)
+    selection = "#24292a", -- Subtle graphite selection contrast
     comment = "#6A7A7A", -- Slightly cooler, more terminal-like
     cursor = "#00FF9F", -- Hacker green cursor
 
     -- Derived Palette
     black = "#000000", -- True black for contrast elements
-    bg_dark = "#1E2223", -- Slightly darker for UI contrast
-    bg_light = "#353a3b", -- Lighter bg for highlights
-    gray = "#5A6A6D", -- Cooler gray
-    light_gray = "#9A9990", -- Brighter neutral for keywords
+    bg_dark = "#101315", -- Deeper UI contrast
+    bg_light = "#202526", -- Muted highlight blocks
+    gray = "#6D7D80", -- Cooler gray with more contrast
+    light_gray = "#AEB1A5", -- Brighter neutral for keywords
 
     red = "#E05A55", -- Slightly more vivid
     green = "#5FD068", -- Terminal green with olive undertone

@@ -1,5 +1,11 @@
 # . "$HOME/.local/bin/env"
 
+# Nix
+if [ -e /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]; then
+  . /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
+fi
+# End Nix
+
 # Performance-optimized completion system
 autoload -Uz compinit
 if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
@@ -24,6 +30,9 @@ antidote load ~/.zsh_plugins.txt
 set -o vi
 KEYTIMEOUT=1
 
+# coreutils
+alias date=gdate
+
 ######## ALIASES
 alias vim=nvim
 alias zshrc='vim ~/.zshrc'
@@ -31,6 +40,13 @@ alias sz='source ~/.zshrc'
 alias ghostconf='vim ~/.config/ghostty/config'
 alias promptconf='vim ~/.config/starship.toml'
 alias pc='process-compose'
+
+
+####################
+# GIT
+####################
+alias gs='git status'
+alias g='git'
 
 # Listing files 
 # # 1. The basic 'ls' replacement
@@ -72,6 +88,7 @@ alias cclip='pbpaste | pbcopy'
 alias ghcrlogin='gh auth token | docker login ghcr.io -u $(gh api user --jq .login) --password-stdin'
 
 alias nload='TERM=xterm-256color nload'
+alias tealdeeer='tldr'
 
 
 #############
@@ -154,6 +171,8 @@ if mise direnv activate >/dev/null 2>&1; then
   eval "$(mise activate zsh)"
 fi
 
+eval "$(direnv hook zsh)"
+eval "$(zoxide init zsh)"
 eval "$(starship init zsh)"
 
 # bun completions
@@ -167,3 +186,6 @@ export PATH=$PATH:/Users/Patrick.Hall/go/bin
 ASYNCAPI_AC_ZSH_SETUP_PATH=/Users/Patrick.Hall/Library/Caches/@asyncapi/cli/autocomplete/zsh_setup && test -f $ASYNCAPI_AC_ZSH_SETUP_PATH && source $ASYNCAPI_AC_ZSH_SETUP_PATH; # asyncapi autocomplete setup
 
 
+
+# Added by Antigravity
+export PATH="/Users/Patrick.Hall/.antigravity/antigravity/bin:$PATH"

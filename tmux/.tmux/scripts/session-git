@@ -1,0 +1,38 @@
+#!/bin/sh
+
+session="$1"
+
+[ -z "$session" ] && exit 0
+
+if ! command -v git >/dev/null 2>&1; then
+  exit 0
+fi
+
+path=$(tmux display-message -p -t "${session}:" '#{pane_current_path}' 2>/dev/null)
+if [ -z "$path" ]; then
+  path=$(tmux display-message -p -t "${session}:" '#{session_path}' 2>/dev/null)
+fi
+
+[ -z "$path" ] && exit 0
+
+root=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null)
+[ -z "$root" ] && exit 0
+
+branch=$(git -C "$path" rev-parse --abbrev-ref HEAD 2>/dev/null)
+if [ -z "$branch" ] || [ "$branch" = "HEAD" ]; then
+  branch="detached"
+fi
+
+gitdir=$(git -C "$path" rev-parse --git-path gitdir 2>/dev/null)
+wt_name=""
+case "$gitdir" in
+  */worktrees/*) wt_name=$(basename "$gitdir") ;;
+esac
+
+repo=$(basename "$root")
+
+if [ -n "$wt_name" ]; then
+  printf " [%s:%s/%s]" "$repo" "$branch" "$wt_name"
+else
+  printf " [%s:%s]" "$repo" "$branch"
+fi

@@ -3,9 +3,11 @@
 name = Patrick Hall
 	email = patrick.hall+xxio@twenty.io
 [core]
-	pager = 
+	pager = less
 [filter "lfs"]
 	clean = git-lfs clean -- %f
 	smudge = git-lfs smudge -- %f
 	process = git-lfs filter-process
 	required = true
+[color]
+	ui = always

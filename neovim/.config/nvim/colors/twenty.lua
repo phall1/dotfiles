@@ -5,26 +5,27 @@
 local M = {}
 
 M.colors = {
-    bg = "#181b1c", -- Deepened main background for sleeker feel
-    fg = "#EEEEE5", -- Brand White
-    selection = "#24292a", -- Subtle graphite selection contrast
-    comment = "#6A7A7A", -- Slightly cooler, more terminal-like
-    cursor = "#00FF9F", -- Hacker green cursor
+    bg = "#151718",
+    fg = "#D4D4D0",
+    selection = "#252829",
+    comment = "#626e6e",
+    cursor = "#00FF9F",
 
     -- Derived Palette
-    black = "#000000", -- True black for contrast elements
-    bg_dark = "#101315", -- Deeper UI contrast
-    bg_light = "#202526", -- Muted highlight blocks
-    gray = "#6D7D80", -- Cooler gray with more contrast
-    light_gray = "#AEB1A5", -- Brighter neutral for keywords
+    black = "#000000",
+    bg_dark = "#0e1010",
+    bg_light = "#1e2021",
+    gray = "#525e5e",
+    light_gray = "#9ca8a8",
 
-    red = "#E05A55", -- Slightly more vivid
-    green = "#5FD068", -- Terminal green with olive undertone
-    yellow = "#F7F5DA", -- Brand Gold
-    yellow_dim = "#D4D090", -- Softer gold with phosphor hint
-    blue = "#5A9EA8", -- Cooler, more electric
-    magenta = "#D9A8D0", -- Cyberpunk magenta hint
-    cyan = "#4ECDC4", -- Terminal cyan - hacker classic
+    red = "#E05A55", -- Errors, exceptions
+    green = "#7DD88A", -- Strings - brighter for clarity
+    yellow = "#F0E6A0", -- Constants, numbers
+    yellow_dim = "#C9BC7A", -- Properties, special chars
+    blue = "#6BB8C4", -- Types - brighter, more distinct
+    magenta = "#C49AC0", -- Less saturated
+    cyan = "#5AD4CB", -- Builtins, labels
+    orange = "#D9A76A", -- Keywords - warm, distinct from text
 
     none = "NONE"
 }
@@ -79,30 +80,30 @@ function M.setup()
         String = { fg = c.green },
         Character = { fg = c.green },
         Number = { fg = c.yellow },
-        Boolean = { fg = c.yellow, style = "bold" },
+        Boolean = { fg = c.cyan, style = "bold" },
         Float = { fg = c.yellow },
         Identifier = { fg = c.fg },
-        Function = { fg = c.fg, style = "bold" },
-        Statement = { fg = c.light_gray, style = "bold" }, -- Keywords are subtle/industrial
-        Conditional = { fg = c.light_gray, style = "bold" },
-        Repeat = { fg = c.light_gray, style = "bold" },
+        Function = { fg = c.cyan },
+        Statement = { fg = c.orange },
+        Conditional = { fg = c.orange },
+        Repeat = { fg = c.orange },
         Label = { fg = c.cyan },
-        Operator = { fg = c.comment },
-        Keyword = { fg = c.light_gray, style = "bold" },
-        Exception = { fg = c.red },
-        PreProc = { fg = c.blue },
-        Include = { fg = c.blue },
-        Define = { fg = c.blue },
-        Macro = { fg = c.blue },
+        Operator = { fg = c.gray },
+        Keyword = { fg = c.orange },
+        Exception = { fg = c.red, style = "bold" },
+        PreProc = { fg = c.magenta },
+        Include = { fg = c.magenta },
+        Define = { fg = c.magenta },
+        Macro = { fg = c.magenta },
         Type = { fg = c.blue },
-        StorageClass = { fg = c.blue },
+        StorageClass = { fg = c.orange },
         Structure = { fg = c.blue },
         Typedef = { fg = c.blue },
         Special = { fg = c.yellow_dim },
         SpecialChar = { fg = c.yellow_dim },
         Tag = { fg = c.yellow_dim },
-        Delimiter = { fg = c.comment },
-        SpecialComment = { fg = c.comment },
+        Delimiter = { fg = c.gray },
+        SpecialComment = { fg = c.comment, style = "bold" },
         Debug = { fg = c.red },
         Underlined = { style = "underline" },
         Error = { fg = c.red, style = "bold" },
@@ -110,15 +111,41 @@ function M.setup()
 
         -- Treesitter / LSP
         ["@variable"] = { fg = c.fg },
-        ["@variable.builtin"] = { fg = c.yellow_dim },
-        ["@function.builtin"] = { fg = c.cyan },
-        ["@constant.builtin"] = { fg = c.yellow },
-        ["@keyword.function"] = { fg = c.light_gray, style = "bold" },
-        ["@type.builtin"] = { fg = c.blue },
-        ["@constructor"] = { fg = c.fg, style = "bold" },
+        ["@variable.builtin"] = { fg = c.cyan },
+        ["@variable.parameter"] = { fg = c.fg, style = "italic" },
+        ["@function"] = { fg = c.cyan },
+        ["@function.builtin"] = { fg = c.cyan, style = "bold" },
+        ["@function.call"] = { fg = c.cyan },
+        ["@function.method"] = { fg = c.cyan },
+        ["@function.method.call"] = { fg = c.cyan },
+        ["@constant"] = { fg = c.yellow },
+        ["@constant.builtin"] = { fg = c.yellow, style = "bold" },
+        ["@keyword"] = { fg = c.orange },
+        ["@keyword.function"] = { fg = c.orange },
+        ["@keyword.operator"] = { fg = c.orange },
+        ["@keyword.return"] = { fg = c.orange },
+        ["@keyword.conditional"] = { fg = c.orange },
+        ["@keyword.repeat"] = { fg = c.orange },
+        ["@keyword.import"] = { fg = c.magenta },
+        ["@type"] = { fg = c.blue },
+        ["@type.builtin"] = { fg = c.blue, style = "bold" },
+        ["@type.qualifier"] = { fg = c.orange },
+        ["@constructor"] = { fg = c.blue },
         ["@property"] = { fg = c.yellow_dim },
-        ["@method"] = { fg = c.fg, style = "bold" },
+        ["@field"] = { fg = c.yellow_dim },
         ["@parameter"] = { fg = c.fg, style = "italic" },
+        ["@attribute"] = { fg = c.magenta },
+        ["@attribute.builtin"] = { fg = c.magenta },
+        ["@operator"] = { fg = c.gray },
+        ["@punctuation"] = { fg = c.gray },
+        ["@punctuation.bracket"] = { fg = c.gray },
+        ["@punctuation.delimiter"] = { fg = c.gray },
+        ["@string"] = { fg = c.green },
+        ["@string.escape"] = { fg = c.yellow_dim },
+        ["@number"] = { fg = c.yellow },
+        ["@boolean"] = { fg = c.cyan, style = "bold" },
+        ["@module"] = { fg = c.fg },
+        ["@namespace"] = { fg = c.fg },
 
         -- Gitsigns
         GitSignsAdd = { fg = c.green },

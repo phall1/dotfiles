@@ -9,6 +9,43 @@ do
 	end
 end
 
+-- Ensure project-local node binaries are on PATH (formatters like prettier)
+local function add_node_bin_to_path()
+	local buf_path = vim.api.nvim_buf_get_name(0)
+	if buf_path == "" then
+		return
+	end
+
+	local node_bin = vim.fs.find("node_modules/.bin", {
+		upward = true,
+		type = "directory",
+		path = vim.fs.dirname(buf_path),
+	})[1]
+
+	if node_bin and not vim.env.PATH:find(node_bin, 1, true) then
+		vim.env.PATH = node_bin .. ":" .. vim.env.PATH
+	end
+end
+
+vim.api.nvim_create_autocmd({ "BufEnter", "BufWinEnter", "BufReadPost" }, {
+	pattern = {
+		"*.ts",
+		"*.tsx",
+		"*.js",
+		"*.jsx",
+		"*.json",
+		"*.md",
+		"*.css",
+		"*.scss",
+		"*.yml",
+		"*.yaml",
+	},
+	callback = add_node_bin_to_path,
+})
+
+-- Unset RUSTUP_TOOLCHAIN so rustup can use rust-toolchain.toml per-project
+vim.env.RUSTUP_TOOLCHAIN = nil
+
 -- Mapleader key
 vim.g.mapleader = ","
 vim.g.maplocalleader = ","
@@ -84,7 +121,7 @@ require("lazy").setup({
 				},
 				window = {
 					width = 35,
-					side = "left",
+					side = "right",
 					mapping_options = {
 						noremap = true,
 						nowait = true,
@@ -143,7 +180,9 @@ require("lazy").setup({
 					"python",
 					"go",
 					"rust",
+					"javascript",
 					"typescript",
+					"tsx",
 					"lua",
 					"bash",
 					"json",
@@ -190,8 +229,22 @@ require("lazy").setup({
 				tools = {},
 				-- LSP configuration
 				server = {
-					-- Use rustup's rust-analyzer proxy - works with mise or without
-					cmd = { vim.fn.expand("~/.cargo/bin/rust-analyzer") },
+					-- Use rustup run to pick the correct toolchain for the workspace
+					cmd = function()
+						local cargo_toml = vim.fs.find("Cargo.toml", {
+							upward = true,
+							type = "file",
+							path = vim.fs.dirname(vim.api.nvim_buf_get_name(0)),
+						})[1]
+						if cargo_toml then
+							local workspace_root = vim.fs.dirname(cargo_toml)
+							-- Let rustup auto-detect the toolchain from rust-toolchain.toml
+							-- or fallback to the active toolchain for this workspace
+							return { "rustup", "run", "--install", "rust-analyzer" }
+						end
+						-- Fallback to default rust-analyzer
+						return { "rust-analyzer" }
+					end,
 					on_attach = function(client, bufnr)
 						-- You can add Rust-specific keymaps here if you want
 						-- For now, the global LSP keymaps will still work because
@@ -295,14 +348,16 @@ require("lazy").setup({
 				vim.lsp.enable("ty")
 			end
 
-			-- Diagnostics style
-			local signs = { Error = "✘", Warn = "▲", Hint = "⚑", Info = "»" }
-			for type, icon in pairs(signs) do
-				local hl = "DiagnosticSign" .. type
-				vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-			end
-
+			-- Diagnostics style (modern vim.diagnostic.config API)
 			vim.diagnostic.config({
+				signs = {
+					text = {
+						[1] = "✘", -- ERROR
+						[2] = "▲", -- WARN
+						[3] = "»", -- INFO
+						[4] = "⚑", -- HINT
+					},
+				},
 				virtual_text = {
 					prefix = "●",
 				},
@@ -333,7 +388,9 @@ require("lazy").setup({
 					go = { "gofmt" },
 					rust = { "rustfmt" },
 					javascript = { "prettier" },
+					javascriptreact = { "prettier" },
 					typescript = { "prettier" },
+					typescriptreact = { "prettier" },
 					json = { "prettier" },
 					terraform = { "terraform_fmt" },
 					lua = { "stylua" },
@@ -510,6 +567,12 @@ require("lazy").setup({
 			-- 'ibhagwan/fzf-lua',
 			-- 'nvim_mini/mini.nvim',
 		},
+	},
+	-- =========================================================================
+	-- Minimap
+	-- =========================================================================
+	{
+		"wfxr/minimap.vim",
 	},
 })
 

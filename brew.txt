@@ -3,6 +3,7 @@ neovim
 tmux
 ripgrep
 jq
+direnv
 
 lazygit
 jesseduffield/lazydocker/lazydocker

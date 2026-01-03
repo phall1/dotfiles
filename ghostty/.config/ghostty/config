@@ -1,22 +1,32 @@
 theme = twenty.ghostty
-
-font-size = 24
-
-background-blur = true
+auto-update = download
 
 ## Full screen
-macos-non-native-fullscreen = true
+# macos-non-native-fullscreen = false
 
+# ===========================
+# quick terminal
+# ===========================
 keybind = global:ctrl+grave_accent=toggle_quick_terminal
 
 ############
 # FONTS ####
-#
+
 # The "Undetected" Config
 # font-family = "Geist Mono" 
-font-family = "IBM Plex Mono"
-font-size = 13.5
+# font-family = "IBM Plex Mono"
+font-family = "Berkeley Mono Variable"
+font-size = 18
 font-feature = "cv01, cv02" # Force sharper, techier glyphs if available
+font-variation = wdth=90
+font-variation = wght=400
+font-variation = slnt=0
+# font-feature = +calt
+# font-feature = +ss02
+adjust-cell-height = -2%
+
+
+
 
 # Colors: "Twenty" Palette (Dark Blue & Gold)
 background = #1a1b1c
@@ -27,14 +37,19 @@ cursor-style-blink = false
 
 # The secret sauce: High contrast & slight blur
 # font-thicken = true
-background-opacity = 0.98
-background-blur = 10
+# background-opacity = 0.98
+# background-blur = 10
 
+
+
+####################
 # Minimalist Interface
+####################
 window-padding-x = 12
 window-padding-y = 12
 # window-padding-balance = false
 macos-titlebar-style = hidden
+macos-icon = xray
 
 # -------------
 
@@ -57,5 +72,3 @@ macos-titlebar-style = hidden
 # font-size = 13
 # # This makes the font feel more like a technical schematic
 # font-feature = "ss01" # Changes the style of certain characters to be more techy
-
-

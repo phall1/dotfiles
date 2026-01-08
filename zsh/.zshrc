@@ -40,6 +40,8 @@ alias sz='source ~/.zshrc'
 alias ghostconf='vim ~/.config/ghostty/config'
 alias promptconf='vim ~/.config/starship.toml'
 alias pc='process-compose'
+alias coder='npx -y @just-every/code'
+
 
 
 ####################
@@ -189,3 +191,7 @@ ASYNCAPI_AC_ZSH_SETUP_PATH=/Users/Patrick.Hall/Library/Caches/@asyncapi/cli/auto
 
 # Added by Antigravity
 export PATH="/Users/Patrick.Hall/.antigravity/antigravity/bin:$PATH"
+
+if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+
+alias claude-mem='bun "/Users/Patrick.Hall/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'

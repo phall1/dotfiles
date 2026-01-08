@@ -304,7 +304,57 @@ require("lazy").setup({
 
 			-- Attach LSP servers
 			local capabilities = require("cmp_nvim_lsp").default_capabilities()
-			local lspconfig = require("lspconfig")
+			local uv = vim.uv or vim.loop
+			local function setup_lua_ls()
+				local settings = {
+					Lua = {
+						runtime = {
+							version = "LuaJIT",
+							path = {
+								"lua/?.lua",
+								"lua/?/init.lua",
+							},
+						},
+						diagnostics = { globals = { "vim" } },
+						workspace = {
+							checkThirdParty = false,
+							library = { vim.env.VIMRUNTIME },
+						},
+						telemetry = { enable = false },
+					},
+				}
+
+				local on_init = function(client)
+					if client.workspace_folders then
+						local path = client.workspace_folders[1].name
+						if
+							path ~= vim.fn.stdpath("config")
+							and (uv.fs_stat(path .. "/.luarc.json") or uv.fs_stat(path .. "/.luarc.jsonc"))
+						then
+							return
+						end
+					end
+
+					client.config.settings.Lua = vim.tbl_deep_extend("force", client.config.settings.Lua, settings.Lua)
+				end
+
+				if vim.lsp.config and vim.lsp.enable then
+					vim.lsp.config("lua_ls", {
+						capabilities = capabilities,
+						on_init = on_init,
+						settings = settings,
+					})
+					vim.lsp.enable("lua_ls")
+					return
+				end
+
+				local lspconfig = require("lspconfig")
+				lspconfig.lua_ls.setup({
+					capabilities = capabilities,
+					on_init = on_init,
+					settings = settings,
+				})
+			end
 
 			require("mason-lspconfig").setup({
 				ensure_installed = {
@@ -314,20 +364,31 @@ require("lazy").setup({
 					"dockerls",
 					"lua_ls",
 				},
-				handlers = {
-					function(server_name)
-						lspconfig[server_name].setup({
-							capabilities = capabilities,
-						})
-					end,
-					["pyright"] = function()
-						-- Explicitly disabled: ty replaces pyright
-					end,
-					["rust_analyzer"] = function()
-						-- rustaceanvim handles this
-					end,
-				},
 			})
+
+			local default_servers = {
+				"gopls",
+				"ts_ls",
+				"terraformls",
+				"dockerls",
+			}
+			if vim.lsp.config and vim.lsp.enable then
+				for _, server_name in ipairs(default_servers) do
+					vim.lsp.config(server_name, {
+						capabilities = capabilities,
+					})
+					vim.lsp.enable(server_name)
+				end
+				setup_lua_ls()
+			else
+				local lspconfig = require("lspconfig")
+				for _, server_name in ipairs(default_servers) do
+					lspconfig[server_name].setup({
+						capabilities = capabilities,
+					})
+				end
+				setup_lua_ls()
+			end
 
 			-- Python LSP: ty (replaces pyright)
 			if vim.lsp.config and vim.lsp.enable then
@@ -367,6 +428,9 @@ require("lazy").setup({
 				severity_sort = true,
 			})
 
+			-- Enable inlay hints globally (Neovim 0.10+)
+			vim.lsp.inlay_hint.enable(true)
+
 			-- Keymaps for LSP actions
 			local map = vim.keymap.set
 			map("n", "gd", vim.lsp.buf.definition, { desc = "Go to definition" })
@@ -375,6 +439,9 @@ require("lazy").setup({
 			map("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 			map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
 			map("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+			map("n", "<leader>th", function()
+				vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+			end, { desc = "Toggle inlay hints" })
 		end,
 	},
 
@@ -549,30 +616,78 @@ require("lazy").setup({
 	-- END MARKDOWN SUITE
 	-- =========================================================================
 
-	{
-		"sudo-tee/opencode.nvim",
-		config = function()
-			require("opencode").setup({})
-		end,
-		dependencies = {
-			"nvim-lua/plenary.nvim",
-			"MeanderingProgrammer/render-markdown.nvim", -- now a top-level plugin
-			-- Optional, for file mentions and commands completion, pick only one
-			-- 'saghen/blink.cmp',
-			"hrsh7th/nvim-cmp",
-
-			-- Optional, for file mentions picker, pick only one
-			"folke/snacks.nvim",
-			-- 'nvim-telescope/telescope.nvim',
-			-- 'ibhagwan/fzf-lua',
-			-- 'nvim_mini/mini.nvim',
-		},
-	},
+	-- {
+	-- 	"sudo-tee/opencode.nvim",
+	-- 	config = function()
+	-- 		require("opencode").setup({})
+	-- 	end,
+	-- 	dependencies = {
+	-- 		"nvim-lua/plenary.nvim",
+	-- 		"MeanderingProgrammer/render-markdown.nvim", -- now a top-level plugin
+	-- 		-- Optional, for file mentions and commands completion, pick only one
+	-- 		-- 'saghen/blink.cmp',
+	-- 		"hrsh7th/nvim-cmp",
+	--
+	-- 		-- Optional, for file mentions picker, pick only one
+	-- 		"folke/snacks.nvim",
+	-- 		-- 'nvim-telescope/telescope.nvim',
+	-- 		-- 'ibhagwan/fzf-lua',
+	-- 		-- 'nvim_mini/mini.nvim',
+	-- 	},
+	-- },
 	-- =========================================================================
 	-- Minimap
 	-- =========================================================================
 	{
 		"wfxr/minimap.vim",
+	},
+
+	{
+		"NickvanDyke/opencode.nvim",
+		dependencies = {
+			-- Recommended for `ask()` and `select()`.
+			-- Required for `snacks` provider.
+			---@module 'snacks' <- Loads `snacks.nvim` types for configuration intellisense.
+			{ "folke/snacks.nvim", opts = { input = {}, picker = {}, terminal = {} } },
+		},
+		config = function()
+			---@type opencode.Opts
+			vim.g.opencode_opts = {
+				-- Your configuration, if any — see `lua/opencode/config.lua`, or "goto definition".
+			}
+
+			-- Required for `opts.events.reload`.
+			vim.o.autoread = true
+
+			-- Recommended/example keymaps.
+			vim.keymap.set({ "n", "x" }, "<C-a>", function()
+				require("opencode").ask("@this: ", { submit = true })
+			end, { desc = "Ask opencode" })
+			vim.keymap.set({ "n", "x" }, "<C-x>", function()
+				require("opencode").select()
+			end, { desc = "Execute opencode action…" })
+			vim.keymap.set({ "n", "t" }, "<leader>oo", function()
+				require("opencode").toggle()
+			end, { desc = "Toggle opencode" })
+
+			vim.keymap.set({ "n", "x" }, "go", function()
+				return require("opencode").operator("@this ")
+			end, { expr = true, desc = "Add range to opencode" })
+			vim.keymap.set("n", "goo", function()
+				return require("opencode").operator("@this ") .. "_"
+			end, { expr = true, desc = "Add line to opencode" })
+
+			vim.keymap.set("n", "<S-C-u>", function()
+				require("opencode").command("session.half.page.up")
+			end, { desc = "opencode half page up" })
+			vim.keymap.set("n", "<S-C-d>", function()
+				require("opencode").command("session.half.page.down")
+			end, { desc = "opencode half page down" })
+
+			-- You may want these if you stick with the opinionated "<C-a>" and "<C-x>" above — otherwise consider "<leader>o".
+			vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
+			vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
+		end,
 	},
 })
 
@@ -594,6 +709,9 @@ vim.cmd("command! -nargs=* Gblame Git blame --date=short --abbrev=8 <args>")
 vim.keymap.set("n", "<leader>q", ":q<CR>", { silent = true })
 -- Save mapping
 vim.keymap.set("n", "<leader>w", ":w<CR>", { silent = true })
+-- Split shortcuts
+vim.keymap.set("n", "<leader>h", ":split<CR>", { silent = true })
+vim.keymap.set("n", "<leader>v", ":vsplit<CR>", { silent = true })
 -- Toggle inline Git blame
 vim.keymap.set("n", "<leader>gb", function()
 	require("gitsigns").toggle_current_line_blame()

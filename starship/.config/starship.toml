@@ -1,64 +1,55 @@
-# Twenty Theme for Starship
-# Company colors with hacker aesthetic
+# JARVIS — Stark Industries HUD
+# Monochrome + single accent. Information, not decoration.
 
-format = """
-[▸](#4ECDC4) $directory $git_branch$git_state$git_status $aws$cmd_duration
+format = """$directory $git_branch$git_state$git_status$aws$cmd_duration
 $python$character"""
 
 [directory]
-style = "bold #EEEEE5"
+style = "#909090"
 format = "[$path]($style)"
 truncation_length = 3
 truncate_to_repo = true
 
 [character]
-success_symbol = "[›](bold #00FF9F)"
-error_symbol = "[›](bold #E05A55)"
-vimcmd_symbol = "[‹](bold #4ECDC4)"
+success_symbol = "[❯](#606060)"
+error_symbol = "[❯](#c45c5c)"
+vimcmd_symbol = "[❮](#5c8cc4)"
 
 [git_branch]
-format = "[$symbol$branch]($style)"
-style = "bold #5FD068"
+format = "[$branch]($style)"
+style = "#d4d4d4"
 symbol = ""
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
-style = "#F7F5DA"
-conflicted = " [⚡](bold #E05A55)"
-untracked = " [◌](#5A6A6D)"
-modified = " [△](#D4D090)"
-staged = " [✓](#5FD068)"
-renamed = " [→](#4ECDC4)"
-deleted = " [✕](#E05A55)"
-stashed = " [≡](#4ECDC4)"
-ahead = " [↑${count}](#5FD068)"
-behind = " [↓${count}](#E05A55)"
-diverged = " [↕${ahead_count}↓${behind_count}](#E05A55)"
+style = "#606060"
+conflicted = "[!](#c45c5c)"
+untracked = "[?](#606060)"
+modified = "[~](#c9b458)"
+staged = "[+](#909090)"
+renamed = "[»](#606060)"
+deleted = "[✕](#c45c5c)"
+stashed = "[≡](#606060)"
+ahead = "[↑${count}](#909090)"
+behind = "[↓${count}](#606060)"
+diverged = "[↕${ahead_count}↓${behind_count}](#c45c5c)"
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '
-style = "italic #D4D090"
+style = "italic #606060"
 
 [cmd_duration]
-format = "[◇ $duration]($style)"
-style = "#5A6A6D"
-min_time = 1000
+format = "[$duration]($style)"
+style = "#404040"
+min_time = 2000
 
 [python]
-format = "[‹$virtualenv› ](#4ECDC4)"
-style = "#4ECDC4"
-
-
-################ 
-#### AWS
-################ 
-[env_var.AWS_ACCOUNT_ID]
-format = '[$env_value]($style) '
-style = '#5A6A6D'
+format = "[py:$virtualenv]($style) "
+style = "#606060"
 
 [aws]
-format = '[⬡ $profile](bold #4ECDC4) '
-style = '#4ECDC4'
+format = '[$profile]($style) '
+style = '#5c8cc4'
 symbol = ''
 [aws.region_aliases]
 us-east-1 = 'va'

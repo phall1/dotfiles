@@ -12,63 +12,31 @@ keybind = global:ctrl+grave_accent=toggle_quick_terminal
 ############
 # FONTS ####
 
-# The "Undetected" Config
-# font-family = "Geist Mono" 
-# font-family = "IBM Plex Mono"
-font-family = "Berkeley Mono Variable"
-font-size = 18
-font-feature = "cv01, cv02" # Force sharper, techier glyphs if available
-font-variation = wdth=90
-font-variation = wght=400
-font-variation = slnt=0
-# font-feature = +calt
-# font-feature = +ss02
+font-family = "JetBrainsMono Nerd Font"
+font-size = 14
+adjust-cell-width = -8%
 adjust-cell-height = -2%
+font-thicken = true
 
+############
+# COLORS ####
 
-
-
-# Colors: "Twenty" Palette (Dark Blue & Gold)
-background = #1a1b1c
-foreground = #eeeee5
-cursor-color = #f7f5da
-cursor-style = block
+background = #0a0a0a
+foreground = #d4d4d4
+cursor-color = #d4d4d4
+cursor-style = bar
 cursor-style-blink = false
+selection-background = #4a4535
+selection-foreground = #f0e8d8
 
-# The secret sauce: High contrast & slight blur
-# font-thicken = true
-# background-opacity = 0.98
-# background-blur = 10
+############
+# PREMIUM FEEL ####
 
-
-
-####################
-# Minimalist Interface
-####################
-window-padding-x = 12
-window-padding-y = 12
-# window-padding-balance = false
+window-padding-x = 20
+window-padding-y = 16
+window-padding-balance = true
+background-opacity = 0.92
+background-blur-radius = 20
 macos-titlebar-style = hidden
 macos-icon = xray
-
-# -------------
-
-# # ----------
-# font-family = "Monaspace Neon"
-# font-style = "Regular"
-# font-size = 14
-# # Enables cursive italics which contrasts nicely with the industrial vibe
-# font-feature = "calt", "ss01", "ss02"
-
-# -------
-# font-family = "FiraCode Nerd Font Mono"
-# font-style = "Retina"
-# font-size = 13.5
-# font-feature = "ss03", "cv14" # Customizes the '$' and 'i' to look cleaner
-
-
-# font-family = "Monaspace Krypton"
-# font-style = "Wide SemiBold"
-# font-size = 13
-# # This makes the font feel more like a technical schematic
-# font-feature = "ss01" # Changes the style of certain characters to be more techy
+minimum-contrast = 1.1

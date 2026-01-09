@@ -1,41 +1,31 @@
-# Twenty - Brand Identity Theme
-# Based on the Twenty Brand Guide: Industrial, Swiss, Minimal.
-# With a hint of hacker aesthetic.
+# JARVIS
 
-background = #252a2b
-foreground = #EEEEE5
-cursor-color = #00FF9F
-selection-background = #3F3F34
-selection-foreground = #00FF9F
+background = #0a0a0a
+foreground = #d4d4d4
+cursor-color = #d4d4d4
+selection-background = #4a4535
+selection-foreground = #f0e8d8
 
-# Black (Brand Dark Blue variant / Dark Neutral)
-palette = 0=#1A1C1D
-palette = 8=#4A4A3F
+palette = 0=#0a0a0a
+palette = 8=#505050
 
-# Red (Alert - slightly more vivid)
-palette = 1=#E05A55
-palette = 9=#FF6B66
+palette = 1=#c45c5c
+palette = 9=#d47070
 
-# Green (Terminal green with olive undertone)
-palette = 2=#5FD068
-palette = 10=#7AE582
+palette = 2=#7ec87e
+palette = 10=#90d890
 
-# Yellow (Brand Gold - with a hint of phosphor)
-palette = 3=#D4D090
-palette = 11=#F7F5DA
+palette = 3=#d4c472
+palette = 11=#e0d080
 
-# Blue (Cooler, more electric)
-palette = 4=#5A9EA8
-palette = 12=#7AC4D0
+palette = 4=#6b9fcc
+palette = 12=#80b0dd
 
-# Purple (Cyberpunk magenta hint)
-palette = 5=#B88AB0
-palette = 13=#D9A8D0
+palette = 5=#9a7aa0
+palette = 13=#a888b0
 
-# Cyan (Terminal cyan - the hacker classic)
-palette = 6=#4ECDC4
-palette = 14=#7EEEE6
+palette = 6=#6a9a97
+palette = 14=#7ab0ad
 
-# White (Brand White & Dimmed)
-palette = 7=#C5C5BE
-palette = 15=#EEEEE5
+palette = 7=#909090
+palette = 15=#d4d4d4

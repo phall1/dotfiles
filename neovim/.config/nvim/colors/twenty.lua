@@ -1,31 +1,28 @@
--- Twenty Neovim Theme
--- A minimal, industrial theme based on the Twenty Brand Guide.
--- With a hint of hacker aesthetic.
+-- JARVIS Neovim Theme
 
 local M = {}
 
 M.colors = {
-    bg = "#151718",
-    fg = "#D4D4D0",
-    selection = "#252829",
-    comment = "#626e6e",
-    cursor = "#00FF9F",
+    bg = "#0a0a0a",
+    fg = "#d4d4d4",
+    selection = "#4a4535",
+    comment = "#606060",
+    cursor = "#d4d4d4",
 
-    -- Derived Palette
-    black = "#000000",
-    bg_dark = "#0e1010",
-    bg_light = "#1e2021",
-    gray = "#525e5e",
-    light_gray = "#9ca8a8",
+    black = "#0a0a0a",
+    bg_dark = "#050505",
+    bg_light = "#151515",
+    gray = "#505050",
+    light_gray = "#909090",
 
-    red = "#E05A55", -- Errors, exceptions
-    green = "#7DD88A", -- Strings - brighter for clarity
-    yellow = "#F0E6A0", -- Constants, numbers
-    yellow_dim = "#C9BC7A", -- Properties, special chars
-    blue = "#6BB8C4", -- Types - brighter, more distinct
-    magenta = "#C49AC0", -- Less saturated
-    cyan = "#5AD4CB", -- Builtins, labels
-    orange = "#D9A76A", -- Keywords - warm, distinct from text
+    red = "#c45c5c",
+    green = "#7ec87e",
+    yellow = "#d4c472",
+    yellow_dim = "#a89860",
+    blue = "#6b9fcc",
+    magenta = "#9a7aa0",
+    cyan = "#6a9a97",
+    orange = "#cc9a6b",
 
     none = "NONE"
 }
@@ -69,9 +66,9 @@ function M.setup()
         WinSeparator = { fg = c.selection, bg = c.bg },
         StatusLine = { fg = c.fg, bg = c.selection },
         StatusLineNC = { fg = c.comment, bg = c.bg_dark },
-        Visual = { bg = c.selection },
-        Search = { fg = c.bg, bg = c.yellow },
-        IncSearch = { fg = c.bg, bg = c.green },
+        Visual = { fg = "#f0e8d8", bg = c.selection },
+        Search = { fg = "#0a0a0a", bg = "#c9b458" },
+        IncSearch = { fg = "#0a0a0a", bg = "#d4c472" },
         MatchParen = { fg = c.yellow, style = "bold,underline" },
 
         -- Syntax
@@ -153,12 +150,16 @@ function M.setup()
         GitSignsDelete = { fg = c.red },
 
         -- Telescope
-        TelescopeBorder = { fg = c.selection },
-        TelescopePromptBorder = { fg = c.selection },
-        TelescopeResultsBorder = { fg = c.selection },
-        TelescopePreviewBorder = { fg = c.selection },
+        TelescopeBorder = { fg = c.gray },
+        TelescopePromptBorder = { fg = c.gray },
+        TelescopeResultsBorder = { fg = c.gray },
+        TelescopePreviewBorder = { fg = c.gray },
         TelescopeMatching = { fg = c.yellow, style = "bold" },
-        TelescopeSelection = { bg = c.selection },
+        TelescopeSelection = { fg = "#f0e8d8", bg = c.selection },
+
+        -- Floating windows
+        NormalFloat = { fg = c.fg, bg = c.bg_light },
+        FloatBorder = { fg = c.gray, bg = c.bg_light },
     }
 
     for group, highlight in pairs(groups) do

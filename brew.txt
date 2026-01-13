@@ -2,6 +2,7 @@ fzf
 neovim
 tmux
 ripgrep
+shellcheck
 jq
 direnv
 

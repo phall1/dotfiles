@@ -100,9 +100,10 @@ require("lazy").setup({
 			"nvim-tree/nvim-web-devicons",
 		},
 		config = function()
-			require("neo-tree").setup({
-				-- Turn off expensive git/diagnostic scans to keep folder toggles snappy
-				enable_git_status = false,
+			local neo_tree = require("neo-tree")
+			neo_tree.setup({
+				-- Git status is enabled, but you can toggle it off for performance
+				enable_git_status = true,
 				enable_diagnostics = false,
 				filesystem = {
 					filtered_items = {
@@ -133,7 +134,33 @@ require("lazy").setup({
 					},
 				},
 			})
+
+			local git_status_async_default = neo_tree.ensure_config().git_status_async
+			local function toggle_neotree_git_status()
+				local config = neo_tree.ensure_config()
+				config.enable_git_status = not config.enable_git_status
+				local manager = require("neo-tree.sources.manager")
+				manager._for_each_state("filesystem", function(state)
+					state.enable_git_status = config.enable_git_status
+					if not config.enable_git_status then
+						state.git_status_lookup = nil
+						state.git_ignored = {}
+					end
+				end)
+
+				if config.enable_git_status then
+					config.git_status_async = git_status_async_default
+					manager.refresh("filesystem")
+				else
+					config.git_status_async = false
+					manager.redraw("filesystem")
+				end
+			end
 			vim.keymap.set("n", "<leader>n", ":Neotree toggle<CR>", { silent = true })
+			vim.keymap.set("n", "<leader>tg", toggle_neotree_git_status, {
+				desc = "Toggle Neo-tree git status",
+				silent = true,
+			})
 		end,
 	},
 
@@ -166,6 +193,10 @@ require("lazy").setup({
 			vim.keymap.set("n", "<leader>gc", builtin.git_commits, {
 				silent = true,
 				desc = "Git commits",
+			})
+			vim.keymap.set("n", "<leader>dd", builtin.diagnostics, {
+				silent = true,
+				desc = "Diagnostics (Telescope)",
 			})
 		end,
 	},
@@ -449,7 +480,41 @@ require("lazy").setup({
 	{
 		"stevearc/conform.nvim",
 		config = function()
-			require("conform").setup({
+			local conform = require("conform")
+
+			-- Custom prettier that finds config relative to the file being formatted
+			conform.formatters.prettier = {
+				prepend_args = function(self, ctx)
+					-- Search upward from the file for a prettier config
+					local config_files = {
+						".prettierrc",
+						".prettierrc.json",
+						".prettierrc.yml",
+						".prettierrc.yaml",
+						".prettierrc.json5",
+						".prettierrc.js",
+						".prettierrc.cjs",
+						".prettierrc.mjs",
+						".prettierrc.toml",
+						"prettier.config.js",
+						"prettier.config.cjs",
+						"prettier.config.mjs",
+					}
+
+					local config_path = vim.fs.find(config_files, {
+						upward = true,
+						type = "file",
+						path = vim.fs.dirname(ctx.filename),
+					})[1]
+
+					if config_path then
+						return { "--config", config_path }
+					end
+					return {}
+				end,
+			}
+
+			conform.setup({
 				formatters_by_ft = {
 					python = { "ruff_format" },
 					go = { "gofmt" },
@@ -466,6 +531,26 @@ require("lazy").setup({
 					timeout_ms = 2000,
 					lsp_fallback = true,
 				},
+			})
+		end,
+	},
+	{
+		"mfussenegger/nvim-lint",
+		event = { "BufReadPost", "BufNewFile" },
+		config = function()
+			local lint = require("lint")
+			lint.linters_by_ft = {
+				sh = { "shellcheck" },
+				bash = { "shellcheck" },
+				zsh = { "shellcheck" },
+			}
+
+			local lint_augroup = vim.api.nvim_create_augroup("Lint", { clear = true })
+			vim.api.nvim_create_autocmd({ "BufEnter", "BufWritePost", "InsertLeave" }, {
+				group = lint_augroup,
+				callback = function()
+					lint.try_lint()
+				end,
 			})
 		end,
 	},

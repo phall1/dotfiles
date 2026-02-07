@@ -90,6 +90,20 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugins
 require("lazy").setup({
+	-- Trouble: project-wide diagnostics panel
+	{
+		"folke/trouble.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		opts = {
+			focus = true,
+		},
+		keys = {
+			{ "<leader>xx", "<cmd>Trouble diagnostics toggle<cr>", desc = "Diagnostics (Trouble)" },
+			{ "<leader>xX", "<cmd>Trouble diagnostics toggle filter.buf=0<cr>", desc = "Buffer Diagnostics (Trouble)" },
+			{ "<leader>xq", "<cmd>Trouble quickfix toggle<cr>", desc = "Quickfix (Trouble)" },
+		},
+	},
+
 	-- Neo-tree
 	{
 		"nvim-neo-tree/neo-tree.nvim",
@@ -470,6 +484,8 @@ require("lazy").setup({
 			map("n", "<leader>rn", vim.lsp.buf.rename, { desc = "Rename symbol" })
 			map("n", "<leader>ca", vim.lsp.buf.code_action, { desc = "Code action" })
 			map("n", "<leader>e", vim.diagnostic.open_float, { desc = "Show diagnostic" })
+			map("n", "<leader>ne", vim.diagnostic.goto_next, { desc = "Next error" })
+			map("n", "<leader>pe", vim.diagnostic.goto_prev, { desc = "Previous error" })
 			map("n", "<leader>th", function()
 				vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 			end, { desc = "Toggle inlay hints" })
@@ -802,7 +818,7 @@ vim.keymap.set("n", "<leader>gb", function()
 	require("gitsigns").toggle_current_line_blame()
 end, { desc = "Toggle Git blame" })
 
--- Commenting!!!! <leacder>cc
+-- Commenting!!!! <leader>cc
 --
 vim.keymap.set("n", "<leader>cc", "gcc", {
 	remap = true,

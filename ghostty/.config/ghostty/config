@@ -16,7 +16,7 @@ font-family = "JetBrainsMono Nerd Font"
 font-size = 14
 adjust-cell-width = -8%
 adjust-cell-height = -2%
-font-thicken = true
+font-thicken = false
 
 ############
 # COLORS ####
@@ -24,7 +24,7 @@ font-thicken = true
 background = #0a0a0a
 foreground = #d4d4d4
 cursor-color = #d4d4d4
-cursor-style = bar
+cursor-style = block
 cursor-style-blink = false
 selection-background = #4a4535
 selection-foreground = #f0e8d8

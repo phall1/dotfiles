@@ -22,8 +22,12 @@ setopt HIST_IGNORE_DUPS SHARE_HISTORY
 
 # MISE let's let the mise tools win
 
-# Antidote plugin management (hardcoded path for speed)
-source /opt/homebrew/share/antidote/antidote.zsh
+# Antidote plugin management (works on both Intel and Apple Silicon Macs)
+if [[ -f /opt/homebrew/share/antidote/antidote.zsh ]]; then
+  source /opt/homebrew/share/antidote/antidote.zsh
+elif [[ -f /usr/local/share/antidote/antidote.zsh ]]; then
+  source /usr/local/share/antidote/antidote.zsh
+fi
 antidote load ~/.zsh_plugins.txt
 
 # Use vi mode and set escape key timeout to avoid delays
@@ -90,8 +94,20 @@ alias cclip='pbpaste | pbcopy'
 alias ghcrlogin='gh auth token | docker login ghcr.io -u $(gh api user --jq .login) --password-stdin'
 
 alias nload='TERM=xterm-256color nload'
-alias tealdeeer='tldr'
+alias tealdeer='tldr'
 
+# beadsviewer wrapper for git worktree support (stealth mode - not committed)
+# bv doesn't auto-detect .beads in worktrees like bd does, so we help it
+bv() {
+  local git_common_dir beads_dir
+  git_common_dir=$(git rev-parse --git-common-dir 2>/dev/null)
+  if [[ -n "$git_common_dir" && -d "$git_common_dir/../.beads" ]]; then
+    beads_dir="$git_common_dir/../.beads"
+  elif [[ -d ".beads" ]]; then
+    beads_dir=".beads"
+  fi
+  BEADS_DIR="$beads_dir" command bv "$@"
+}
 
 #############
 ### Make LS colorful
@@ -115,7 +131,8 @@ export PATH="/opt/homebrew/bin/:$PATH"
 
 # Lazy-load NVM (only loads when you actually use node/npm/nvm)
 export NVM_DIR="$HOME/.nvm"
-export PATH="$NVM_DIR/versions/node/v20.19.5/bin:$PATH"  # Direct path to default node
+# Add default node to PATH if it exists (nvm alias default)
+[[ -d "$NVM_DIR/alias/default" ]] && export PATH="$NVM_DIR/versions/node/$(cat "$NVM_DIR/alias/default")/bin:$PATH"
 
 # Lazy load function - NVM will only initialize when you call it
 nvm() {
@@ -146,12 +163,12 @@ npx() {
   npx "$@"
 }
 
-# Created by `pipx` on 2025-09-23 17:58:04
-export PATH="$PATH:/Users/Patrick.Hall/.local/bin"
+# pipx and local binaries
+export PATH="$PATH:$HOME/.local/bin"
 
 
-# BUNX stuff
-export PATH="/Users/Patrick.Hall/.bun/bin:$PATH"
+# Bun
+export PATH="$HOME/.bun/bin:$PATH"
 
 
 
@@ -168,10 +185,8 @@ fuck() {
 
 # Starship prompt (must be last)
 
-# Only activate mise if we're in or under a directory with a .mise.toml or .tool-versions
-if mise direnv activate >/dev/null 2>&1; then
-  eval "$(mise activate zsh)"
-fi
+# Activate mise if installed
+command -v mise >/dev/null && eval "$(mise activate zsh)"
 
 eval "$(direnv hook zsh)"
 eval "$(zoxide init zsh)"
@@ -181,17 +196,19 @@ eval "$(starship init zsh)"
 [ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"
 
 
-export PATH=$PATH:/Users/Patrick.Hall/go/bin
+export PATH="$PATH:$HOME/go/bin"
 
 # AsyncAPI CLI Autocomplete
 
-ASYNCAPI_AC_ZSH_SETUP_PATH=/Users/Patrick.Hall/Library/Caches/@asyncapi/cli/autocomplete/zsh_setup && test -f $ASYNCAPI_AC_ZSH_SETUP_PATH && source $ASYNCAPI_AC_ZSH_SETUP_PATH; # asyncapi autocomplete setup
+# AsyncAPI CLI autocomplete
+ASYNCAPI_AC_ZSH_SETUP_PATH="$HOME/Library/Caches/@asyncapi/cli/autocomplete/zsh_setup"
+[[ -f "$ASYNCAPI_AC_ZSH_SETUP_PATH" ]] && source "$ASYNCAPI_AC_ZSH_SETUP_PATH"
 
 
 
-# Added by Antigravity
-export PATH="/Users/Patrick.Hall/.antigravity/antigravity/bin:$PATH"
+# Antigravity
+export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
-alias claude-mem='bun "/Users/Patrick.Hall/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+alias claude-mem='bun "$HOME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'

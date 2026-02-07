@@ -1,0 +1,22 @@
+(
+    background: "#282c34",
+    foreground: "#abb2bf",
+
+    selected_bg: "#3e4451",
+    selection_bg: "#3e4451",
+
+    diff_line_add: "#98c379",
+    diff_line_delete: "#e06c75",
+    diff_file_added: "#98c379",
+    diff_file_removed: "#e06c75",
+    diff_file_moved: "#61afef",
+    diff_file_modified: "#e5c07b",
+
+    commit_hash: "#98c379",
+    commit_author: "#61afef",
+    commit_time: "#c678dd",
+
+    branch_tag: "#e5c07b",
+    branch_local: "#98c379",
+    branch_remote: "#61afef",
+)

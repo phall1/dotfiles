@@ -1,0 +1,34 @@
+(
+    move_left: Some(( code: Char('h'), modifiers: "")),
+    move_right: Some(( code: Char('l'), modifiers: "")),
+    move_up: Some(( code: Char('k'), modifiers: "")),
+    move_down: Some(( code: Char('j'), modifiers: "")),
+
+    stash_open: Some(( code: Char('l'), modifiers: "")),
+    open_help: Some(( code: Char('?'), modifiers: "")),
+
+    status_reset_item: Some(( code: Char('u'), modifiers: "")),
+    diff_reset_lines: Some(( code: Char('u'), modifiers: "")),
+
+    status_stage_file: Some(( code: Char('s'), modifiers: "")),
+    status_reset_file: Some(( code: Char('U'), modifiers: "SHIFT")),
+    status_push: Some(( code: Char('P'), modifiers: "SHIFT")),
+    status_commit: Some(( code: Char('c'), modifiers: "")),
+    status_merge: Some(( code: Char('m'), modifiers: "")),
+    status_rebase: Some(( code: Char('r'), modifiers: "")),
+    status_revert: Some(( code: Char('v'), modifiers: "")),
+    status_amend: Some(( code: Char('a'), modifiers: "")),
+    status_ignore_file: Some(( code: Char('i'), modifiers: "")),
+
+    stash_push: Some(( code: Char('s'), modifiers: "")),
+    stash_drop: Some(( code: Char('d'), modifiers: "")),
+    stash_pop: Some(( code: Char('p'), modifiers: "")),
+    stash_apply: Some(( code: Char('a'), modifiers: "")),
+
+    log_move_down: Some(( code: Char('j'), modifiers: "")),
+    log_move_up: Some(( code: Char('k'), modifiers: "")),
+
+    copy: Some(( code: Char('y'), modifiers: "")),
+
+    open_commit: Some(( code: Char('o'), modifiers: "")),
+)

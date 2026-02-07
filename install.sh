@@ -4,7 +4,7 @@ set -e
 
 echo "📦 Installing Homebrew packages..."
 if [ -f "brew.txt" ]; then
-  cat brew.txt | xargs brew install
+  xargs brew install < brew.txt
 else
   echo "⚠️  brew.txt not found, skipping package installation"
 fi

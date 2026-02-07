@@ -1,0 +1,6 @@
+# Cache and dependencies (not tracked)
+cache/
+node_modules/
+
+# Config files ARE tracked in dotfiles
+# (removed package.json, bun.lock, .gitignore from ignore list)

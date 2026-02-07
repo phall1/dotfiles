@@ -110,3 +110,32 @@ header() {
   printf "   %s\n" "$1"
   printf "========================================\033[0m\n\n"
 }
+
+# Sync opencode dev branch with upstream
+oc-sync() {
+  local oc=~/workspace/opencode
+  
+  # Check for uncommitted changes
+  if ! git -C "$oc" diff --quiet || ! git -C "$oc" diff --cached --quiet; then
+    echo "You have uncommitted changes. Stash or commit first."
+    return 1
+  fi
+  
+  # Check if on dev branch
+  local branch=$(git -C "$oc" branch --show-current)
+  if [[ "$branch" != "dev" ]]; then
+    echo "Not on dev branch (on '$branch'). Switch to dev first, or:"
+    echo "  git -C $oc checkout dev"
+    return 1
+  fi
+  
+  git -C "$oc" fetch upstream && \
+  git -C "$oc" rebase upstream/dev
+}
+
+# Build opencode from source (single platform)
+oc-build() {
+  echo "Building opencode..."
+  bun run --cwd ~/workspace/opencode/packages/opencode build --single && \
+  echo "Done. Run 'opencode --version' to verify."
+}

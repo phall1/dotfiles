@@ -1,0 +1,25 @@
+# Dependencies and cache (auto-generated)
+node_modules/
+cache/
+
+# Auth/credentials (sensitive)
+antigravity-accounts.json
+antigravity-signature-cache.json
+antigravity-logs/
+
+# Backup files
+*.bak.*
+
+# Logs
+logs/
+*.log
+
+# DO track these config files:
+# package.json
+# bun.lock
+# .gitignore
+# opencode.jsonc
+# oh-my-opencode.json
+# subtask2.jsonc
+# command/
+# plugin/

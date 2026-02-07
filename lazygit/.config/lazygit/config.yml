@@ -1,0 +1,379 @@
+# Lazygit configuration with Twenty theme
+# Place at ~/.config/lazygit/config.yml
+
+# ============================================
+# GUI SETTINGS
+# ============================================
+gui:
+  # Theme colors matching Twenty theme
+  theme:
+    activeBorderColor:
+      - "#d4c472"  # Yellow - active panel border
+      - "bold"
+    inactiveBorderColor:
+      - "#505050"  # Gray - inactive panel border
+    optionsTextColor:
+      - "#6b9fcc"  # Blue - options text
+    selectedLineBgColor:
+      - "#4a4535"  # Selection background
+    selectedRangeBgColor:
+      - "#4a4535"  # Selection background
+    cherryPickedCommitBgColor:
+      - "#9a7aa0"  # Purple
+    cherryPickedCommitFgColor:
+      - "#d4d4d4"  # Foreground
+    unstagedChangesColor:
+      - "#c45c5c"  # Red - unstaged
+    defaultFgColor:
+      - "#d4d4d4"  # Default foreground
+    searchingActiveBorderColor:
+      - "#d4c472"  # Yellow for search
+
+  # Nicer UI elements
+  showIcons: true
+  nerdFontsVersion: "3"
+  showFileTree: true
+  showListFooter: true
+  showRandomTip: false
+  showBottomLine: true
+  showCommandLog: true
+  showPanelTitles: true
+  commandLogSize: 3
+  sidePanelWidth: 0.25
+  expandFocusedSidePanel: false
+
+  # Scrollback behavior
+  scrollHeight: 2
+  scrollPastBottom: true
+  mouseEvents: true
+
+  # Disable while typing to avoid accidental keypresses
+  skipDiscardChangeWarning: false
+  skipStashWarning: false
+  skipNoWorktreeWarning: false
+  skipRewordInEditorWarning: false
+
+# ============================================
+# KEYBINDINGS
+# ============================================
+keybinding:
+  universal:
+    # Essential navigation
+    quit: "q"
+    quit-alt1: "<c-c>"
+    return: "<esc>"
+    quitWithoutChangingDirectory: "Q"
+    togglePanel: "<tab>"
+    prevItem: "<up>"
+    nextItem: "<down>"
+    prevItem-alt: "k"
+    nextItem-alt: "j"
+    prevPage: "<pgup>"
+    nextPage: "<pgdown>"
+    gotoTop: "<home>"
+    gotoBottom: "<end>"
+    toggleListView: "<c-l>"
+    togglePreviewPanel: "<c-p>"
+    toggleWhitespaceInDiffView: "<c-w>"
+    
+    # ZOOM / FULLSCREEN CONTROLS
+    # These are what you asked for!
+    toggleFullScreen: "f"                      # Toggle fullscreen for current panel
+    togglePanelViewMode: "<c-s>"              # Cycle between panel view modes
+    
+    # Navigation between panels
+    prevBlock: "<left>"
+    nextBlock: "<right>"
+    prevBlock-alt: "h"
+    nextBlock-alt: "l"
+    jumpToBlock: "1,2,3,4,5"
+    nextMatch: "n"
+    prevMatch: "N"
+    startSearch: "/"
+    optionMenu: "<disabled>"
+    optionMenu-alt1: "<disabled>"
+    select: "<space>"
+    goInto: "<enter>"
+    openRecentRepos: "<c-r>"
+    copySelectedTextToClipboard: "<c-o>"
+    openLogMenu: "<c-l>"
+    refresh: "R"
+    createRebaseOptionsMenu: "m"
+    createPatchOptionsMenu: "<c-p>"
+    pushFiles: "P"
+    pullFiles: "p"
+    fastForward: "F"
+    scrollUpMain: "<pgup>"
+    scrollDownMain: "<pgdown>"
+    scrollUpMain-alt1: "K"
+    scrollDownMain-alt1: "J"
+    scrollUpMain-alt2: "<c-u>"
+    scrollDownMain-alt2: "<c-d>"
+    executeCustomCommand: ":"
+    executeShellCommand: "!"
+    createPullRequest: "o"
+    copyToClipboard: "<c-y>"
+    submitEditorText: "<enter>"
+    appendNewline: "<disabled>"
+    extrasMenu: "@"
+    toggleWhitespace: "<c-w>"
+    increaseContextInDiffView: "}"
+    decreaseContextInDiffView: "{"
+    increaseRenameSimilarityThreshold: ")"
+    decreaseRenameSimilarityThreshold: "("
+    openDiffTool: "<c-t>"
+    openExtermalEditor: "<c-e>"
+    openFile: "<c-o>"
+
+  status:
+    checkForUpdate: "u"
+    recentRepos: "<c-r>"
+
+  files:
+    commitChanges: "c"
+    commitChangesWithoutHook: "w"
+    amendLastCommit: "A"
+    commitChangesWithoutEdit: "<c-c>"
+    unstageAll: "U"
+    unstageItem: "u"
+    stageAll: "a"
+    ignoreFile: "i"
+    refreshFiles: "r"
+    stashAllChanges: "s"
+    viewStashOptions: "S"
+    toggleStagedAll: "a"
+    viewDivergenceFromUpstream: "d"
+    fetch: "f"
+    toggleTreeView: "<c-t>"
+    openMergeTool: "M"
+    openStatusFilter: "<c-b>"
+    copyFileContentToClipboard: "y"
+
+  branches:
+    createPullRequest: "o"
+    copyPullRequestURL: "<c-y>"
+    checkoutBranchByName: "c"
+    forceCheckoutBranch: "F"
+    rebaseBranch: "r"
+    renameBranch: "R"
+    mergeIntoCurrentBranch: "M"
+    viewGitFlowOptions: "i"
+    viewUpstreamOptions: "u"
+    viewSortOptions: "s"
+    rebaseOnto: "b"
+    setUpstream: "U"
+    fetchRemote: "f"
+    fastForward: "F"
+
+  commits:
+    squashDown: "s"
+    renameCommit: "r"
+    renameCommitWithEditor: "R"
+    viewResetOptions: "g"
+    markCommitAsFixup: "f"
+    createFixupCommit: "F"
+    squashAboveCommits: "S"
+    moveDownCommit: "<c-j>"
+    moveUpCommit: "<c-k>"
+    amendToCommit: "A"
+    pickCommit: "p"
+    revertCommit: "t"
+    cherryPickCopy: "c"
+    cherryPickCopyRange: "C"
+    pasteCommits: "v"
+    markCommitAsPopped: "P"
+    createTag: "T"
+    checkoutCommit: "<space>"
+    resetCherryPick: "<c-c>"
+    copyCommitAttributeToClipboard: "y"
+    openLogMenu: "<c-l>"
+    viewBisectOptions: "b"
+    startBisect: "B"
+    rebaseOnto: "o"
+    openCommitInExternalEditor: "<c-e>"
+
+  stash:
+    popStash: "g"
+    renameStash: "r"
+
+  commitFiles:
+    checkoutCommitFile: "c"
+    toggleShowDirectoryTree: "<c-t>"
+    openMergeToolForFile: "M"
+
+  main:
+    toggleWhitespaceInDiffView: "<c-w>"
+    increaseContextInDiffView: "}"
+    decreaseContextInDiffView: "{"
+    toggleDiffViewMode: "d"
+    toggleShowDiffForAllFilesInDirectory: "D"
+
+  submodules:
+    updateSubmodule: "u"
+    deleteSubmodule: "d"
+    initSubmodule: "i"
+    bulkUpdateSubmodules: "b"
+    bulkDeinitSubmodules: "D"
+    viewBulkSubmoduleOptions: "B"
+
+  commitMessage:
+    commitMessageHistory: "<c-h>"
+
+  remoteBranches:
+    setUpstream: "u"
+    fetchRemote: "f"
+
+  sync:
+    fetchRemote: "f"
+    fastForward: "F"
+    pullFiles: "p"
+    pushFiles: "P"
+
+  tags:
+    pushTag: "P"
+    createTag: "c"
+    deleteTag: "d"
+
+  bisect:
+    markBisectAsGoodOrBad: "b"
+    resetBisect: "B"
+    startBisect: "<disabled>"
+
+  localReflogCommits:
+    checkoutCommit: "<space>"
+    resetToCommit: "g"
+    cherryPickCopy: "c"
+    cherryPickCopyRange: "C"
+    pasteCommits: "v"
+    markCommitAsFixup: "f"
+    createFixupCommit: "F"
+
+  rebaseCommits:
+    moveDownCommit: "<c-j>"
+    moveUpCommit: "<c-k>"
+    pickCommit: "p"
+    revertCommit: "t"
+    squashDown: "s"
+    fixupCommit: "f"
+    dropCommit: "d"
+    editCommit: "e"
+    viewCommitOptions: "o"
+    openCommitInExternalEditor: "<c-e>"
+    amendToCommit: "A"
+
+  rebaseActions:
+    continue: "continue"
+    abort: "abort"
+    skip: "skip"
+
+# ============================================
+# DIFF / PREVIEW SETTINGS
+# ============================================
+git:
+  paging:
+    # Use delta for better diffs (install: brew install git-delta)
+    # If delta is not installed, lazygit will fall back to default
+    colorArg: always
+    pager: delta --dark --paging=never --24-bit-color=never --syntax-theme='Monokai Extended'
+
+    # External diff tool - you can set this to critique if you want
+    # externalDiffCommand: critique diff
+
+  # Show word-level diff highlighting
+  parseEmoji: true
+
+  # Better diff context
+  diffContextSize: 5
+
+  # Enable all the nice features
+  enableGpgCommitSigning: false
+  autoFetch: true
+  autoRefresh: true
+  fetchAll: true
+  autoDetectIgnoreVCSWorkspaces: false
+  autoReadonly: true
+
+  # Branch settings
+  mainBranches:
+    - master
+    - main
+    - develop
+    - dev
+  skipHookPrefix: WIP
+  showGraph: always
+  showWholeGraph: false
+  autoSquashCommits: true
+
+  # Commit settings
+  commit:
+    signOff: false
+    verbose: default
+
+  # TruncateCopiedCommitHashesTo: 12
+
+# ============================================
+# REFRESHER
+# ============================================
+refresher:
+  # How often to refresh the UI (in seconds)
+  refreshInterval: 10
+  # Fetch interval in seconds (0 = disabled)
+  fetchInterval: 60
+
+# ============================================
+# UPDATE SETTINGS
+# ============================================
+update:
+  method: never
+  days: 14
+
+# ============================================
+# CONFIRMATION SETTINGS
+# ============================================
+confirmOnQuit: false
+confirmReset: true
+confirmDiscardStagedChanges: true
+confirmPopStash: true
+confirmMerge: true
+confirmRebase: true
+confirmHardReset: true
+confirmStashPopOnSuccess: true
+
+# ============================================
+# PROMPT SETTINGS
+# ============================================
+promptToReturnFromSubprocess: true
+
+# ============================================
+# NOTIFICATIONS
+# ============================================
+notARepository: skip
+
+# ============================================
+# OS SPECIFIC
+# ============================================
+os:
+  editCommand: ""  # Use default editor
+  editCommandTemplate: "{{editor}} +{{line}} -- {{filename}}"
+  openCommand: ""
+  openLinkCommand: ""
+  copyToClipboardCmd: ""
+  readFromClipboardCmd: ""
+  editPreset: ""
+
+# ============================================
+# DISCARD SETTINGS
+# ============================================
+discardAbandonment:
+  undoRange: 3600
+  dropRange: 3600
+
+# ============================================
+# CUSTOM COMMANDS (optional - add your own)
+# ============================================
+# customCommands:
+#   - key: "c"
+#     context: "files"
+#     command: "critique {{.SelectedLocalBranch.Name}}"
+#     description: "Open in critique"
+#     subprocess: true

@@ -212,3 +212,9 @@ export PATH="$HOME/.antigravity/antigravity/bin:$PATH"
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
 
 alias claude-mem='bun "$HOME/.claude/plugins/marketplaces/thedotmack/plugin/scripts/worker-service.cjs"'
+
+# The next line updates PATH for the Google Cloud SDK.
+if [ -f '/Users/Patrick.Hall/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/Patrick.Hall/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+if [ -f '/Users/Patrick.Hall/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/Patrick.Hall/google-cloud-sdk/completion.zsh.inc'; fi

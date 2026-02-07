@@ -1,12 +1,12 @@
 # JARVIS
 
-background = #0a0a0a
+background = #141414
 foreground = #d4d4d4
 cursor-color = #d4d4d4
-selection-background = #4a4535
+selection-background = #3d3a30
 selection-foreground = #f0e8d8
 
-palette = 0=#0a0a0a
+palette = 0=#141414
 palette = 8=#505050
 
 palette = 1=#c45c5c

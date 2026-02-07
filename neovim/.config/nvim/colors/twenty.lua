@@ -3,10 +3,10 @@
 local M = {}
 
 M.colors = {
-    bg = "#0a0a0a",
+    bg = "#141414",
     fg = "#d4d4d4",
-    selection = "#4a4535",
-    comment = "#606060",
+    selection = "#3d3a30",
+    comment = "#707070",
     cursor = "#d4d4d4",
 
     black = "#0a0a0a",
@@ -66,9 +66,9 @@ function M.setup()
         WinSeparator = { fg = c.selection, bg = c.bg },
         StatusLine = { fg = c.fg, bg = c.selection },
         StatusLineNC = { fg = c.comment, bg = c.bg_dark },
-        Visual = { fg = "#f0e8d8", bg = c.selection },
-        Search = { fg = "#0a0a0a", bg = "#c9b458" },
-        IncSearch = { fg = "#0a0a0a", bg = "#d4c472" },
+        Visual = { fg = "#f5f0e6", bg = c.selection },
+        Search = { fg = "#141414", bg = "#d4b86a" },
+        IncSearch = { fg = "#141414", bg = "#e0c880" },
         MatchParen = { fg = c.yellow, style = "bold,underline" },
 
         -- Syntax
@@ -155,7 +155,7 @@ function M.setup()
         TelescopeResultsBorder = { fg = c.gray },
         TelescopePreviewBorder = { fg = c.gray },
         TelescopeMatching = { fg = c.yellow, style = "bold" },
-        TelescopeSelection = { fg = "#f0e8d8", bg = c.selection },
+        TelescopeSelection = { fg = "#f5f0e6", bg = c.selection },
 
         -- Floating windows
         NormalFloat = { fg = c.fg, bg = c.bg_light },

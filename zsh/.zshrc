@@ -22,11 +22,16 @@ setopt HIST_IGNORE_DUPS SHARE_HISTORY
 
 # MISE let's let the mise tools win
 
-# Antidote plugin management (works on both Intel and Apple Silicon Macs)
+# Antidote plugin management (works on both Intel and Apple Silicon Macs, and Linux)
 if [[ -f /opt/homebrew/share/antidote/antidote.zsh ]]; then
+  # macOS with Homebrew (Apple Silicon)
   source /opt/homebrew/share/antidote/antidote.zsh
 elif [[ -f /usr/local/share/antidote/antidote.zsh ]]; then
+  # macOS with Homebrew (Intel)
   source /usr/local/share/antidote/antidote.zsh
+elif [[ -f "$HOME/.antidote/antidote.zsh" ]]; then
+  # Linux - installed via git
+  source "$HOME/.antidote/antidote.zsh"
 fi
 antidote load ~/.zsh_plugins.txt
 

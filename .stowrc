@@ -1,0 +1,4 @@
+# Stow configuration - ignore nix profiles to avoid symlink bugs
+ignore = \.local/state/nix
+ignore = profiles
+ignore = .*-link$

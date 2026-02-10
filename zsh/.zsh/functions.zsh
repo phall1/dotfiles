@@ -27,10 +27,23 @@ halp() {
   NAVIGATION
     sz                       source ~/.zshrc
     zshrc                    edit ~/.zshrc
-    ghostconf                edit ghostty config
+    ghostconf                edit ghostty config (macOS only)
     promptconf               edit starship config
     nvimrc                   edit neovim config
     tmuxconf                 edit tmux config
+
+  REMOTE DEV / SSH
+    ssht <host>              SSH with auto tmux attach
+    tunnel <host> <rport> [lport]  Quick SSH port forward
+    tunnel-persist <h> <rp> [lp]   Persistent tunnel (autossh)
+    tunnels                  List active SSH tunnels
+    ssh-copy <host> [key]    Copy SSH key to remote
+    to-remote <f> <h>:<p>    Rsync file to remote
+    from-remote <h>:<f> [p]  Rsync file from remote
+    myip                     Show public IP address
+    localip                  Show local IP addresses
+    serve [port]             Quick HTTP server (python)
+    port-check [host] port   Check if port is open
 
   AWS / INFRA
     ec2-list                 Running + stopped EC2 instances
@@ -44,7 +57,7 @@ halp() {
     pgdock [user] [db]       psql to local docker postgres
     pgclidock [user] [db]    pgcli to local docker postgres
 
-  OPENCODE
+  OPENCODE (macOS only)
     ocsrc                    Run opencode from built binary
     opencode-dev             Run opencode from source (bun)
     cdoc                     cd to opencode workspace
@@ -58,6 +71,10 @@ halp() {
     header "text"            Print a green banner
     pc                       process-compose
     bv                       beads viewer (worktree-aware)
+    watch-cmd "title" cmd    Watch command with header
+
+  OS HELPERS
+    is-macos / is-linux      Check current OS
 
 EOF
 }
@@ -133,13 +150,22 @@ pgdock() {
 
 eyebreak() {
   echo "Starting a 20-minute eye break timer..."
-  # This runs the sleep command in the background (&)
-  # so you get your terminal prompt back immediately.
   (
-    sleep 1200 # 1200 seconds = 20 minutes
+    sleep 1200
     
-    # 'osascript' is the command to run AppleScript on macOS
-    osascript -e 'display notification "Look 20 feet away for 20 seconds." with title "Eye Break!"'
+    if [[ "$DOTFILES_OS" == "darwin" ]]; then
+      # macOS notification
+      osascript -e 'display notification "Look 20 feet away for 20 seconds." with title "Eye Break!"' 2>/dev/null
+    elif [[ "$DOTFILES_OS" == "linux" ]]; then
+      # Linux notification via notify-send or wall
+      if command -v notify-send &>/dev/null; then
+        notify-send "Eye Break!" "Look 20 feet away for 20 seconds." 2>/dev/null
+      else
+        echo -e "\n\033[1;33m=== EYE BREAK! ===\033[0m"
+        echo "Look 20 feet away for 20 seconds."
+        echo -e "==================\n"
+      fi
+    fi
   ) &
 }
 
@@ -154,7 +180,7 @@ function y() {
 	rm -f -- "$tmp"
 }
 
-# Copy a file to the clipboard (as a file object, not text)
+# Copy a file to the clipboard (as a file object on macOS, path on Linux)
 function copyfile() {
   local filepath
   # Get absolute path (handles relative paths like ../file.txt)
@@ -164,8 +190,145 @@ function copyfile() {
     filepath="$PWD/$1"
   fi
   
-  osascript -e 'on run {f}' -e 'set the clipboard to POSIX file f' -e 'end run' "$filepath"
-  echo "Copied $1 to clipboard."
+  if [[ "$DOTFILES_OS" == "darwin" ]]; then
+    # macOS: copy as file object
+    osascript -e 'on run {f}' -e 'set the clipboard to POSIX file f' -e 'end run' "$filepath" 2>/dev/null
+    echo "Copied $1 to clipboard (file)."
+  elif [[ "$DOTFILES_OS" == "linux" ]]; then
+    # Linux: copy path to clipboard
+    if command -v xclip &>/dev/null; then
+      echo -n "$filepath" | xclip -selection clipboard -in
+      echo "Copied $1 path to clipboard."
+    elif command -v wl-copy &>/dev/null; then
+      echo -n "$filepath" | wl-copy
+      echo "Copied $1 path to clipboard."
+    else
+      echo "Clipboard tool not found (install xclip or wl-clipboard)"
+      return 1
+    fi
+  fi
+}
+
+# ============================================================================
+# Remote Development Utilities
+# ============================================================================
+
+# SSH into a host with automatic tmux attachment
+ssht() {
+  local host="$1"
+  shift
+  ssh -t "$host" "tmux new-session -A -s main" "$@"
+}
+
+# Quick SSH tunnel for port forwarding
+# Usage: tunnel <remote_host> <remote_port> [local_port]
+tunnel() {
+  local host="$1"
+  local remote_port="$2"
+  local local_port="${3:-$remote_port}"
+  
+  echo "Creating tunnel: localhost:$local_port → $host:$remote_port"
+  ssh -N -L "${local_port}:localhost:${remote_port}" "$host"
+}
+
+# SSH tunnel with autossh (reconnects automatically)
+# Usage: tunnel-persist <remote_host> <remote_port> [local_port]
+tunnel-persist() {
+  if ! command -v autossh &>/dev/null; then
+    echo "autossh not installed. Falling back to regular ssh..."
+    tunnel "$@"
+    return
+  fi
+  
+  local host="$1"
+  local remote_port="$2"
+  local local_port="${3:-$remote_port}"
+  
+  echo "Creating persistent tunnel: localhost:$local_port → $host:$remote_port"
+  AUTOSSH_POLL=30 AUTOSSH_GATETIME=0 autossh -M 0 -N -L "${local_port}:localhost:${remote_port}" "$host"
+}
+
+# List all SSH tunnels currently active
+tunnels() {
+  echo "Active SSH tunnels:"
+  ss -tulnp 2>/dev/null | grep -E "(Local Address|127.0.0.1)" || netstat -tulnp 2>/dev/null | grep "127.0.0.1"
+  echo ""
+  echo "SSH processes:"
+  ps aux | grep -E "ssh.*-L" | grep -v grep
+}
+
+# Copy SSH public key to remote host (simplified ssh-copy-id)
+ssh-copy() {
+  local host="$1"
+  local key="${2:-$HOME/.ssh/id_rsa.pub}"
+  
+  if [[ ! -f "$key" ]]; then
+    echo "Key not found: $key"
+    return 1
+  fi
+  
+  echo "Copying $key to $host..."
+  ssh "$host" "mkdir -p ~/.ssh && chmod 700 ~/.ssh && cat >> ~/.ssh/authorized_keys && chmod 600 ~/.ssh/authorized_keys" < "$key"
+  echo "Done!"
+}
+
+# Quick file transfer to remote
+# Usage: to-remote <file> <host>:<path>
+to-remote() {
+  local file="$1"
+  local dest="$2"
+  rsync -avz --progress "$file" "$dest"
+}
+
+# Quick file transfer from remote
+# Usage: from-remote <host>:<file> [local_path]
+from-remote() {
+  local src="$1"
+  local dest="${2:-.}"
+  rsync -avz --progress "$src" "$dest"
+}
+
+# Get public IP address
+myip() {
+  curl -s https://ipinfo.io/ip || curl -s https://api.ipify.org
+}
+
+# Get local IP addresses
+localip() {
+  if [[ "$DOTFILES_OS" == "darwin" ]]; then
+    ifconfig | grep "inet " | grep -v 127.0.0.1 | awk '{print $2}'
+  else
+    ip -4 addr show | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | grep -v 127.0.0.1
+  fi
+}
+
+# Quick HTTP server in current directory
+serve() {
+  local port="${1:-8000}"
+  if command -v python3 &>/dev/null; then
+    echo "Serving on http://localhost:$port"
+    python3 -m http.server "$port"
+  elif command -v python &>/dev/null; then
+    echo "Serving on http://localhost:$port"
+    python -m SimpleHTTPServer "$port"
+  else
+    echo "Python not found"
+    return 1
+  fi
+}
+
+# Check if a port is open
+port-check() {
+  local host="${1:-localhost}"
+  local port="$2"
+  timeout 1 bash -c "cat < /dev/null > /dev/tcp/$host/$port" 2>/dev/null && echo "Port $port is open" || echo "Port $port is closed"
+}
+
+# Watch a command with a header
+watch-cmd() {
+  local title="$1"
+  shift
+  watch -n 1 -t "echo '=== $title ===' && $*"
 }
 
 

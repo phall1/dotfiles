@@ -288,13 +288,15 @@ HELP
   local -a stack=()
   local branch="$current"
 
-  # Collect all local branches that are ancestors of current, with distance from base
+  # Collect all local branches that are ancestors of current AND descendants of base
   local dist name
   while read -r name; do
     [[ "$name" == "$base" ]] && continue
-    if git merge-base --is-ancestor "$name" "$current" 2>/dev/null; then
+    # Branch must be: (1) descendant of base AND (2) ancestor of current
+    if git merge-base --is-ancestor "$base" "$name" 2>/dev/null && \
+       git merge-base --is-ancestor "$name" "$current" 2>/dev/null; then
       dist=$(git rev-list --count "$base".."$name" 2>/dev/null)
-      [[ -n "$dist" ]] && stack+=("$dist:$name")
+      [[ -n "$dist" && "$dist" -gt 0 ]] && stack+=("$dist:$name")
     fi
   done < <(git for-each-ref --format='%(refname:short)' refs/heads/)
 
@@ -360,10 +362,12 @@ HELP
   local name dist line entry
   while read -r name; do
     [[ "$name" == "$base" ]] && continue
-    if git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
-       git merge-base --is-ancestor "$current" "$name" 2>/dev/null; then
+    # Branch must be: (1) descendant of base AND (2) related to current (ancestor OR descendant)
+    if git merge-base --is-ancestor "$base" "$name" 2>/dev/null && \
+       (git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
+        git merge-base --is-ancestor "$current" "$name" 2>/dev/null); then
       dist=$(git rev-list --count "$base".."$name" 2>/dev/null)
-      [[ -n "$dist" ]] && stack+=("$dist:$name")
+      [[ -n "$dist" && "$dist" -gt 0 ]] && stack+=("$dist:$name")
     fi
   done < <(git for-each-ref --format='%(refname:short)' refs/heads/)
 
@@ -444,10 +448,12 @@ HELP
   local name dist line entry
   while read -r name; do
     [[ "$name" == "$base" ]] && continue
-    if git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
-       [[ "$name" == "$current" ]]; then
+    # Branch must be: (1) descendant of base AND (2) ancestor of current (or is current)
+    if git merge-base --is-ancestor "$base" "$name" 2>/dev/null && \
+       (git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
+        [[ "$name" == "$current" ]]); then
       dist=$(git rev-list --count "$base".."$name" 2>/dev/null)
-      [[ -n "$dist" ]] && stack+=("$dist:$name")
+      [[ -n "$dist" && "$dist" -gt 0 ]] && stack+=("$dist:$name")
     fi
   done < <(git for-each-ref --format='%(refname:short)' refs/heads/)
 
@@ -515,10 +521,12 @@ HELP
   local name dist line entry
   while read -r name; do
     [[ "$name" == "$base" ]] && continue
-    if git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
-       [[ "$name" == "$current" ]]; then
+    # Branch must be: (1) descendant of base AND (2) ancestor of current (or is current)
+    if git merge-base --is-ancestor "$base" "$name" 2>/dev/null && \
+       (git merge-base --is-ancestor "$name" "$current" 2>/dev/null || \
+        [[ "$name" == "$current" ]]); then
       dist=$(git rev-list --count "$base".."$name" 2>/dev/null)
-      [[ -n "$dist" ]] && stack+=("$dist:$name")
+      [[ -n "$dist" && "$dist" -gt 0 ]] && stack+=("$dist:$name")
     fi
   done < <(git for-each-ref --format='%(refname:short)' refs/heads/)
 

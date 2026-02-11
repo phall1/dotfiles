@@ -88,3 +88,15 @@ alias tm='tmux'
 alias tma='tmux attach'
 alias tml='tmux list-sessions'
 alias tmk='tmux kill-session'
+
+# Editor
+alias vim='nvim'
+
+# Quick config access
+alias sz='source ~/.zshrc'
+alias zshrc='${EDITOR:-nvim} ~/.zshrc'
+alias vimrc='${EDITOR:-nvim} ~/.config/nvim/init.lua'
+alias nvimrc='${EDITOR:-nvim} ~/.config/nvim/init.lua'
+alias tmuxconf='${EDITOR:-nvim} ~/.tmux.conf'
+alias ghostconf='${EDITOR:-nvim} ~/.config/ghostty/config'
+alias promptconf='${EDITOR:-nvim} ~/.config/starship.toml'

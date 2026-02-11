@@ -36,6 +36,8 @@ export PATH="$HOME/.local/bin:$PATH"
 # Go
 [[ -d "$HOME/go/bin" ]] && export PATH="$HOME/go/bin:$PATH"
 
+[[ -d "$HOME/.bun/bin" ]] && export PATH="$HOME/.bun/bin:$PATH"
+
 # ============================================================================
 # Tool Initializations - only if tools exist
 # ============================================================================
@@ -99,7 +101,4 @@ setopt HIST_IGNORE_SPACE
 export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-nvim}"
 
-# Quick config edits
-alias zshrc='$EDITOR ~/.zshrc'
-alias vimrc='$EDITOR ~/.config/nvim/init.lua'
-alias tmuxconf='$EDITOR ~/.tmux.conf'
+

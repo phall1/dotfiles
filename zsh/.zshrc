@@ -102,3 +102,9 @@ export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-nvim}"
 
 
+
+# opencode
+export PATH=/Users/Patrick.Hall/.opencode/bin:$PATH
+
+# bun completions
+[ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"

@@ -100,3 +100,10 @@ alias nvimrc='${EDITOR:-nvim} ~/.config/nvim/init.lua'
 alias tmuxconf='${EDITOR:-nvim} ~/.tmux.conf'
 alias ghostconf='${EDITOR:-nvim} ~/.config/ghostty/config'
 alias promptconf='${EDITOR:-nvim} ~/.config/starship.toml'
+
+# GitHub PR workflow
+alias prs='gh pr list --search "is:open sort:updated-desc"'
+alias myprs='gh pr list --author @me --search "is:open sort:updated-desc"'
+alias reviewme='gh pr list --review-requested @me --search "is:open sort:updated-desc"'
+alias prv='gh pr view --web=false'
+alias prd='gh pr diff'

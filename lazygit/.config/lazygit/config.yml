@@ -8,26 +8,26 @@ gui:
   # Theme colors matching Twenty theme
   theme:
     activeBorderColor:
-      - "#d4c472"  # Yellow - active panel border
+      - "#d4b88c"  # Sand - active panel border
       - "bold"
     inactiveBorderColor:
-      - "#505050"  # Gray - inactive panel border
+      - "#555562"  # Gray - inactive panel border
     optionsTextColor:
-      - "#6b9fcc"  # Blue - options text
+      - "#95d194"  # Green - options text
     selectedLineBgColor:
-      - "#4a4535"  # Selection background
+      - "#3e3e48"  # Selection background
     selectedRangeBgColor:
-      - "#4a4535"  # Selection background
+      - "#3e3e48"  # Selection background
     cherryPickedCommitBgColor:
-      - "#9a7aa0"  # Purple
+      - "#b89aad"  # Mauve
     cherryPickedCommitFgColor:
-      - "#d4d4d4"  # Foreground
+      - "#b8b8c8"  # Foreground
     unstagedChangesColor:
-      - "#c45c5c"  # Red - unstaged
+      - "#e08a9e"  # Pink - unstaged
     defaultFgColor:
-      - "#d4d4d4"  # Default foreground
+      - "#b8b8c8"  # Default foreground
     searchingActiveBorderColor:
-      - "#d4c472"  # Yellow for search
+      - "#e4cfa0"  # Yellow for search
 
   # Nicer UI elements
   showIcons: true

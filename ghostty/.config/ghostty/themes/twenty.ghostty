@@ -1,31 +1,31 @@
-# JARVIS
+# twenty — soft aesthetic
 
-background = #141414
-foreground = #d4d4d4
-cursor-color = #d4d4d4
-selection-background = #3d3a30
-selection-foreground = #f0e8d8
+background = #1e1e22
+foreground = #b8b8c8
+cursor-color = #dcccc6
+selection-background = #3e3e48
+selection-foreground = #b8b8c8
 
-palette = 0=#141414
-palette = 8=#505050
+palette = 0=#1e1e22
+palette = 8=#555562
 
-palette = 1=#c45c5c
-palette = 9=#d47070
+palette = 1=#e08a9e
+palette = 9=#e89bac
 
-palette = 2=#7ec87e
-palette = 10=#90d890
+palette = 2=#95d194
+palette = 10=#a5dba0
 
-palette = 3=#d4c472
-palette = 11=#e0d080
+palette = 3=#e4cfa0
+palette = 11=#edd9b0
 
-palette = 4=#6b9fcc
-palette = 12=#80b0dd
+palette = 4=#7da4e4
+palette = 12=#90b5ea
 
-palette = 5=#9a7aa0
-palette = 13=#a888b0
+palette = 5=#b89aad
+palette = 13=#c5a8b8
 
-palette = 6=#6a9a97
-palette = 14=#7ab0ad
+palette = 6=#86cfc3
+palette = 14=#98d8cd
 
-palette = 7=#909090
-palette = 15=#d4d4d4
+palette = 7=#9090a0
+palette = 15=#b8b8c8

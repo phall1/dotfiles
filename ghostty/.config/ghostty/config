@@ -21,19 +21,19 @@ font-thicken = false
 ############
 # COLORS ####
 
-background = #0a0a0a
-foreground = #d4d4d4
-cursor-color = #d4d4d4
+background = #1e1e22
+foreground = #b8b8c8
+cursor-color = #dcccc6
 cursor-style = block
 cursor-style-blink = false
-selection-background = #4a4535
-selection-foreground = #f0e8d8
+selection-background = #3e3e48
+selection-foreground = #b8b8c8
 
 ############
 # PREMIUM FEEL ####
 
-window-padding-x = 20
-window-padding-y = 16
+window-padding-x = 4
+window-padding-y = 4
 window-padding-balance = true
 background-opacity = 1.0
 macos-titlebar-style = hidden

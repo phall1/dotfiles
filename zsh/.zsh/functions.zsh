@@ -1,82 +1,36 @@
-halp() {
-  cat <<'EOF'
+shelp() {
+  local reset=$'\033[0m' bold=$'\033[1m' dim=$'\033[2m'
+  local cyan=$'\033[36m' yellow=$'\033[33m' green=$'\033[32m' magenta=$'\033[35m'
 
-  ╭─────────────────────────────────────────────────────╮
-  │              custom shell cheat sheet                │
-  ╰─────────────────────────────────────────────────────╯
+  local -a skip=(_gstack_base _fc_dir _fc_just precmd chpwd)
 
-  GIT STACK (stacked branches/PRs)
-    gstack [base]            Show branch stack with commit counts
-    gstack-rebase [base]     Rebase full stack bottom-up
-    gstack-push [base]       Push all stack branches (--force-with-lease)
-    gstack-status [base]     PR number, review state, CI per branch
-    gstack-help              Detailed gstack help
+  printf "\n"
+  printf "  ${bold}${cyan}╭─────────────────────────────────────────────────────╮${reset}\n"
+  printf "  ${bold}${cyan}│              shell aliases & functions               │${reset}\n"
+  printf "  ${bold}${cyan}╰─────────────────────────────────────────────────────╯${reset}\n"
 
-  GIT
-    gs                       git status
-    g                        git (shorthand)
-    g map                    Log graph (all branches, oneline)
-    g lg                     Log graph (detailed, all branches)
+  printf "\n  ${bold}${yellow}ALIASES${reset}\n\n"
+  alias | sort | while IFS='=' read -r name def; do
+    def="${def#\'}"
+    def="${def%\'}"
+    [[ ${#def} -gt 60 ]] && def="${def:0:57}..."
+    printf "  ${green}%-22s${reset} ${dim}%s${reset}\n" "$name" "$def"
+  done
 
-  FILES
-    ls / ll / la             eza with icons (long / all)
-    mkcd <dir>               mkdir + cd in one
-    y                        yazi file manager (cd on exit)
-    copyfile <file>          Copy file object to clipboard
+  printf "\n  ${bold}${yellow}FUNCTIONS${reset}\n\n"
+  local -aU my_funcs=()
+  local f
+  for f in ~/.zsh/*.zsh; do
+    [[ -f "$f" ]] || continue
+    my_funcs+=( ${(f)"$(grep -oE '^[a-zA-Z_][a-zA-Z0-9_-]*\s*\(\)' "$f" | sed 's/[[:space:]]*()$//')"} )
+    my_funcs+=( ${(f)"$(grep -oE '^function\s+[a-zA-Z_][a-zA-Z0-9_-]*' "$f" | sed 's/^function[[:space:]]*//')"} )
+  done
+  for f in "${(@o)my_funcs}"; do
+    [[ "$f" == _* || "$f" == shelp ]] && continue
+    printf "  ${magenta}%s${reset}\n" "$f"
+  done
 
-  NAVIGATION
-    sz                       source ~/.zshrc
-    zshrc                    edit ~/.zshrc
-    ghostconf                edit ghostty config (macOS only)
-    promptconf               edit starship config
-    nvimrc                   edit neovim config
-    tmuxconf                 edit tmux config
-
-  REMOTE DEV / SSH
-    ssht <host>              SSH with auto tmux attach
-    tunnel <host> <rport> [lport]  Quick SSH port forward
-    tunnel-persist <h> <rp> [lp]   Persistent tunnel (autossh)
-    tunnels                  List active SSH tunnels
-    ssh-copy <host> [key]    Copy SSH key to remote
-    to-remote <f> <h>:<p>    Rsync file to remote
-    from-remote <h>:<f> [p]  Rsync file from remote
-    myip                     Show public IP address
-    localip                  Show local IP addresses
-    serve [port]             Quick HTTP server (python)
-    port-check [host] port   Check if port is open
-
-  AWS / INFRA
-    ec2-list                 Running + stopped EC2 instances
-    ec2-running              Running EC2 instances only
-    ec2-stopped              Stopped EC2 instances only
-    ec2-all                  All instances (compact)
-    awsd                     Switch AWS profile
-    awsconf                  Edit AWS config
-
-  DATABASES
-    pgdock [user] [db]       psql to local docker postgres
-    pgclidock [user] [db]    pgcli to local docker postgres
-
-  OPENCODE (macOS only)
-    ocsrc                    Run opencode from built binary
-    opencode-dev             Run opencode from source (bun)
-    cdoc                     cd to opencode workspace
-    oc-sync                  Rebase opencode dev on upstream
-    oc-build                 Build opencode from source
-
-  MISC
-    cclip                    Clean clipboard (strip formatting)
-    ghcrlogin                Docker login to ghcr.io via gh
-    eyebreak                 20-min timer + notification
-    header "text"            Print a green banner
-    pc                       process-compose
-    bv                       beads viewer (worktree-aware)
-    watch-cmd "title" cmd    Watch command with header
-
-  OS HELPERS
-    is-macos / is-linux      Check current OS
-
-EOF
+  printf "\n"
 }
 
 # Custom functions

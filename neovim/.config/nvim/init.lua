@@ -263,6 +263,18 @@ require("lazy").setup({
 	-- `:Git blame` split view (similar to old :Gblame)
 	{ "tpope/vim-fugitive" },
 
+	-- Octo: GitHub issues & PRs from Neovim
+	{
+		"pwntester/octo.nvim",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"nvim-telescope/telescope.nvim",
+			"nvim-tree/nvim-web-devicons",
+		},
+		cmd = { "Octo" },
+		opts = {},
+	},
+
 	-- LSP + Autocomplete
 	{
 		"mrcjkb/rustaceanvim",

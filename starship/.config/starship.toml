@@ -1,57 +1,74 @@
-# JARVIS — Stark Industries HUD
-# Monochrome + single accent. Information, not decoration.
+# Twenty — soft aesthetic prompt
 
-format = """$directory $git_branch$git_state$git_status$aws$cmd_duration
+format = """$directory $git_branch$git_state$git_status$aws$cmd_duration$custom
 $python$character"""
 
 [directory]
-style = "#909090"
+style = "#9090a0"
 format = "[$path]($style)"
 truncation_length = 3
 truncate_to_repo = true
 
 [character]
-success_symbol = "[❯](#606060)"
-error_symbol = "[❯](#c45c5c)"
-vimcmd_symbol = "[❮](#5c8cc4)"
+success_symbol = "[❯](#d4b88c)"
+error_symbol = "[❯](#e08a9e)"
+vimcmd_symbol = "[❮](#b89aad)"
 
 [git_branch]
 format = "[$branch]($style)"
-style = "#d4d4d4"
+style = "#b8b8c8"
 symbol = ""
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
-style = "#606060"
-conflicted = "[!](#c45c5c)"
-untracked = "[?](#606060)"
-modified = "[~](#c9b458)"
-staged = "[+](#909090)"
-renamed = "[»](#606060)"
-deleted = "[✕](#c45c5c)"
-stashed = "[≡](#606060)"
-ahead = "[↑${count}](#909090)"
-behind = "[↓${count}](#606060)"
-diverged = "[↕${ahead_count}↓${behind_count}](#c45c5c)"
+style = "#68687a"
+conflicted = "[!](#e08a9e)"
+untracked = "[?](#68687a)"
+modified = "[~](#e4cfa0)"
+staged = "[+](#95d194)"
+renamed = "[»](#68687a)"
+deleted = "[✕](#e08a9e)"
+stashed = "[≡](#68687a)"
+ahead = "[↑${count}](#9090a0)"
+behind = "[↓${count}](#68687a)"
+diverged = "[↕${ahead_count}↓${behind_count}](#e08a9e)"
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '
-style = "italic #606060"
+style = "italic #68687a"
 
 [cmd_duration]
 format = "[$duration]($style)"
-style = "#404040"
+style = "#555562"
 min_time = 2000
 
 [python]
 format = "[py:$virtualenv]($style) "
-style = "#606060"
+style = "#68687a"
 
 [aws]
 format = '[$profile]($style) '
-style = '#5c8cc4'
+style = '#7da4e4'
 symbol = ''
 [aws.region_aliases]
 us-east-1 = 'va'
 [aws.profile_aliases]
 CompanyGroupFrobozzOnCallAccess = 'Frobozz'
+
+# ── Firecrew / Spectre ──────────────────────────────────────────────────────
+# Shows spectre daemon state + session count when active.
+# Hidden when daemon isn't running (zero noise).
+[custom.spectre]
+command = '''
+  sock="${SPECTRE_SOCKET:-/tmp/spectre.sock}"
+  [ -S "$sock" ] || exit 1
+  count=$(xx list 2>/dev/null | grep -c "^  " 2>/dev/null || echo 0)
+  if [ "$count" -gt 0 ]; then
+    echo "xx:${count}"
+  else
+    echo "xx"
+  fi
+'''
+when = 'test -S "${SPECTRE_SOCKET:-/tmp/spectre.sock}"'
+format = ' [$output](#68687a)'
+shell = ['bash', '--noglob', '--norc', '--noprofile', '-c']

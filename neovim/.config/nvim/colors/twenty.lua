@@ -1,28 +1,29 @@
--- JARVIS Neovim Theme
+-- Twenty — soft aesthetic neovim theme
 
 local M = {}
 
 M.colors = {
-    bg = "#141414",
-    fg = "#d4d4d4",
-    selection = "#3d3a30",
-    comment = "#707070",
-    cursor = "#d4d4d4",
+    bg = "#1e1e22",
+    fg = "#b8b8c8",
+    selection = "#3e3e48",
+    comment = "#68687a",
+    cursor = "#dcccc6",
 
-    black = "#0a0a0a",
-    bg_dark = "#050505",
-    bg_light = "#151515",
-    gray = "#505050",
-    light_gray = "#909090",
+    black = "#111115",
+    bg_dark = "#181820",
+    bg_light = "#2e2e36",
+    gray = "#555562",
+    light_gray = "#9090a0",
 
-    red = "#c45c5c",
-    green = "#7ec87e",
-    yellow = "#d4c472",
-    yellow_dim = "#a89860",
-    blue = "#6b9fcc",
-    magenta = "#9a7aa0",
-    cyan = "#6a9a97",
-    orange = "#cc9a6b",
+    red = "#e08a9e",
+    green = "#95d194",
+    yellow = "#e4cfa0",
+    yellow_dim = "#dbbfbf",
+    blue = "#7da4e4",
+    magenta = "#b89aad",
+    cyan = "#86cfc3",
+    orange = "#e2a17c",
+    sand = "#d4b88c",
 
     none = "NONE"
 }
@@ -66,9 +67,9 @@ function M.setup()
         WinSeparator = { fg = c.selection, bg = c.bg },
         StatusLine = { fg = c.fg, bg = c.selection },
         StatusLineNC = { fg = c.comment, bg = c.bg_dark },
-        Visual = { fg = "#f5f0e6", bg = c.selection },
-        Search = { fg = "#141414", bg = "#d4b86a" },
-        IncSearch = { fg = "#141414", bg = "#e0c880" },
+        Visual = { fg = c.fg, bg = c.selection },
+        Search = { fg = c.bg, bg = c.yellow },
+        IncSearch = { fg = c.bg, bg = c.orange },
         MatchParen = { fg = c.yellow, style = "bold,underline" },
 
         -- Syntax
@@ -155,11 +156,25 @@ function M.setup()
         TelescopeResultsBorder = { fg = c.gray },
         TelescopePreviewBorder = { fg = c.gray },
         TelescopeMatching = { fg = c.yellow, style = "bold" },
-        TelescopeSelection = { fg = "#f5f0e6", bg = c.selection },
+        TelescopeSelection = { fg = c.fg, bg = c.selection },
 
         -- Floating windows
         NormalFloat = { fg = c.fg, bg = c.bg_light },
         FloatBorder = { fg = c.gray, bg = c.bg_light },
+
+        -- Directory
+        Directory = { fg = c.sand },
+
+        -- Neo-tree
+        NeoTreeDirectoryIcon = { fg = c.sand },
+        NeoTreeDirectoryName = { fg = c.sand },
+        NeoTreeFileName = { fg = c.fg },
+        NeoTreeIndentMarker = { fg = c.gray },
+        NeoTreeRootName = { fg = c.sand, style = "bold" },
+        NeoTreeGitAdded = { fg = c.green },
+        NeoTreeGitModified = { fg = c.yellow },
+        NeoTreeGitDeleted = { fg = c.red },
+        NeoTreeGitUntracked = { fg = c.comment },
     }
 
     for group, highlight in pairs(groups) do

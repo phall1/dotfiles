@@ -12,8 +12,20 @@
     "sisyphus": {
       "model": "anthropic/claude-opus-4-6"
     },
+    "sisyphus-junior": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
     "oracle": {
       "model": "anthropic/claude-opus-4-6"
+    },
+    "prometheus": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "metis": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "momus": {
+      "model": "anthropic/claude-sonnet-4-6"
     },
     "librarian": {
       "model": "anthropic/claude-sonnet-4-6"
@@ -37,6 +49,24 @@
       "model": "anthropic/claude-haiku-4"
     },
     "visual-engineering": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "ultrabrain": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "deep": {
+      "model": "anthropic/claude-opus-4-6"
+    },
+    "artistry": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "writing": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "unspecified-low": {
+      "model": "anthropic/claude-haiku-4"
+    },
+    "unspecified-high": {
       "model": "anthropic/claude-sonnet-4-6"
     }
   }

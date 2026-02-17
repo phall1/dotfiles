@@ -2,5 +2,8 @@
 cache/
 node_modules/
 
+# Lock files (auto-generated, cause stow conflicts)
+bun.lock
+
 # Config files ARE tracked in dotfiles
-# (removed package.json, bun.lock, .gitignore from ignore list)
+# (removed package.json, .gitignore from ignore list)

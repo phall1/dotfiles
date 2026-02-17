@@ -14,9 +14,11 @@ antigravity-logs/
 logs/
 *.log
 
+# Lock files (auto-generated, cause stow conflicts)
+bun.lock
+
 # DO track these config files:
 # package.json
-# bun.lock
 # .gitignore
 # opencode.jsonc
 # oh-my-opencode.json

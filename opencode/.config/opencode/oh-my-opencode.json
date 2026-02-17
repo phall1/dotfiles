@@ -1,24 +1,31 @@
 {
   "$schema": "https://raw.githubusercontent.com/code-yeongyu/oh-my-opencode/master/assets/oh-my-opencode.schema.json",
 
+  "_original_gpt_models": {
+    "oracle": "openai/gpt-5.3",
+    "explore": "opencode/gpt-5-nano",
+    "document-writer": "openai/gpt-5.3",
+    "quick": "opencode/gpt-5-nano"
+  },
+
   "agents": {
     "sisyphus": {
       "model": "anthropic/claude-opus-4-6"
     },
     "oracle": {
-      "model": "openai/gpt-5.3"
+      "model": "anthropic/claude-opus-4-6"
     },
     "librarian": {
       "model": "anthropic/claude-sonnet-4-6"
     },
     "explore": {
-      "model": "opencode/gpt-5-nano"
+      "model": "anthropic/claude-haiku-4"
     },
     "frontend-ui-ux-engineer": {
       "model": "anthropic/claude-sonnet-4-6"
     },
     "document-writer": {
-      "model": "openai/gpt-5.3"
+      "model": "anthropic/claude-sonnet-4-6"
     },
     "multimodal-looker": {
       "model": "anthropic/claude-sonnet-4-6"
@@ -27,7 +34,7 @@
 
   "categories": {
     "quick": {
-      "model": "opencode/gpt-5-nano"
+      "model": "anthropic/claude-haiku-4"
     },
     "visual-engineering": {
       "model": "anthropic/claude-sonnet-4-6"

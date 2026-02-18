@@ -90,6 +90,22 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Plugins
 require("lazy").setup({
+	-- which-key: press any prefix and pause to see all available keybindings
+	{
+		"folke/which-key.nvim",
+		event = "VeryLazy",
+		opts = {
+			spec = {
+				{ "<leader>g", group = "Git" },
+				{ "<leader>x", group = "Trouble" },
+				{ "<leader>t", group = "Toggle" },
+				{ "<leader>o", group = "Opencode" },
+				{ "<leader>m", group = "Markdown" },
+				{ "<leader>i", group = "Insert" },
+			},
+		},
+	},
+
 	-- Trouble: project-wide diagnostics panel
 	{
 		"folke/trouble.nvim",
@@ -170,7 +186,7 @@ require("lazy").setup({
 					manager.redraw("filesystem")
 				end
 			end
-			vim.keymap.set("n", "<leader>n", ":Neotree toggle<CR>", { silent = true })
+			vim.keymap.set("n", "<leader>n", ":Neotree toggle<CR>", { silent = true, desc = "File explorer" })
 			vim.keymap.set("n", "<leader>tg", toggle_neotree_git_status, {
 				desc = "Toggle Neo-tree git status",
 				silent = true,
@@ -198,6 +214,16 @@ require("lazy").setup({
 			vim.keymap.set("n", "<C-p>", builtin.find_files, { silent = true })
 			vim.keymap.set("n", "<leader>p", builtin.find_files, { silent = true })
 			vim.keymap.set("n", "<leader>f", builtin.live_grep, { silent = true })
+
+			-- discovery: find any keybinding or command
+			vim.keymap.set("n", "<leader>?", builtin.keymaps, {
+				silent = true,
+				desc = "Search all keymaps",
+			})
+			vim.keymap.set("n", "<leader>L", "<cmd>Lazy<cr>", {
+				silent = true,
+				desc = "Lazy plugin manager",
+			})
 
 			-- git pickers
 			vim.keymap.set("n", "<leader>gs", builtin.git_status, {
@@ -262,6 +288,44 @@ require("lazy").setup({
 
 	-- `:Git blame` split view (similar to old :Gblame)
 	{ "tpope/vim-fugitive" },
+
+	-- Diffview: tabpage diff UI with changed-files panel
+	{
+		"sindrets/diffview.nvim",
+		dependencies = { "nvim-tree/nvim-web-devicons" },
+		cmd = { "DiffviewOpen", "DiffviewFileHistory", "DiffviewClose" },
+		keys = {
+			{ "<leader>gd", "<cmd>DiffviewOpen<cr>", desc = "Diff working changes" },
+			{ "<leader>gh", "<cmd>DiffviewFileHistory %<cr>", desc = "File history (current file)" },
+			{ "<leader>gH", "<cmd>DiffviewFileHistory<cr>", desc = "File history (repo)" },
+		},
+		opts = {},
+	},
+
+	-- Neogit: Magit-style interactive git UI
+	{
+		"NeogitOrg/neogit",
+		dependencies = {
+			"nvim-lua/plenary.nvim",
+			"sindrets/diffview.nvim",
+			"nvim-telescope/telescope.nvim",
+		},
+		keys = {
+			{
+				"<leader>gn",
+				function()
+					require("neogit").open()
+				end,
+				desc = "Neogit (git UI)",
+			},
+		},
+		opts = {
+			integrations = {
+				diffview = true,
+				telescope = true,
+			},
+		},
+	},
 
 	-- Octo: GitHub issues & PRs from Neovim
 	{
@@ -819,12 +883,12 @@ end, {})
 vim.cmd("command! -nargs=* Gblame Git blame --date=short --abbrev=8 <args>")
 
 -- Quit mapping
-vim.keymap.set("n", "<leader>q", ":q<CR>", { silent = true })
+vim.keymap.set("n", "<leader>q", ":q<CR>", { silent = true, desc = "Quit" })
 -- Save mapping
-vim.keymap.set("n", "<leader>w", ":w<CR>", { silent = true })
+vim.keymap.set("n", "<leader>w", ":w<CR>", { silent = true, desc = "Save" })
 -- Split shortcuts
-vim.keymap.set("n", "<leader>h", ":split<CR>", { silent = true })
-vim.keymap.set("n", "<leader>v", ":vsplit<CR>", { silent = true })
+vim.keymap.set("n", "<leader>h", ":split<CR>", { silent = true, desc = "Split horizontal" })
+vim.keymap.set("n", "<leader>v", ":vsplit<CR>", { silent = true, desc = "Split vertical" })
 -- Toggle inline Git blame
 vim.keymap.set("n", "<leader>gb", function()
 	require("gitsigns").toggle_current_line_blame()

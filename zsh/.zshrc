@@ -82,6 +82,25 @@ fi
 bindkey -v
 export KEYTIMEOUT=1
 
+# ============================================================================
+# Completion System
+# ============================================================================
+
+# Initialize completion system
+autoload -Uz compinit && compinit
+
+# gt (graphite CLI) completions
+if command -v gt &>/dev/null; then
+  _gt_yargs_completions() {
+    local reply
+    local si=$IFS
+    IFS=$'\n' reply=($(COMP_CWORD="$((CURRENT-1))" COMP_LINE="$BUFFER" COMP_POINT="$CURSOR" gt --get-yargs-completions "${words[@]}"))
+    IFS=$si
+    _describe 'values' reply
+  }
+  compdef _gt_yargs_completions gt
+fi
+
 # Enable color support
 export CLICOLOR=1
 [[ "$DOTFILES_OS" == "linux" ]] && alias ls='ls --color=auto'

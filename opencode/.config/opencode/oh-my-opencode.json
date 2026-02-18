@@ -9,6 +9,12 @@
   },
 
   "agents": {
+    "build": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
+    "plan": {
+      "model": "anthropic/claude-sonnet-4-6"
+    },
     "sisyphus": {
       "model": "anthropic/claude-opus-4-6"
     },
@@ -31,7 +37,7 @@
       "model": "anthropic/claude-sonnet-4-6"
     },
     "explore": {
-      "model": "anthropic/claude-haiku-4"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "frontend-ui-ux-engineer": {
       "model": "anthropic/claude-sonnet-4-6"
@@ -46,7 +52,7 @@
 
   "categories": {
     "quick": {
-      "model": "anthropic/claude-haiku-4"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "visual-engineering": {
       "model": "anthropic/claude-sonnet-4-6"
@@ -64,7 +70,7 @@
       "model": "anthropic/claude-sonnet-4-6"
     },
     "unspecified-low": {
-      "model": "anthropic/claude-haiku-4"
+      "model": "anthropic/claude-haiku-4-5"
     },
     "unspecified-high": {
       "model": "anthropic/claude-sonnet-4-6"

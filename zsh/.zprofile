@@ -26,3 +26,5 @@ if [[ "$DOTFILES_OS" == "linux" ]]; then
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Note: Completions moved to .zshrc - compdef requires completion system to be initialized first
+

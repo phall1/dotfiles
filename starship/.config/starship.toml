@@ -1,5 +1,8 @@
 # Twenty — soft aesthetic prompt
 
+# Increase timeout for git operations (default 500ms is too aggressive)
+command_timeout = 2000
+
 format = """$directory $git_branch$git_state$git_status$aws$cmd_duration$custom
 $python$character"""
 
@@ -32,6 +35,7 @@ stashed = "[≡](#68687a)"
 ahead = "[↑${count}](#9090a0)"
 behind = "[↓${count}](#68687a)"
 diverged = "[↕${ahead_count}↓${behind_count}](#e08a9e)"
+ignore_submodules = true
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '

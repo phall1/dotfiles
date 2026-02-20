@@ -35,9 +35,10 @@ window-padding-y = 4
 window-padding-balance = true
 background-opacity = 0.95
 background-blur = true
-# Use "tabs" if you want Cmd+T to create tabs (shows tab bar)
-# Use "hidden" for cleanest look but tabs become separate windows
-macos-titlebar-style = tabs
+# "transparent" = clean look, tab bar only shows with 2+ tabs
+# "tabs" = always shows tab bar (good if you use tabs a lot)
+# "hidden" = no titlebar at all (tabs become separate windows)
+macos-titlebar-style = transparent
 macos-icon = xray
 macos-window-shadow = true
 minimum-contrast = 1.1

@@ -20,3 +20,5 @@
 # Local machine-specific configs
 *.local
 .opencode/.config/opencode/package.json
+
+bun.lock

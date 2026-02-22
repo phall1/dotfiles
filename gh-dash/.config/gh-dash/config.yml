@@ -1,6 +1,6 @@
 prSections:
   - title: All Open PRs
-    filters: is:open repo:Twenty-IO/double-agents
+    filters: is:open
   - title: My Pull Requests
     filters: is:open author:@me
   - title: Needs My Review

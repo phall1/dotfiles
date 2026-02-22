@@ -1,4 +1,7 @@
 fzf
+sesh
+zoxide
+gum
 neovim
 tmux
 ripgrep

@@ -1,13 +1,13 @@
 # twenty — soft aesthetic
 
-background = #1e1e22
-foreground = #b8b8c8
+background = #1a1b24
+foreground = #d0d0de
 cursor-color = #dcccc6
-selection-background = #3e3e48
-selection-foreground = #b8b8c8
+selection-background = #484858
+selection-foreground = #d0d0de
 
-palette = 0=#1e1e22
-palette = 8=#555562
+palette = 0=#1a1b24
+palette = 8=#6a6a7a
 
 palette = 1=#e08a9e
 palette = 9=#e89bac
@@ -27,5 +27,5 @@ palette = 13=#c5a8b8
 palette = 6=#86cfc3
 palette = 14=#98d8cd
 
-palette = 7=#9090a0
-palette = 15=#b8b8c8
+palette = 7=#b0b0be
+palette = 15=#e0e0ec

@@ -19,13 +19,13 @@ font-thicken-strength = 50
 # ===========================
 # COLORS (theme override)
 # ===========================
-background = #1e1e22
-foreground = #b8b8c8
+background = #1a1b24
+foreground = #d0d0de
 cursor-color = #dcccc6
 cursor-style = block
 cursor-style-blink = false
-selection-background = #3e3e48
-selection-foreground = #b8b8c8
+selection-background = #484858
+selection-foreground = #d0d0de
 
 # ===========================
 # WINDOW & APPEARANCE
@@ -45,7 +45,7 @@ minimum-contrast = 1.1
 
 # Unfocused split dimming
 unfocused-split-opacity = 0.85
-split-divider-color = #3e3e48
+split-divider-color = #484858
 
 # ===========================
 # CURSOR & MOUSE
@@ -97,7 +97,6 @@ keybind = super+shift+w=close_window
 # KEYBINDINGS - TABS
 # ===========================
 keybind = super+t=new_tab
-keybind = super+shift+t=restore_tab
 keybind = super+1=goto_tab:1
 keybind = super+2=goto_tab:2
 keybind = super+3=goto_tab:3

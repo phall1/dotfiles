@@ -57,6 +57,8 @@ command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 # Atuin (shell history)
 command -v atuin &>/dev/null && eval "$(atuin init zsh)"
 
+command -v fuck &>/dev/null && eval "$(thefuck --alias)"
+
 # ============================================================================
 # Modular Config Loading
 # ============================================================================

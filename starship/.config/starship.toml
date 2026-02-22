@@ -7,7 +7,7 @@ format = """$directory $git_branch$git_state$git_status$aws$cmd_duration$custom
 $python$character"""
 
 [directory]
-style = "#9090a0"
+style = "#d4b88c"
 format = "[$path]($style)"
 truncation_length = 3
 truncate_to_repo = true
@@ -19,12 +19,12 @@ vimcmd_symbol = "[❮](#b89aad)"
 
 [git_branch]
 format = "[$branch]($style)"
-style = "#b8b8c8"
+style = "#86cfc3"
 symbol = ""
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
-style = "#68687a"
+style = "#7a7a8e"
 conflicted = "[!](#e08a9e)"
 untracked = "[?](#68687a)"
 modified = "[~](#e4cfa0)"
@@ -32,23 +32,23 @@ staged = "[+](#95d194)"
 renamed = "[»](#68687a)"
 deleted = "[✕](#e08a9e)"
 stashed = "[≡](#68687a)"
-ahead = "[↑${count}](#9090a0)"
+ahead = "[↑${count}](#a8a8b8)"
 behind = "[↓${count}](#68687a)"
 diverged = "[↕${ahead_count}↓${behind_count}](#e08a9e)"
 ignore_submodules = true
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '
-style = "italic #68687a"
+style = "italic #7a7a8e"
 
 [cmd_duration]
 format = "[$duration]($style)"
-style = "#555562"
+style = "#7a7a8a"
 min_time = 2000
 
 [python]
 format = "[py:$virtualenv]($style) "
-style = "#68687a"
+style = "#95d194"
 
 [aws]
 format = '[$profile]($style) '
@@ -74,5 +74,5 @@ command = '''
   fi
 '''
 when = 'test -S "${SPECTRE_SOCKET:-/tmp/spectre.sock}"'
-format = ' [$output](#68687a)'
+format = ' [$output](#7a7a8e)'
 shell = ['bash', '--noglob', '--norc', '--noprofile', '-c']

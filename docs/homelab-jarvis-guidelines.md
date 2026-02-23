@@ -402,22 +402,22 @@ Given your constraints (decked out Linux box, no GPU yet, want results):
 ---
 
 ## Next Steps
+See **[homelab-bootstrap-checklist.md](homelab-bootstrap-checklist.md)** for the full pre-flight checklist.
 
-1. **Create the repo**: `mkdir ~/homelab && cd ~/homelab && git init`
-2. **Install NixOS** on your bare metal box (keep it simple first)
-3. **Copy your hardware config** into the repo
-4. **Add one service** (Tailscale or Home Assistant)
-5. **Test the bootstrap**: Can you rebuild from scratch?
-6. **Iterate**: Add services one by one
+1. **Prep on your Mac**: Tailscale ACLs, age key, test in VM
+2. **Create the repo**: `mkdir ~/homelab && cd ~/homelab && git init`
+3. **Install NixOS** on your bare metal box (keep it simple first)
+4. **Copy your hardware config** into the repo
+5. **Add one service** (Tailscale or Home Assistant)
+6. **Test the bootstrap**: Can you rebuild from scratch?
+7. **Iterate**: Add services one by one
 
 ---
 
 ## Questions to Answer Later
 
+- [x] Secret management? → **sops-nix + age** (see bootstrap checklist)
 - [ ] Which reverse proxy? (Caddy vs Traefik vs Nginx)
-- [ ] Secret management? (sops-nix vs agenix vs vault)
 - [ ] Database: native PostgreSQL or container?
 - [ ] Backups: BorgBackup, Restic, or something else?
 - [ ] Do you need k3s/Kubernetes eventually?
-
-**Don't overthink now. Start simple, evolve as needed.**

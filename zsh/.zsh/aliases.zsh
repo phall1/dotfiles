@@ -107,3 +107,10 @@ alias myprs='gh pr list --author @me --search "is:open sort:updated-desc"'
 alias reviewme='gh pr list --review-requested @me --search "is:open sort:updated-desc"'
 alias prv='gh pr view --web=false'
 alias prd='gh pr diff'
+
+# Homelab (jarvis) shortcuts
+alias jv='jarvis'
+alias jvs='jarvis-status'
+alias jva='jarvis-apply'
+alias jvl='jarvis-logs'
+alias jvd='jarvis-docker-ps'

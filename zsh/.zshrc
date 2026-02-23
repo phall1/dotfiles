@@ -122,12 +122,8 @@ setopt HIST_IGNORE_SPACE
 export EDITOR="${EDITOR:-nvim}"
 export VISUAL="${VISUAL:-nvim}"
 
-
-
-# opencode
-export PATH=/Users/Patrick.Hall/.opencode/bin:$PATH
-
 # bun completions
-[ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
+# Warp terminal
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi

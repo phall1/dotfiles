@@ -1,0 +1,43 @@
+# NixOS equivalent of brew.txt
+# Use in your NixOS flake or home-manager config:
+#
+#   environment.systemPackages = with pkgs; [
+#     fzf sesh zoxide gum neovim tmux ripgrep shellcheck jq direnv
+#     lazygit lazydocker
+#     # NixOS-specific additions
+#     stow age sops git tailscale
+#   ];
+#
+# Or with home-manager:
+#
+#   home.packages = with pkgs; [ ... ];
+
+# --- Core tools (same as brew.txt) ---
+fzf
+sesh
+zoxide
+gum
+neovim
+tmux
+ripgrep
+shellcheck
+jq
+direnv
+
+lazygit
+lazydocker
+
+# --- NixOS / homelab additions ---
+stow
+age
+sops
+git
+tailscale
+htop
+btop
+curl
+wget
+unzip
+fd
+bat
+eza

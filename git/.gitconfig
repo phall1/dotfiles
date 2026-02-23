@@ -1,3 +1,12 @@
 [user]
 	email = patrick.hall@twenty.io
 	name = Patrick Hall
+
+# Personal projects / homelab — override work email
+# Create ~/.gitconfig-personal with:
+#   [user]
+#     email = your-personal@email.com
+[includeIf "gitdir:~/homelab/"]
+	path = ~/.gitconfig-personal
+[includeIf "gitdir:~/personal/"]
+	path = ~/.gitconfig-personal

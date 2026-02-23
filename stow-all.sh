@@ -8,11 +8,35 @@ cd "$script_dir"
 stow_dir="$script_dir"
 target_dir="$HOME"
 
+# DOTFILES_SKIP_PACKAGES: comma or space-separated list of packages to skip
+# Example: DOTFILES_SKIP_PACKAGES="ghostty,sesh" ./stow-all.sh
+skip_packages="${DOTFILES_SKIP_PACKAGES:-}"
+
 mapfile -t packages < <(find "$stow_dir" -maxdepth 1 -mindepth 1 -type d \
   ! -name '.git' \
   ! -name '.github' \
   ! -name 'scripts' \
+  ! -name 'docs' \
   -exec basename {} \; | sort)
+
+# Filter out skipped packages
+if [ -n "$skip_packages" ]; then
+  # Normalize separators: replace commas with spaces
+  skip_packages="${skip_packages//,/ }"
+  filtered=()
+  for pkg in "${packages[@]}"; do
+    skip=false
+    for s in $skip_packages; do
+      if [ "$pkg" == "$s" ]; then
+        skip=true
+        echo "Skipping package: $pkg"
+        break
+      fi
+    done
+    $skip || filtered+=("$pkg")
+  done
+  packages=("${filtered[@]}")
+fi
 
 if [ ${#packages[@]} -eq 0 ]; then
   echo "No stow packages found." >&2

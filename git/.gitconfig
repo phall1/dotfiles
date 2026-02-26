@@ -1,3 +1,9 @@
 [user]
 	email = patrick.hall@twenty.io
 	name = Patrick Hall
+[credential "https://github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/opt/homebrew/bin/gh auth git-credential

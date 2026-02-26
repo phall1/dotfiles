@@ -131,3 +131,4 @@ export PATH=/Users/Patrick.Hall/.opencode/bin:$PATH
 [ -s "/Users/Patrick.Hall/.bun/_bun" ] && source "/Users/Patrick.Hall/.bun/_bun"
 
 if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
+export PATH=$PATH:/Users/Patrick.Hall/go/bin

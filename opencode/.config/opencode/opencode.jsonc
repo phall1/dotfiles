@@ -12,13 +12,6 @@
     "instructions": [
         "~/.config/opencode/plugin/shell-strategy/shell_strategy.md"
     ],
-    "tui": {
-        "scroll_speed": 3,
-        "scroll_acceleration": {
-            "enabled": true
-        },
-        "diff_style": "auto"
-    },
     "mcp": {
         "kit-dev-mcp": {
             "type": "local",

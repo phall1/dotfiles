@@ -18,9 +18,11 @@ Stow figures out the target path by removing the package name prefix. This keeps
 ```bash
 git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-chmod +x install.sh
+chmod +x install.sh configure.sh
 ./install.sh
 ```
+
+The installer will prompt for your user-specific settings (git name, email, GitHub username) on first run.
 
 ## What's Included
 
@@ -90,7 +92,7 @@ cp zsh/.zsh_secrets.example ~/.zsh_secrets
 
 ## Customization
 
-- **Git**: Update `git/.gitconfig` with your email
+- **User Settings**: Run `./configure.sh` to update git name/email and GitHub username
 - **Zsh**: Add machine-specific configs to `zsh/.zsh/work.zsh`
 - **Aliases**: Add custom aliases to `zsh/.zsh/aliases.zsh`
 - **Functions**: Add custom functions to `zsh/.zsh/functions.zsh`

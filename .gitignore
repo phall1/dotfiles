@@ -23,4 +23,9 @@
 .github-account
 .opencode/.config/opencode/package.json
 
+# User-specific generated files (use configure.sh to regenerate)
+.user.conf
+git/.gitconfig
+.envrc
+
 bun.lock

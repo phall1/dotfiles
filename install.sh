@@ -2,6 +2,17 @@
 
 set -e
 
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Check if user config exists, prompt to configure if not
+if [ ! -f "$SCRIPT_DIR/.user.conf" ]; then
+    echo "No user configuration found."
+    echo "Running configure.sh to set up your personal settings..."
+    echo ""
+    "$SCRIPT_DIR/configure.sh"
+    echo ""
+fi
+
 # Detect OS
 if [[ "$OSTYPE" == "darwin"* ]]; then
   OS="macos"
@@ -74,7 +85,8 @@ echo "✅ Done!"
 echo ""
 echo "Next steps:"
 echo "  1. Copy zsh/.zsh_secrets.example to ~/.zsh_secrets and add your API keys"
-echo "  2. Update git/.gitconfig with your personal email if needed"
-echo "  3. Restart your terminal or run: source ~/.zshrc"
-echo "  4. Open tmux and press 'Ctrl-a + I' to install tmux plugins"
+echo "  2. Restart your terminal or run: source ~/.zshrc"
+echo "  3. Open tmux and press 'Ctrl-a + I' to install tmux plugins"
+echo ""
+echo "To reconfigure user settings (git name/email), run: ./configure.sh"
 echo ""

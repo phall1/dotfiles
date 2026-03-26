@@ -1,9 +1,9 @@
 [user]
-	email = patrick.hall@twenty.io
-	name = Patrick Hall
+	email = {{GIT_EMAIL}}
+	name = {{GIT_NAME}}
 [credential "https://github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential
 [credential "https://gist.github.com"]
-	helper = 
+	helper =
 	helper = !/opt/homebrew/bin/gh auth git-credential

@@ -4,6 +4,8 @@
     "plugin": [
         "oh-my-opencode",
         "opencode-pty",
+        "file:///Users/Patrick.Hall/workspace/opencode-anthropic-auth",
+        "opencode-cursor-oauth"
         // "opencode-websearch-cited@1.2.0",
         // "@tarquinen/opencode-dcp@latest",
         // "/Users/Patrick.Hall/workspace/thus/dist",
@@ -38,5 +40,9 @@
     "tools": {
         // "linear_*": false
     },
-    "provider": {}
+    "provider": {
+        "cursor": {
+            "name": "Cursor"
+        }
+    }
 }

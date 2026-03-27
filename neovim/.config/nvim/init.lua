@@ -70,6 +70,7 @@ vim.opt.splitright = true -- vertical splits open to the right
 vim.opt.updatetime = 300 -- faster updates
 vim.opt.timeoutlen = 400 -- shorter key sequence timeout
 vim.opt.mouse = "a" -- enable mouse support
+vim.opt.wrap = true -- wrap words
 
 -- Colorscheme
 vim.cmd("colorscheme twenty")

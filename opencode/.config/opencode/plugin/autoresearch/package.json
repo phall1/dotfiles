@@ -1,0 +1,13 @@
+{
+  "name": "opencode-autoresearch",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "OpenCode plugin that recreates pi-style /autoresearch workflow scaffolding",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "dependencies": {
+    "@opencode-ai/plugin": "1.3.3"
+  }
+}

@@ -5,7 +5,8 @@
         "oh-my-opencode",
         "opencode-pty",
         "file:///Users/Patrick.Hall/workspace/opencode-anthropic-auth",
-        "opencode-cursor-oauth"
+        "opencode-cursor-oauth",
+        "file:///Users/Patrick.Hall/.config/opencode/plugin/autoresearch"
         // "opencode-websearch-cited@1.2.0",
         // "@tarquinen/opencode-dcp@latest",
         // "/Users/Patrick.Hall/workspace/thus/dist",

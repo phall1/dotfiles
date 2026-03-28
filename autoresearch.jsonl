@@ -1,1 +1,3 @@
 {"type":"config","name":"OpenCode autoresearch plugin capability score","metricName":"score","metricUnit":"","bestDirection":"higher"}
+{"run":1,"commit":"a73c8e1","metric":0,"metrics":{},"status":"keep","description":"Baseline after creating autoresearch.md, autoresearch.sh, and autoresearch.checks.sh","timestamp":1774662765773,"segment":0,"confidence":null,"iterationTokens":101}
+{"run":2,"commit":"a73c8e1","metric":8,"metrics":{},"status":"checks_failed","description":"Added an initial plugin package, command, README, and tests; benchmark score improved but tests used repo-root paths and all checks failed","timestamp":1774662874432,"segment":0,"confidence":null,"iterationTokens":6378}

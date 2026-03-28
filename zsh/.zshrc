@@ -38,6 +38,9 @@ export PATH="$HOME/.local/bin:$PATH"
 
 [[ -d "$HOME/.bun/bin" ]] && export PATH="$HOME/.bun/bin:$PATH"
 
+# npm global (writable prefix for Nix-managed node)
+[[ -d "$HOME/.npm-global/bin" ]] && export PATH="$HOME/.npm-global/bin:$PATH"
+
 # ============================================================================
 # Tool Initializations - only if tools exist
 # ============================================================================

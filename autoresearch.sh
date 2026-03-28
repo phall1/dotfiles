@@ -16,6 +16,7 @@ const indexPath = path.join(pluginDir, 'index.js');
 const commandPath = path.join(root, 'opencode/.config/opencode/commands/autoresearch.md');
 const readmePath = path.join(pluginDir, 'README.md');
 const configPath = path.join(root, 'opencode/.config/opencode/opencode.jsonc');
+const gitignorePath = path.join(root, '.gitignore');
 
 function has(p) {
   return fs.existsSync(p);
@@ -104,6 +105,13 @@ function findAutoresearchPluginTargets(configText, configDir) {
     try {
       const config = fs.readFileSync(configPath, 'utf8');
       if (/file:\/\/\/.*\/\.config\/opencode\/plugin\/autoresearch/.test(config)) score += 1;
+    } catch {}
+  }
+
+  if (has(gitignorePath)) {
+    try {
+      const gitignore = fs.readFileSync(gitignorePath, 'utf8');
+      if (/^\.opencode-autoresearch-state\.json$/m.test(gitignore)) score += 1;
     } catch {}
   }
 

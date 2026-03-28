@@ -21,6 +21,11 @@ if [ -d "$PLUGIN_DIR" ] && [ -f "$PLUGIN_DIR/package.json" ]; then
     cat "$runtime_err" >&2
     exit 1
   fi
+
+  if git ls-files --error-unmatch .opencode-autoresearch-state.json >/dev/null 2>&1; then
+    echo ".opencode-autoresearch-state.json should not be tracked in git" >&2
+    exit 1
+  fi
 else
   node -e "console.log('plugin not created yet; skipping checks')" >/dev/null
 fi

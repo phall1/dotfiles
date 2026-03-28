@@ -37,3 +37,5 @@ stow --dir="$HOME/dotfiles" --target="$HOME" --no-folding -R opencode
 ## Notes
 
 This plugin intentionally keeps state in the current project root instead of trying to maintain hidden runtime-only process state. That makes the mode inspectable, restart-safe, and easy to debug.
+
+The generated `.opencode-autoresearch-state.json` file is local runtime state and should stay untracked by git.

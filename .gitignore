@@ -22,6 +22,7 @@
 !.local/
 .github-account
 .opencode/.config/opencode/package.json
+.opencode-autoresearch-state.json
 
 # User-specific generated files (use configure.sh to regenerate)
 .user.conf

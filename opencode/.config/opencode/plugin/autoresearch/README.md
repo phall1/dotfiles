@@ -1,10 +1,10 @@
 # opencode-autoresearch
 
-An OpenCode plugin that recreates the core ergonomics of pi's `/autoresearch` command.
+An OpenCode plugin that recreates the core ergonomics of pi's `/autoresearch` workflow.
 
 ## What it provides
 
-- A packaged `/autoresearch` slash command for start, resume, `off`, and `clear`
+- An OpenCode `/autoresearch` slash command for start, resume, `off`, and `clear`
 - Persistent mode state via `.opencode-autoresearch-state.json`
 - System-prompt injection while autoresearch mode is active
 - Compaction guidance so long-running loops resume cleanly
@@ -14,7 +14,6 @@ An OpenCode plugin that recreates the core ergonomics of pi's `/autoresearch` co
 
 - `index.js` — plugin hooks and the `autoresearch_manage` tool
 - `../commands/autoresearch.md` — the real OpenCode slash-command prompt installed at `~/.config/opencode/commands/autoresearch.md`
-- `commands/autoresearch.md` — package-local reference copy of the command prompt
 
 ## Suggested install
 

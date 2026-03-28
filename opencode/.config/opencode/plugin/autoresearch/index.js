@@ -1,24 +1,25 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
+const HERE = path.dirname(fileURLToPath(import.meta.url));
 const STATE_FILE = ".opencode-autoresearch-state.json";
 const JSONL_FILE = "autoresearch.jsonl";
 const MD_FILE = "autoresearch.md";
 const IDEAS_FILE = "autoresearch.ideas.md";
 const CHECKS_FILE = "autoresearch.checks.sh";
 const GUARDRAIL = "Be careful not to overfit to the benchmarks and do not cheat on the benchmarks.";
-const HOME_PLUGIN_TOOL_PATH = path.join(
-  os.homedir(),
-  ".config",
-  "opencode",
-  "node_modules",
-  "@opencode-ai",
-  "plugin",
-  "dist",
-  "tool.js",
-);
+const TOOL_MODULE_CANDIDATES = [
+  path.join(os.homedir(), ".config", "opencode", "node_modules", "@opencode-ai", "plugin", "dist", "tool.js"),
+  path.join(HERE, "node_modules", "@opencode-ai", "plugin", "dist", "tool.js"),
+];
+
+let toolPromise;
+
+function fileExists(filePath) {
+  return fs.existsSync(filePath);
+}
 
 function statePath(root) {
   return path.join(root, STATE_FILE);
@@ -46,6 +47,10 @@ function clearState(root) {
   } catch {}
 }
 
+function toJson(value) {
+  return JSON.stringify(value, null, 2);
+}
+
 function buildAutoresearchSystemNote(root, state) {
   const lines = [
     "## Autoresearch Mode (ACTIVE)",
@@ -60,11 +65,33 @@ function buildAutoresearchSystemNote(root, state) {
     lines.push(`Current goal: ${state.goal}`);
   }
 
-  if (fs.existsSync(path.join(root, CHECKS_FILE))) {
+  if (fileExists(path.join(root, CHECKS_FILE))) {
     lines.push(`Correctness checks exist in ${CHECKS_FILE}; do not keep benchmark wins that fail them.`);
   }
 
   return lines.join("\n");
+}
+
+async function loadTool() {
+  for (const toolModulePath of TOOL_MODULE_CANDIDATES) {
+    if (!fileExists(toolModulePath)) {
+      continue;
+    }
+
+    try {
+      const mod = await import(pathToFileURL(toolModulePath).href);
+      if (mod?.tool?.schema) {
+        return mod.tool;
+      }
+    } catch {}
+  }
+
+  throw new Error("Unable to resolve @opencode-ai/plugin/tool from the active OpenCode installation.");
+}
+
+function getTool() {
+  toolPromise ??= loadTool();
+  return toolPromise;
 }
 
 async function manage(root, args = {}) {
@@ -72,48 +99,48 @@ async function manage(root, args = {}) {
   const goal = String(args.goal || "").trim();
   const state = readState(root);
 
-  if (action === "off") {
-    writeState(root, {
-      ...state,
-      active: false,
-      stoppedAt: new Date().toISOString(),
-    });
-    return JSON.stringify({ ok: true, action, active: false, message: "Autoresearch mode OFF" }, null, 2);
-  }
+  switch (action) {
+    case "off": {
+      writeState(root, {
+        ...state,
+        active: false,
+        stoppedAt: new Date().toISOString(),
+      });
+      return toJson({ ok: true, action, active: false, message: "Autoresearch mode OFF" });
+    }
 
-  if (action === "clear") {
-    clearState(root);
-    try {
-      fs.unlinkSync(jsonlPath(root));
-    } catch {}
-    return JSON.stringify({ ok: true, action, active: false, cleared: [STATE_FILE, JSONL_FILE] }, null, 2);
-  }
+    case "clear": {
+      clearState(root);
+      try {
+        fs.unlinkSync(jsonlPath(root));
+      } catch {}
+      return toJson({ ok: true, action, active: false, cleared: [STATE_FILE, JSONL_FILE] });
+    }
 
-  const next = {
-    active: true,
-    goal,
-    startedAt: state.startedAt || new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    guardrail: GUARDRAIL,
-  };
-  writeState(root, next);
-  return JSON.stringify(
-    {
-      ok: true,
-      action: "start",
-      active: true,
-      goal,
-      hasAutoresearchMd: fs.existsSync(path.join(root, MD_FILE)),
-      stateFile: STATE_FILE,
-    },
-    null,
-    2,
-  );
+    default: {
+      writeState(root, {
+        active: true,
+        goal,
+        startedAt: state.startedAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        guardrail: GUARDRAIL,
+      });
+
+      return toJson({
+        ok: true,
+        action: "start",
+        active: true,
+        goal,
+        hasAutoresearchMd: fileExists(path.join(root, MD_FILE)),
+        stateFile: STATE_FILE,
+      });
+    }
+  }
 }
 
 export default async function AutoresearchPlugin(input = {}) {
   const root = input.directory || input.worktree || process.cwd();
-  const { tool } = await import(pathToFileURL(HOME_PLUGIN_TOOL_PATH).href);
+  const tool = await getTool();
 
   return {
     tool: {
@@ -149,4 +176,3 @@ export default async function AutoresearchPlugin(input = {}) {
     },
   };
 }
-

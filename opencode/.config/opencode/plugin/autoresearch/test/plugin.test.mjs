@@ -13,13 +13,24 @@ const pluginPath = fs.existsSync(path.join(installedPluginDir, "index.js"))
   : path.join(pluginDir, "index.js");
 const commandPath = path.resolve(pluginDir, "..", "..", "commands", "autoresearch.md");
 
-async function loadPlugin() {
+async function loadPluginModule() {
   return import(`${pathToFileURL(pluginPath).href}?t=${Date.now()}`);
 }
 
+async function loadPlugin() {
+  const mod = await loadPluginModule();
+  return mod.default;
+}
+
+test("plugin module only exports the default hook factory", async () => {
+  const mod = await loadPluginModule();
+  assert.deepEqual(Object.keys(mod).sort(), ["default"]);
+  assert.equal(typeof mod.default, "function");
+});
+
 test("autoresearch_manage start/off/clear persists state", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
-  const { default: plugin } = await loadPlugin();
+  const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
 
   const start = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "test goal" }));
@@ -45,7 +56,7 @@ test("autoresearch_manage start reports resume context when autoresearch.md exis
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
   fs.writeFileSync(path.join(tmp, "autoresearch.md"), "# plan\n");
 
-  const { default: plugin } = await loadPlugin();
+  const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
 
   const start = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "resume loop" }));
@@ -61,7 +72,7 @@ test("autoresearch_manage start reports resume context when autoresearch.md exis
 
 test("system transform injects autoresearch note only when active", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
-  const { default: plugin } = await loadPlugin();
+  const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
 
   assert.equal(typeof hooks.tool.autoresearch_manage.args.action.safeParse, "function");
@@ -80,7 +91,7 @@ test("system transform injects autoresearch note only when active", async () => 
 
 test("compaction hook preserves resume guidance", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
-  const { default: plugin } = await loadPlugin();
+  const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
 
   await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "resume loop" });

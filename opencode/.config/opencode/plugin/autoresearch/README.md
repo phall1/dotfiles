@@ -12,8 +12,9 @@ An OpenCode plugin that recreates the core ergonomics of pi's `/autoresearch` co
 
 ## Files
 
-- `index.js` — plugin hooks
-- `commands/autoresearch.md` — slash command prompt template
+- `index.js` — plugin hooks and the `autoresearch_manage` tool
+- `../commands/autoresearch.md` — the real OpenCode slash-command prompt installed at `~/.config/opencode/commands/autoresearch.md`
+- `commands/autoresearch.md` — package-local reference copy of the command prompt
 
 ## Suggested install
 
@@ -25,6 +26,12 @@ Add the plugin to `~/.config/opencode/opencode.jsonc`:
     "file:///Users/Patrick.Hall/.config/opencode/plugin/autoresearch"
   ]
 }
+```
+
+This dotfiles repo is intended to be applied with GNU Stow, so after creating or updating the plugin you should restow the `opencode` package:
+
+```bash
+stow --dir="$HOME/dotfiles" --target="$HOME" --no-folding -R opencode
 ```
 
 ## Notes

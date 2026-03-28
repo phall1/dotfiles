@@ -7,8 +7,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pluginDir = path.resolve(here, "..");
-const pluginPath = path.join(pluginDir, "index.js");
-const commandPath = path.join(pluginDir, "commands", "autoresearch.md");
+const installedPluginDir = path.join(os.homedir(), ".config", "opencode", "plugin", "autoresearch");
+const pluginPath = fs.existsSync(path.join(installedPluginDir, "index.js"))
+  ? path.join(installedPluginDir, "index.js")
+  : path.join(pluginDir, "index.js");
+const commandPath = path.resolve(pluginDir, "..", "..", "commands", "autoresearch.md");
 
 async function loadPlugin() {
   return import(`${pathToFileURL(pluginPath).href}?t=${Date.now()}`);
@@ -21,21 +24,47 @@ test("autoresearch_manage start/off/clear persists state", async () => {
 
   const start = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "test goal" }));
   assert.equal(start.active, true);
+  assert.equal(start.goal, "test goal");
+  assert.equal(start.hasAutoresearchMd, false);
   assert.equal(fs.existsSync(path.join(tmp, ".opencode-autoresearch-state.json")), true);
 
   const off = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "off" }));
   assert.equal(off.active, false);
+  const offState = JSON.parse(fs.readFileSync(path.join(tmp, ".opencode-autoresearch-state.json"), "utf8"));
+  assert.equal(offState.active, false);
+  assert.equal(offState.goal, "test goal");
 
   fs.writeFileSync(path.join(tmp, "autoresearch.jsonl"), "{}\n");
-  await hooks.tool.autoresearch_manage.execute({ action: "clear" });
+  const cleared = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "clear" }));
+  assert.deepEqual(cleared.cleared, [".opencode-autoresearch-state.json", "autoresearch.jsonl"]);
   assert.equal(fs.existsSync(path.join(tmp, ".opencode-autoresearch-state.json")), false);
   assert.equal(fs.existsSync(path.join(tmp, "autoresearch.jsonl")), false);
+});
+
+test("autoresearch_manage start reports resume context when autoresearch.md exists", async () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
+  fs.writeFileSync(path.join(tmp, "autoresearch.md"), "# plan\n");
+
+  const { default: plugin } = await loadPlugin();
+  const hooks = await plugin({ directory: tmp, worktree: tmp });
+
+  const start = JSON.parse(await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "resume loop" }));
+  assert.equal(start.active, true);
+  assert.equal(start.hasAutoresearchMd, true);
+  assert.equal(start.stateFile, ".opencode-autoresearch-state.json");
+
+  const state = JSON.parse(fs.readFileSync(path.join(tmp, ".opencode-autoresearch-state.json"), "utf8"));
+  assert.equal(state.active, true);
+  assert.equal(state.goal, "resume loop");
+  assert.match(state.guardrail, /do not cheat on the benchmarks/i);
 });
 
 test("system transform injects autoresearch note only when active", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
   const { default: plugin } = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
+
+  assert.equal(typeof hooks.tool.autoresearch_manage.args.action.safeParse, "function");
 
   const inactive = { system: [] };
   await hooks["experimental.chat.system.transform"]({}, inactive);
@@ -61,10 +90,14 @@ test("compaction hook preserves resume guidance", async () => {
   assert.match(output.context[0], /resume by reading autoresearch\.md/i);
 });
 
-test("slash command prompt documents start off clear and guardrail", () => {
+test("slash command prompt is installed at the real OpenCode commands path", () => {
   const text = fs.readFileSync(commandPath, "utf8");
+  assert.match(text, /If `\$ARGUMENTS` is empty, explain usage:/);
   assert.match(text, /\/autoresearch <goal>/);
+  assert.match(text, /If `\$ARGUMENTS` is `off`:/);
   assert.match(text, /\/autoresearch off/);
+  assert.match(text, /If `\$ARGUMENTS` is `clear`:/);
   assert.match(text, /\/autoresearch clear/);
+  assert.match(text, /Prefer calling the `autoresearch_manage` tool with `action: "start"`/);
   assert.match(text, /do not cheat on the benchmarks/i);
 });

@@ -13,7 +13,7 @@ const root = process.cwd();
 const pluginDir = path.join(root, 'opencode/.config/opencode/plugin/autoresearch');
 const pkgPath = path.join(pluginDir, 'package.json');
 const indexPath = path.join(pluginDir, 'index.js');
-const commandPath = path.join(pluginDir, 'commands/autoresearch.md');
+const commandPath = path.join(root, 'opencode/.config/opencode/commands/autoresearch.md');
 const readmePath = path.join(pluginDir, 'README.md');
 const configPath = path.join(root, 'opencode/.config/opencode/opencode.jsonc');
 
@@ -31,7 +31,7 @@ function resolvePluginEntry(entry, configDir) {
     }
   }
   if (entry.startsWith('~/')) {
-    return path.join(os.homedir(), entry.slice(2));
+    return null;
   }
   if (path.isAbsolute(entry)) {
     return entry;
@@ -88,6 +88,22 @@ function findAutoresearchPluginTargets(configText, configDir) {
         if (hooks && typeof hooks['experimental.chat.system.transform'] === 'function') score += 1;
         if (hooks && typeof hooks['experimental.session.compacting'] === 'function') score += 1;
       }
+    } catch {}
+  }
+
+  if (has(commandPath)) {
+    try {
+      const command = fs.readFileSync(commandPath, 'utf8');
+      if (/\/autoresearch <goal>/.test(command) && /\/autoresearch off/.test(command) && /\/autoresearch clear/.test(command)) {
+        score += 1;
+      }
+    } catch {}
+  }
+
+  if (has(configPath)) {
+    try {
+      const config = fs.readFileSync(configPath, 'utf8');
+      if (/file:\/\/\/.*\/\.config\/opencode\/plugin\/autoresearch/.test(config)) score += 1;
     } catch {}
   }
 

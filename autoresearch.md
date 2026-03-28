@@ -35,5 +35,7 @@ The benchmark inspects the OpenCode plugin package and command files, verifies t
 ## What's Been Tried
 - Initial session setup created `autoresearch.md`, `autoresearch.sh`, and `autoresearch.checks.sh`.
 - First plugin attempt improved the raw score but failed checks because the tests used repo-root-relative paths from inside the plugin package; discarded automatically.
-- Kept implementation: added `opencode/.config/opencode/plugin/autoresearch/` with a packaged `/autoresearch` command, persistent `.opencode-autoresearch-state.json` handling, system/compaction hooks, a lightweight `autoresearch_manage` helper tool, tests, and config registration in `opencode/.config/opencode/opencode.jsonc`.
-- The original benchmark hit an artificial ceiling at 12 and missed an important real-world failure: OpenCode could not load the configured plugin path. The benchmark was therefore upgraded to score runtime-valid configuration and SDK-shaped tool definitions.
+- Kept implementation: added `opencode/.config/opencode/plugin/autoresearch/` with persistent `.opencode-autoresearch-state.json` handling, system/compaction hooks, an `autoresearch_manage` helper tool, tests, and config registration in `opencode/.config/opencode/opencode.jsonc`.
+- Runtime validation revealed that OpenCode does **not** discover slash commands from inside the plugin package. The real command must live at `opencode/.config/opencode/commands/autoresearch.md` so it stows to `~/.config/opencode/commands/autoresearch.md`.
+- Runtime validation also revealed that OpenCode 1.3.3 rejects this plugin when `index.js` exports extra named helpers; the plugin must export only the default hook factory.
+- The original benchmark hit an artificial ceiling at 12 and missed important real-world failures. It was upgraded to score runtime-valid configuration and SDK-shaped tool definitions, and correctness checks now include a real OpenCode smoke test.

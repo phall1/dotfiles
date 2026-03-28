@@ -1,3 +1,3 @@
 - Validate the plugin inside a real OpenCode session and tighten the command/tool contract if OpenCode requires stricter tool schemas than the current lightweight object.
-- Replace the hard-coded README/config install path with a more portable local-path strategy once OpenCode path resolution behavior is confirmed.
+- Replace the hard-coded README/config install path with a more portable but still runtime-valid local-path strategy. Current finding: bare `~/...` plugin entries do not work; `file:///.../.config/opencode/plugin/autoresearch` does.
 - Add optional richer state (last run summary, last metric, last command) so resumed autoresearch sessions can display better context without rereading logs.

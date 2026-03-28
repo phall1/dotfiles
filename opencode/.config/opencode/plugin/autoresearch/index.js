@@ -1,5 +1,7 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 
 const STATE_FILE = ".opencode-autoresearch-state.json";
 const JSONL_FILE = "autoresearch.jsonl";
@@ -7,6 +9,16 @@ const MD_FILE = "autoresearch.md";
 const IDEAS_FILE = "autoresearch.ideas.md";
 const CHECKS_FILE = "autoresearch.checks.sh";
 const GUARDRAIL = "Be careful not to overfit to the benchmarks and do not cheat on the benchmarks.";
+const HOME_PLUGIN_TOOL_PATH = path.join(
+  os.homedir(),
+  ".config",
+  "opencode",
+  "node_modules",
+  "@opencode-ai",
+  "plugin",
+  "dist",
+  "tool.js",
+);
 
 function statePath(root) {
   return path.join(root, STATE_FILE);
@@ -101,19 +113,20 @@ async function manage(root, args = {}) {
 
 export default async function AutoresearchPlugin(input = {}) {
   const root = input.directory || input.worktree || process.cwd();
+  const { tool } = await import(pathToFileURL(HOME_PLUGIN_TOOL_PATH).href);
 
   return {
     tool: {
-      autoresearch_manage: {
+      autoresearch_manage: tool({
         description: "Manage persistent OpenCode autoresearch state for /autoresearch-like workflows",
         args: {
-          action: { type: "string", description: "start, off, or clear" },
-          goal: { type: "string", description: "Goal text for start/resume" },
+          action: tool.schema.enum(["start", "off", "clear"]).describe("Whether to start, stop, or clear autoresearch state"),
+          goal: tool.schema.string().optional().describe("Goal text for start/resume"),
         },
         async execute(args) {
           return manage(root, args);
         },
-      },
+      }),
     },
 
     "experimental.chat.system.transform": async (_input, output) => {
@@ -137,4 +150,3 @@ export default async function AutoresearchPlugin(input = {}) {
   };
 }
 
-export { manage, readState, writeState, clearState, statePath };

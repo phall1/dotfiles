@@ -159,20 +159,36 @@ export default async function AutoresearchPlugin(input = {}) {
     "experimental.chat.system.transform": async (_input, output) => {
       const state = readState(root);
       if (!state.active) return;
-      output.system.push(buildAutoresearchSystemNote(root, state));
+      const note = buildAutoresearchSystemNote(root, state);
+      output.system ??= [];
+      const existingIndex = output.system.findIndex(
+        (entry) => typeof entry === "string" && entry.includes("Autoresearch Mode (ACTIVE)"),
+      );
+      if (existingIndex >= 0) {
+        output.system[existingIndex] = note;
+      } else {
+        output.system.push(note);
+      }
     },
 
     "experimental.session.compacting": async (_input, output) => {
       const state = readState(root);
       if (!state.active) return;
-      output.context.push(
-        [
-          "Autoresearch is active.",
-          `After compaction, resume by reading ${MD_FILE} and continuing the experiment loop.`,
-          `Check ${IDEAS_FILE} for deferred ideas before repeating dead ends.`,
-          GUARDRAIL,
-        ].join(" "),
+      const message = [
+        "Autoresearch is active.",
+        `After compaction, resume by reading ${MD_FILE} and continuing the experiment loop.`,
+        `Check ${IDEAS_FILE} for deferred ideas before repeating dead ends.`,
+        GUARDRAIL,
+      ].join(" ");
+      output.context ??= [];
+      const existingIndex = output.context.findIndex(
+        (entry) => typeof entry === "string" && entry.startsWith("Autoresearch is active."),
       );
+      if (existingIndex >= 0) {
+        output.context[existingIndex] = message;
+      } else {
+        output.context.push(message);
+      }
     },
   };
 }

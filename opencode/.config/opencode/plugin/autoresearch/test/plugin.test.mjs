@@ -70,7 +70,7 @@ test("autoresearch_manage start reports resume context when autoresearch.md exis
   assert.match(state.guardrail, /do not cheat on the benchmarks/i);
 });
 
-test("system transform injects autoresearch note only when active", async () => {
+test("system transform injects and deduplicates autoresearch note", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
   const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
@@ -86,10 +86,19 @@ test("system transform injects autoresearch note only when active", async () => 
   await hooks["experimental.chat.system.transform"]({}, active);
   assert.equal(active.system.length, 1);
   assert.match(active.system[0], /Autoresearch Mode/);
+  assert.match(active.system[0], /Current goal: resume loop/);
   assert.match(active.system[0], /do not cheat on the benchmarks/i);
+
+  await hooks["experimental.chat.system.transform"]({}, active);
+  assert.equal(active.system.length, 1);
+
+  await hooks.tool.autoresearch_manage.execute({ action: "start", goal: "new goal" });
+  await hooks["experimental.chat.system.transform"]({}, active);
+  assert.equal(active.system.length, 1);
+  assert.match(active.system[0], /Current goal: new goal/);
 });
 
-test("compaction hook preserves resume guidance", async () => {
+test("compaction hook preserves resume guidance without duplication", async () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "opencode-autoresearch-"));
   const plugin = await loadPlugin();
   const hooks = await plugin({ directory: tmp, worktree: tmp });
@@ -99,6 +108,9 @@ test("compaction hook preserves resume guidance", async () => {
   await hooks["experimental.session.compacting"]({ sessionID: "s1" }, output);
   assert.equal(output.context.length, 1);
   assert.match(output.context[0], /resume by reading autoresearch\.md/i);
+
+  await hooks["experimental.session.compacting"]({ sessionID: "s1" }, output);
+  assert.equal(output.context.length, 1);
 });
 
 test("slash command prompt is installed at the real OpenCode commands path", () => {

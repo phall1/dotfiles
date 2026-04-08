@@ -86,8 +86,57 @@ function findAutoresearchPluginTargets(configText, configDir) {
         const toolDef = hooks?.tool?.autoresearch_manage;
         if (toolDef) score += 1;
         if (toolDef?.args?.action && typeof toolDef.args.action.safeParse === 'function') score += 1;
-        if (hooks && typeof hooks['experimental.chat.system.transform'] === 'function') score += 1;
-        if (hooks && typeof hooks['experimental.session.compacting'] === 'function') score += 1;
+        const hasSystemTransform = hooks && typeof hooks['experimental.chat.system.transform'] === 'function';
+        if (hasSystemTransform) score += 1;
+        const hasCompaction = hooks && typeof hooks['experimental.session.compacting'] === 'function';
+        if (hasCompaction) score += 1;
+
+        try {
+          const tmpRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'autoresearch-bench-'));
+          try {
+            const tmpHooks = await plugin({
+              client: {},
+              project: {},
+              directory: tmpRoot,
+              worktree: tmpRoot,
+              $: () => {
+                throw new Error('shell not available in benchmark');
+              },
+            });
+
+            const manageTool = tmpHooks?.tool?.autoresearch_manage;
+            if (manageTool?.execute && hasSystemTransform && hasCompaction) {
+              await manageTool.execute({ action: 'start', goal: 'dedup check' });
+
+              const systemOutput = { system: [] };
+              await tmpHooks['experimental.chat.system.transform']({}, systemOutput);
+              await tmpHooks['experimental.chat.system.transform']({}, systemOutput);
+              if (Array.isArray(systemOutput.system) && systemOutput.system.length === 1) {
+                score += 1;
+              }
+
+              await manageTool.execute({ action: 'start', goal: 'updated goal' });
+              await tmpHooks['experimental.chat.system.transform']({}, systemOutput);
+              if (
+                Array.isArray(systemOutput.system) &&
+                systemOutput.system.length === 1 &&
+                typeof systemOutput.system[0] === 'string' &&
+                systemOutput.system[0].includes('Current goal: updated goal')
+              ) {
+                score += 1;
+              }
+
+              const compactionOutput = { context: [] };
+              await tmpHooks['experimental.session.compacting']({}, compactionOutput);
+              await tmpHooks['experimental.session.compacting']({}, compactionOutput);
+              if (Array.isArray(compactionOutput.context) && compactionOutput.context.length === 1) {
+                score += 1;
+              }
+            }
+          } finally {
+            fs.rmSync(tmpRoot, { recursive: true, force: true });
+          }
+        } catch {}
       }
     } catch {}
   }

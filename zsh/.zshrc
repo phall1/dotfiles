@@ -23,6 +23,8 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 # ============================================================================
 # PATH - composable additions
 # ============================================================================
+#
+export PATH="/Users/Patrick.Hall/.firecrew/bin:$PATH"
 
 # Opencode
 export PATH="$HOME/.opencode/bin:$PATH"

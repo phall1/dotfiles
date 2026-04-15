@@ -2,20 +2,20 @@
     "$schema": "https://opencode.ai/config.json",
     // "share": "disabled",
     "plugin": [
-        "oh-my-opencode",
-        "opencode-pty",
-        "file:///Users/Patrick.Hall/workspace/opencode-anthropic-auth",
-        "opencode-cursor-oauth",
-        "file:///Users/Patrick.Hall/.config/opencode/plugin/autoresearch"
-        // "opencode-websearch-cited@1.2.0",
-        // "@tarquinen/opencode-dcp@latest",
-        // "/Users/Patrick.Hall/workspace/thus/dist",
-        // "opencode-openai-codex-auth"
+      "oh-my-openagent",
+      "opencode-pty",
+      "file:///Users/Patrick.Hall/workspace/opencode-anthropic-auth",
+      "opencode-cursor-oauth",
+      "file:///Users/Patrick.Hall/.config/opencode/plugin/autoresearch"
     ],
     "instructions": [
         // "~/.config/opencode/plugin/shell-strategy/shell_strategy.md"
     ],
     "mcp": {
+        "notion": {
+            "type": "remote",
+            "url": "https://mcp.notion.com/mcp",
+        },
         "kit-dev-mcp": {
             "type": "local",
             "command": [

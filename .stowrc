@@ -1,4 +1,7 @@
 # Stow configuration - ignore nix profiles to avoid symlink bugs
+# Also ignore local JS deps inside managed packages; symlinked scripts still
+# resolve them from the repo, and stow won't collide with existing installs.
 ignore = \.local/state/nix
 ignore = profiles
+ignore = node_modules
 ignore = .*-link$

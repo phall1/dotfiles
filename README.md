@@ -32,6 +32,7 @@ The installer will prompt for your user-specific settings (git name, email, GitH
 - **Starship**: Fast shell prompt with Twenty theme
 - **Tmux**: Terminal multiplexer with vim-style navigation
 - **Git**: Global git configuration
+- **Nix**: Portable `~/.config/nix/nix.conf` plus shell initialization for common installers
 
 ## Structure
 
@@ -61,6 +62,10 @@ dotfiles/
 │   └── .tmux.conf
 ├── git/              # Git config → ~/
 │   └── .gitconfig
+├── nix/              # Nix config → ~/.config/
+│   └── .config/
+│       └── nix/
+│           └── nix.conf
 ├── brew.txt          # Homebrew packages
 ├── stow-all.sh       # Stow all packages
 └── install.sh        # Setup script
@@ -79,6 +84,30 @@ brew install stow antidote starship
 
 # Install tmux plugin manager
 git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+```
+
+## Nix Setup
+
+This repo tracks the portable parts of Nix setup:
+
+- `nix/.config/nix/nix.conf`
+- shell init in `zsh/.zprofile` for common Nix install layouts
+
+It intentionally does **not** track machine-specific installer state like launch daemons,
+APFS volume setup, or installer receipts.
+
+If you want the same installer again, use Determinate Nix:
+
+```bash
+curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+```
+
+For a few more notes on what is and is not tracked, see `docs/nix.md`.
+
+Then restow the repo:
+
+```bash
+./stow-all.sh
 ```
 
 ## Secrets Management

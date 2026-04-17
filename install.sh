@@ -43,10 +43,17 @@ if [ "$OS" == "macos" ]; then
   fi
 
 elif [ "$OS" == "linux" ]; then
-  echo "📦 Checking Nix packages..."
+  echo "📦 Checking Linux dependencies..."
   # Stow should be installed, but check just in case
   if ! command -v stow &> /dev/null; then
-    nix profile install nixpkgs#stow
+    if command -v nix &> /dev/null; then
+      nix profile install nixpkgs#stow
+    else
+      echo "❌ stow is required and Nix is not installed."
+      echo "   Install stow with your distro package manager, or install Nix first:"
+      echo "   curl -fsSL https://install.determinate.systems/nix | sh -s -- install"
+      exit 1
+    fi
   fi
 
   # Install antidote via git on Linux

@@ -5,7 +5,7 @@
     "npm:pi-amplike",
     "npm:pi-tool-display"
   ],
-  "defaultProvider": "openai",
-  "defaultModel": "gpt-5.4",
+  "defaultProvider": "anthropic",
+  "defaultModel": "claude-opus-4-6",
   "theme": "dark"
 }

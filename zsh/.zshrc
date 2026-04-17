@@ -9,16 +9,10 @@
 export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 
 # ============================================================================
-# Nix - only if available
+# Nix
 # ============================================================================
 
-# if [[ -f /etc/profile.d/nix.sh ]]; then
-#   source /etc/profile.d/nix.sh
-# elif [[ -f ~/.nix-profile/etc/profile.d/nix.sh ]]; then
-#   source ~/.nix-profile/etc/profile.d/nix.sh
-# elif [[ -f /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh ]]; then
-#   source /nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh
-# fi
+# Nix setup lives in ~/.zprofile so login shells and interactive shells share it.
 
 # ============================================================================
 # PATH - composable additions

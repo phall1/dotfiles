@@ -97,6 +97,9 @@ alias tmk='tmux kill-session'
 # Editor
 alias vim='nvim'
 
+# Claude typo
+alias cladue='claude --dangerously-skip-permissions'
+
 # Quick config access
 alias sz='source ~/.zshrc'
 alias zshrc='${EDITOR:-nvim} ~/.zshrc'

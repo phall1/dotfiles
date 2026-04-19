@@ -1,11 +1,11 @@
 {
-  "lastChangelogVersion": "0.66.1",
+  "lastChangelogVersion": "0.67.6",
   "packages": [
     "git:github.com/davebcn87/pi-autoresearch",
     "npm:pi-amplike",
     "npm:pi-tool-display"
   ],
   "defaultProvider": "anthropic",
-  "defaultModel": "claude-opus-4-6",
+  "defaultModel": "claude-opus-4-7",
   "theme": "dark"
 }

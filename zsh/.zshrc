@@ -1,6 +1,13 @@
 # ============================================================================
 # Zsh Configuration - Cross-Platform & Composable
 # ============================================================================
+#
+#
+
+####################
+# EPHEMERAL PROBLY REMOVE THESE AT SOME POTINS
+# ###################
+export TASK_X_REMOTE_TASKFILES=1
 
 # Source OS detection from .zprofile if available
 [[ -f ~/.zprofile ]] && source ~/.zprofile

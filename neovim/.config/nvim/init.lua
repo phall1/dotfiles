@@ -268,6 +268,42 @@ require("lazy").setup({
 				highlight = { enable = true },
 				indent = { enable = true },
 			})
+
+			-- nvim-treesitter's markdown injection query currently calls the
+			-- #set-lang-from-info-string! directive in a way that breaks on
+			-- Neovim 0.12.2. Use Neovim's built-in markdown injections until the
+			-- plugin query catches up.
+			vim.treesitter.query.set(
+				"markdown",
+				"injections",
+				[[
+(fenced_code_block
+  (info_string
+    (language) @injection.language)
+  (code_fence_content) @injection.content)
+
+((html_block) @injection.content
+  (#set! injection.language "html")
+  (#set! injection.combined)
+  (#set! injection.include-children))
+
+((minus_metadata) @injection.content
+  (#set! injection.language "yaml")
+  (#offset! @injection.content 1 0 -1 0)
+  (#set! injection.include-children))
+
+((plus_metadata) @injection.content
+  (#set! injection.language "toml")
+  (#offset! @injection.content 1 0 -1 0)
+  (#set! injection.include-children))
+
+([
+  (inline)
+  (pipe_table_cell)
+] @injection.content
+  (#set! injection.language "markdown_inline"))
+]]
+			)
 		end,
 	},
 
@@ -754,9 +790,6 @@ require("lazy").setup({
 			links = {
 				style = "markdown",
 				transform_explicit = false,
-			},
-			lists = {
-				indent_new_list_items = true,
 			},
 			mappings = {
 				MkdnEnter = { { "n", "v" }, "<CR>" },

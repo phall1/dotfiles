@@ -65,7 +65,7 @@ selection-clear-on-typing = true
 # SHELL INTEGRATION
 # ===========================
 shell-integration = detect
-shell-integration-features = cursor,sudo,title
+shell-integration-features = cursor,sudo,title,ssh-terminfo,ssh-env
 
 # ===========================
 # KEYBINDINGS - SPLITS

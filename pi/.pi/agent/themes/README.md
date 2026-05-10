@@ -8,7 +8,7 @@ Create a `.json` file here with all 51 required color tokens:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/badlogic/pi-mono/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
+  "$schema": "https://raw.githubusercontent.com/earendil-works/pi/main/packages/coding-agent/src/modes/interactive/theme/theme-schema.json",
   "name": "my-theme",
   "vars": {
     "primary": "#00aaff",
@@ -63,5 +63,5 @@ Use `/settings` in pi or set `"theme": "my-theme"` in settings.json.
 
 ## Reference
 
-- Docs: `~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/docs/themes.md`
+- Docs: https://pi.dev/docs/latest/themes
 - Built-in themes: dark, light (see pi source for full definitions)

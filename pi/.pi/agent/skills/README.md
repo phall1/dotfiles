@@ -67,5 +67,5 @@ See [API reference](references/api.md) for details.
 
 ## Reference
 
-- Docs: `~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/docs/skills.md`
+- Docs: https://pi.dev/docs/latest/skills
 - Standard: https://agentskills.io/specification

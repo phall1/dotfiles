@@ -7,7 +7,7 @@ TypeScript modules that extend pi with custom tools, commands, shortcuts, UI, an
 Create a `.ts` file here (or a `name/index.ts` subdirectory for multi-file extensions).
 
 ```typescript
-import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
+import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { Type } from "@sinclair/typebox";
 
 export default function (pi: ExtensionAPI) {
@@ -85,6 +85,6 @@ agent_end → session_shutdown
 
 ## Reference
 
-- Docs: `~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/docs/extensions.md`
-- Examples: `~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/examples/extensions/`
+- Docs: https://pi.dev/docs/latest/extensions
+- Examples: https://github.com/earendil-works/pi/tree/main/packages/coding-agent/examples/extensions
 - Hot reload: `/reload` in pi

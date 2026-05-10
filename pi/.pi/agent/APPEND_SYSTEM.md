@@ -2,7 +2,7 @@
      Use this for global instructions that should always be in the system prompt.
      To fully REPLACE the system prompt, use SYSTEM.md instead.
 
-     Docs: https://github.com/badlogic/pi-mono → "System Prompt"
+     Docs: https://pi.dev/docs/latest/usage#system-prompt
 
      Examples:
        - "Always respond in English."

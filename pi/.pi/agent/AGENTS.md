@@ -3,7 +3,7 @@
 # This file is loaded into every pi session as context.
 # Use it for global conventions, preferences, and instructions.
 #
-# Docs: https://github.com/badlogic/pi-mono → "Context Files"
+# Docs: https://pi.dev/docs/latest/usage#context-files
 #
 # Examples of what to put here:
 # - Preferred coding style / language preferences

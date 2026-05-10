@@ -45,4 +45,4 @@ Focus on: $@
 
 ## Reference
 
-- Docs: `~/.bun/install/global/node_modules/@mariozechner/pi-coding-agent/docs/prompt-templates.md`
+- Docs: https://pi.dev/docs/latest/prompt-templates

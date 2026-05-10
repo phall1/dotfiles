@@ -1,13 +1,14 @@
 // ╔══════════════════════════════════════════════════════════════════╗
-// ║  Pi Settings Reference                                         ║
-// ║  Copy values you want into settings.json (remove comments!)    ║
-// ║  Docs: pi /settings or docs/settings.md                        ║
+// ║  Pi Settings Reference                                           ║
+// ║  Copy values you want into settings.json (remove comments!)      ║
+// ║  Docs: https://pi.dev/docs/latest/settings                       ║
+// ║  Or run /settings inside pi.                                     ║
 // ╚══════════════════════════════════════════════════════════════════╝
 {
-  // ── Model & Thinking ──────────────────────────────────────────────
-  "defaultProvider": "anthropic",
+  // ── Model & Thinking ────────────────────────────────────────────────
+  "defaultProvider": "anthropic",                  // anthropic|openai|google|azure|bedrock|mistral|groq|cerebras|xai|huggingface|kimi|minimax|openrouter|ollama|...
   "defaultModel": "claude-sonnet-4-20250514",
-  "defaultThinkingLevel": "medium",          // off|minimal|low|medium|high|xhigh
+  "defaultThinkingLevel": "medium",                // off|minimal|low|medium|high|xhigh
   "hideThinkingBlock": false,
   "thinkingBudgets": {
     "minimal": 1024,
@@ -16,48 +17,64 @@
     "high": 32768
   },
 
-  // ── Model Cycling (Ctrl+P) ────────────────────────────────────────
+  // ── Model Cycling (Ctrl+P) ──────────────────────────────────────────
   "enabledModels": ["claude-*", "gpt-4o", "gemini-2*"],
 
-  // ── UI & Display ──────────────────────────────────────────────────
-  "theme": "dark",                           // dark|light|<custom name>
+  // ── UI & Display ────────────────────────────────────────────────────
+  "theme": "dark",                                 // dark|light|<custom theme name>
   "quietStartup": false,
   "collapseChangelog": false,
-  "doubleEscapeAction": "tree",              // tree|fork|none
-  "treeFilterMode": "default",              // default|no-tools|user-only|labeled-only|all
-  "editorPaddingX": 0,                      // 0-3
-  "autocompleteMaxVisible": 5,              // 3-20
+  "doubleEscapeAction": "tree",                    // tree|fork|none
+  "treeFilterMode": "default",                     // default|no-tools|user-only|labeled-only|all
+  "editorPaddingX": 0,                             // 0-3
+  "autocompleteMaxVisible": 5,                     // 3-20
   "showHardwareCursor": false,
 
-  // ── Compaction ────────────────────────────────────────────────────
+  // ── Telemetry / Updates ─────────────────────────────────────────────
+  // anonymous install/update ping only — does NOT control update checks.
+  // disable update checks: PI_SKIP_VERSION_CHECK=1
+  // disable all startup network ops: --offline or PI_OFFLINE=1
+  "enableInstallTelemetry": true,
+
+  // ── Warnings ────────────────────────────────────────────────────────
+  "warnings": {
+    "anthropicExtraUsage": true                    // warn on Anthropic subscription paid extra usage
+  },
+
+  // ── Compaction ──────────────────────────────────────────────────────
   "compaction": {
     "enabled": true,
     "reserveTokens": 16384,
     "keepRecentTokens": 20000
   },
 
-  // ── Branch Summary ────────────────────────────────────────────────
+  // ── Branch Summary ──────────────────────────────────────────────────
   "branchSummary": {
     "reserveTokens": 16384,
-    "skipPrompt": false
+    "skipPrompt": false                            // skip "Summarize branch?" prompt on /tree navigation
   },
 
-  // ── Retry ─────────────────────────────────────────────────────────
+  // ── Retry ───────────────────────────────────────────────────────────
   "retry": {
     "enabled": true,
     "maxRetries": 3,
     "baseDelayMs": 2000,
-    "maxDelayMs": 60000
+    "provider": {
+      "timeoutMs": 3600000,
+      "maxRetries": 0,
+      "maxRetryDelayMs": 60000                     // cap on server-requested delay (set 0 to disable)
+    }
   },
 
-  // ── Message Delivery ──────────────────────────────────────────────
-  "steeringMode": "one-at-a-time",          // one-at-a-time|all
-  "followUpMode": "one-at-a-time",          // one-at-a-time|all
-  "transport": "sse",                        // sse|websocket|auto
+  // ── Message Delivery ────────────────────────────────────────────────
+  "steeringMode": "one-at-a-time",                 // one-at-a-time|all
+  "followUpMode": "one-at-a-time",                 // one-at-a-time|all
+  "transport": "sse",                              // sse|websocket|auto
 
-  // ── Terminal & Images ─────────────────────────────────────────────
+  // ── Terminal & Images ───────────────────────────────────────────────
   "terminal": {
     "showImages": true,
+    "imageWidthCells": 60,
     "clearOnShrink": false
   },
   "images": {
@@ -65,25 +82,34 @@
     "blockImages": false
   },
 
-  // ── Shell ─────────────────────────────────────────────────────────
+  // ── Shell ───────────────────────────────────────────────────────────
   "shellPath": "/bin/zsh",
-  "shellCommandPrefix": "",
+  "shellCommandPrefix": "",                        // e.g. "shopt -s expand_aliases"
+  // "npmCommand": ["mise", "exec", "node@20", "--", "npm"],
 
-  // ── Markdown ──────────────────────────────────────────────────────
+  // ── Sessions ────────────────────────────────────────────────────────
+  // "sessionDir": ".pi/sessions",                 // override session storage location
+
+  // ── Markdown ────────────────────────────────────────────────────────
   "markdown": {
     "codeBlockIndent": "  "
   },
 
-  // ── Skills ────────────────────────────────────────────────────────
-  "enableSkillCommands": true,
-
-  // ── Resource Paths ────────────────────────────────────────────────
-  // Relative to ~/.pi/agent/ (global) or .pi/ (project)
+  // ── Resources ───────────────────────────────────────────────────────
+  // Paths in ~/.pi/agent/settings.json resolve relative to ~/.pi/agent.
+  // Arrays support globs + exclusions: "!pattern", "+path", "-path".
   "extensions": [],
   "skills": [],
   "prompts": [],
   "themes": [],
 
-  // ── Packages (npm/git) ────────────────────────────────────────────
+  // ── Skills ──────────────────────────────────────────────────────────
+  "enableSkillCommands": true,                     // register skills as /skill:name commands
+
+  // ── Packages (npm / git) ────────────────────────────────────────────
+  // String form loads everything; object form filters resources.
+  // Examples:
+  //   "packages": ["pi-skills", "@org/my-extension"]
+  //   "packages": [{ "source": "pi-skills", "skills": ["brave-search"], "extensions": [] }]
   "packages": []
 }

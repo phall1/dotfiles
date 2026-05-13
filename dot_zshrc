@@ -59,9 +59,15 @@ command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 # fnm (Node version manager — replaces nvm). --use-on-cd reads .nvmrc/.node-version.
 command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
 
-# Auto-source .env on cd — replaces direnv (no fork+exec per directory).
+# direnv — handles .envrc (full bash, `direnv allow` security model).
+# Kept for repos that use it. The simpler chpwd hook below handles .env files
+# that direnv doesn't touch.
+command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+
+# Auto-source plain .env on cd (cheap, no fork+exec). Complements direnv's
+# heavier .envrc handling — they target different filenames, no conflict.
 _load_local_env() {
-  [[ -f .env ]] && set -a && source .env && set +a
+  [[ -f .env && ! -f .envrc ]] && set -a && source .env && set +a
 }
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd _load_local_env

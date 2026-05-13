@@ -59,3 +59,15 @@ if command -v zsh-bench >/dev/null 2>&1; then
 else
   warn "zsh-bench missing — re-run dot-install-zsh-plugins"
 fi
+
+# Compiled bytecode (.zwc) — startup wins compound across rebuilds.
+zwc_path="$DOTFILES/zsh/.zshrc.zwc"
+if [[ -f "$zwc_path" ]]; then
+  if [[ "$DOTFILES/zsh/.zshrc" -nt "$zwc_path" ]]; then
+    warn ".zshrc is newer than .zwc — re-run dot-zcompile"
+  else
+    ok ".zshrc bytecode fresh"
+  fi
+else
+  warn ".zshrc.zwc missing — run dot-zcompile (saves ~5-15ms per startup)"
+fi

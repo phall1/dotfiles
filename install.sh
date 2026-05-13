@@ -75,6 +75,10 @@ if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
 fi
 
 echo ""
+echo "⚡ Pre-compiling zsh bytecode..."
+"$SCRIPT_DIR/bin/.local/bin/dot-zcompile"
+
+echo ""
 echo "✅ Done!"
 echo ""
 echo "Next steps:"

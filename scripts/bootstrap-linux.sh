@@ -66,4 +66,43 @@ if [[ "$SHELL" != *zsh ]]; then
   chsh -s "$(command -v zsh)"
 fi
 
-echo "Bootstrap complete. Run: chezmoi apply"
+cat <<'EOF'
+
+==========================================================================
+  ✓ Host bootstrap complete (Linux)
+==========================================================================
+
+Next steps — copy/paste these in order:
+
+  1. Configure this machine's git identity (interactive):
+
+       ~/dotfiles/scripts/setup-chezmoi.sh
+
+  2. Apply dotfiles to $HOME (idempotent; safe to re-run):
+
+       chezmoi apply
+
+  3. Verify the substrate is healthy:
+
+       ~/.local/bin/dot-doctor      # platform-aware; Pi-specific checks fire
+       ~/.local/bin/dot-bench       # target: first_prompt_lag < 150ms on Pi
+
+  4. Sign into GitHub (per-machine OAuth, not in the repo):
+
+       gh auth login
+
+  5. Restart your shell:
+
+       exec zsh
+
+If anything in dot-doctor is yellow on a Pi (ghostty, raycast), that's
+expected — those are Mac-only and don't apply.
+
+Daily flow:
+  $EDITOR ~/dotfiles/dot_zshrc      # source-of-truth lives in ~/dotfiles
+  chezmoi diff                      # preview
+  chezmoi apply                     # propagate
+
+Full guide: ~/dotfiles/docs/setup.md
+==========================================================================
+EOF

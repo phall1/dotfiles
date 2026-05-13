@@ -60,34 +60,36 @@ chezmoi-flat. Source tree mirrors `$HOME`, with `dot_` prefix replacing leading 
 ## Bootstrap on a fresh machine
 
 ```bash
-# 1. Install chezmoi + age + git (and a brew/apt of your choice).
-brew install chezmoi age            # mac
-# or: sudo apt install chezmoi age  # pi
+# 1. Clone.
+git clone https://github.com/phall1/dotfiles.git ~/dotfiles
 
-# 2. Point chezmoi at this repo.
-chezmoi init https://github.com/YOUR/dotfiles.git
-# or for an already-cloned dir:
-git clone YOUR/dotfiles.git ~/dotfiles
-mkdir -p ~/.config/chezmoi
-cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
-sourceDir = "~/dotfiles"
-[data.git]
-    name = "Your Name"
-    email = "you@example.com"
-EOF
+# 2. Run the host bootstrap — installs ~25 tools idempotently.
+~/dotfiles/scripts/bootstrap-darwin.sh    # Mac
+# or:
+~/dotfiles/scripts/bootstrap-linux.sh     # Pi / Linux
 
-# 3. Apply.
+# Bootstrap finishes by printing the exact next-step commands.
+# In order, they are:
+
+# 3. Configure THIS machine's git identity (interactive — prompts for name/email):
+~/dotfiles/scripts/setup-chezmoi.sh
+
+# 4. Apply dotfiles to $HOME:
 chezmoi apply
 
-# 4. Verify.
-~/.local/bin/dot-doctor    # health
+# 5. Verify substrate health:
+~/.local/bin/dot-doctor    # 0 failures expected
 ~/.local/bin/dot-bench     # perf vs PERF.md baselines
 ~/.local/bin/dot-audit     # drift detection
 ~/.local/bin/dot-status    # single-pane dashboard
+
+# 6. Restart shell:
+exec zsh
 ```
 
-Apply triggers `run_once_install-zsh-plugins.sh.tmpl` (clones plugins per
-`plugins.lock`) and `run_onchange_zcompile.sh.tmpl` (pre-compiles bytecode).
+Apply auto-triggers `run_once_install-zsh-plugins.sh.tmpl` (clones the 7 plugins
+per `plugins.lock`) and `run_onchange_zcompile.sh.tmpl` (pre-compiles bytecode
+when shell source changes).
 
 ## Daily flow
 

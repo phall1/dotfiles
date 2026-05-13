@@ -1,49 +1,63 @@
-# Nix Notes
+# Nix notes
 
-This dotfiles repo keeps the portable pieces of Nix configuration under version control.
+This repo keeps the **portable** pieces of Nix configuration under version
+control. Machine-specific installer state stays out.
 
-## What is tracked
+## What's tracked
 
-- `nix/.config/nix/nix.conf`
-- shell initialization in `zsh/.zprofile`
+- `dot_config/nix/nix.conf` → applies to `~/.config/nix/nix.conf`
+- Shell-side init in `dot_zprofile` (login shells only — keeps `dot_zshenv`
+  lean per the substrate invariant)
 
-The shell init tries these common profile scripts in order:
+The shell init probes these profile scripts in order:
 
 1. `/etc/profile.d/nix.sh`
 2. `~/.nix-profile/etc/profile.d/nix.sh`
 3. `/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh`
 
-That covers typical Determinate Nix and upstream Nix installs without hard-coding one installer.
+That covers Determinate Nix and upstream Nix installs without hard-coding
+either.
 
-## What is not tracked
+## What's NOT tracked (deliberately)
 
-These are machine-specific and should stay out of dotfiles:
+These are machine-specific and would break on re-apply:
 
 - `/nix/receipt.json`
-- `/Library/LaunchDaemons/systems.determinate.*`
+- `/Library/LaunchDaemons/systems.determinate.*` (macOS)
 - APFS volume / disk setup for the Nix store
-- generated installer state under `/etc/nix` that is owned by the installer
+- Generated installer state under `/etc/nix` owned by the installer
+- Per-machine profile state (`~/.nix-profile/...` symlink chain)
 
 ## Reinstalling Nix
 
-### macOS / Determinate Nix
+### macOS (Determinate)
 
-```bash
+```sh
 curl -fsSL https://install.determinate.systems/nix | sh -s -- install
+```
+
+### Linux / Pi
+
+```sh
+# bootstrap-linux.sh handles this for you (idempotent):
+~/dotfiles/scripts/bootstrap-linux.sh
+
+# Or manually:
+curl -fsSL https://install.determinate.systems/nix | sh -s -- install --no-confirm
 ```
 
 ### Verify
 
-```bash
+```sh
 nix --version
 nix config show | grep experimental-features
 ```
 
-## Applying dotfiles
+## Re-applying dotfiles after Nix install
 
-After Nix is installed:
-
-```bash
-cd ~/dotfiles
-./stow-all.sh
+```sh
+chezmoi apply
+exec zsh
 ```
+
+`dot_zprofile` will pick up the new Nix install on the next login shell.

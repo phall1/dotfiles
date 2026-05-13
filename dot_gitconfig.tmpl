@@ -1,12 +1,12 @@
 [user]
-	email = {{GIT_EMAIL}}
-	name = {{GIT_NAME}}
+	email = {{ .git.email }}
+	name = {{ .git.name }}
 [credential "https://github.com"]
 	helper =
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	helper = !{{ lookPath "gh" }} auth git-credential
 [credential "https://gist.github.com"]
 	helper =
-	helper = !/opt/homebrew/bin/gh auth git-credential
+	helper = !{{ lookPath "gh" }} auth git-credential
 [core]
 	pager = delta
 [interactive]

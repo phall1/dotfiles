@@ -51,14 +51,9 @@ export -f ok warn fail hdr require_bin want_bin file_age_h 2>/dev/null || true
 
 # --- check discovery -------------------------------------------------------
 discover_checks() {
-  local -a files=()
-  # Global checks: $DOTFILES/checks/*.sh
-  if [[ -d "$DOTFILES/checks" ]]; then
-    while IFS= read -r f; do files+=("$f"); done < <(find "$DOTFILES/checks" -maxdepth 1 -type f -name '*.sh' | sort)
-  fi
-  # Per-package: $DOTFILES/<pkg>/dot-checks.sh
-  while IFS= read -r f; do files+=("$f"); done < <(find "$DOTFILES" -mindepth 2 -maxdepth 2 -type f -name 'dot-checks.sh' | sort)
-  printf "%s\n" "${files[@]}"
+  # Single flat directory: $DOTFILES/checks/*.sh
+  # Naming convention: 00-, 10-, … for ordered global checks; <pkg>.sh for per-tool checks.
+  [[ -d "$DOTFILES/checks" ]] && find "$DOTFILES/checks" -maxdepth 1 -type f -name '*.sh' | sort
 }
 
 skip_list=",${DOT_SKIP:-},"

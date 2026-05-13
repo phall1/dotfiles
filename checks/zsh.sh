@@ -1,20 +1,18 @@
-# Per-package zsh checks. Colocated with the package they check.
+# Per-package zsh checks.
 
 hdr "zsh"
 
 # .zshenv should be lean — every non-interactive shell pays its cost.
-# Threshold is intentionally low; if you legitimately need more, raise it
-# in a commit and explain why.
 ZSHENV_MAX_LINES="${ZSHENV_MAX_LINES:-30}"
-if [[ -f "$DOTFILES/zsh/.zshenv" ]]; then
-  lines=$(wc -l < "$DOTFILES/zsh/.zshenv")
+if [[ -f "$DOTFILES/dot_zshenv" ]]; then
+  lines=$(wc -l < "$DOTFILES/dot_zshenv")
   if [[ "$lines" -gt "$ZSHENV_MAX_LINES" ]]; then
     warn ".zshenv has $lines lines (>$ZSHENV_MAX_LINES) — non-interactive shells pay this every invocation"
   else
     ok ".zshenv lean ($lines lines)"
   fi
 else
-  warn ".zshenv missing — XDG vars / EDITOR / minimal PATH belong here, not .zshrc"
+  warn "dot_zshenv missing in source"
 fi
 
 # Completion cache freshness.
@@ -34,7 +32,7 @@ fi
 if [[ -f "$HOME/.zsh_secrets" ]]; then
   ok ".zsh_secrets present"
 else
-  warn ".zsh_secrets missing (gitignored — copy from zsh/.zsh_secrets.example)"
+  warn ".zsh_secrets missing (gitignored — copy from dot_zsh_secrets.example)"
 fi
 
 # P10k state: instant-prompt cache + gitstatusd daemon.
@@ -60,14 +58,14 @@ else
   warn "zsh-bench missing — re-run dot-install-zsh-plugins"
 fi
 
-# Compiled bytecode (.zwc) — startup wins compound across rebuilds.
-zwc_path="$DOTFILES/zsh/.zshrc.zwc"
-if [[ -f "$zwc_path" ]]; then
-  if [[ "$DOTFILES/zsh/.zshrc" -nt "$zwc_path" ]]; then
-    warn ".zshrc is newer than .zwc — re-run dot-zcompile"
+# Compiled bytecode (.zwc) — zsh loads .zwc next to the file it sources,
+# so for chezmoi-applied files the bytecode lives at $HOME/.zshrc.zwc, not source.
+if [[ -f "$HOME/.zshrc.zwc" ]]; then
+  if [[ "$HOME/.zshrc" -nt "$HOME/.zshrc.zwc" ]]; then
+    warn ".zshrc is newer than .zwc — chezmoi apply should re-run dot-zcompile"
   else
     ok ".zshrc bytecode fresh"
   fi
 else
-  warn ".zshrc.zwc missing — run dot-zcompile (saves ~5-15ms per startup)"
+  warn "~/.zshrc.zwc missing — run dot-zcompile (saves ~5-15ms per startup)"
 fi

@@ -3,7 +3,7 @@
 # Uses romkatv/zsh-bench when available (real PTY, accurate), falls back to
 # repeated `zsh -i -c exit` otherwise.
 #
-# Baseline lives at $DOTFILES/zsh/PERF.md as `key: value_ms` pairs.
+# Baseline lives at $DOTFILES/PERF.md as `key: value_ms` pairs.
 # Regression > $REGRESSION_PCT (default 10%) exits nonzero.
 
 set -uo pipefail
@@ -14,7 +14,7 @@ mkdir -p "$STATE_DIR"
 
 REGRESSION_PCT="${REGRESSION_PCT:-10}"
 ITERATIONS="${ITERATIONS:-10}"
-PERF_FILE="$DOTFILES/zsh/PERF.md"
+PERF_FILE="$DOTFILES/PERF.md"
 
 RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'; DIM=$'\033[2m'; RST=$'\033[0m'
 

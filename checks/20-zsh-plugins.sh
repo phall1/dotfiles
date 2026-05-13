@@ -2,7 +2,7 @@
 
 hdr "zsh plugins"
 
-LOCK="$DOTFILES/zsh/plugins.lock"
+LOCK="$DOTFILES/plugins.lock"
 PLUGIN_DIR="${ZSH_PLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins}"
 
 if [[ ! -f "$LOCK" ]]; then

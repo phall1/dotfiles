@@ -71,8 +71,15 @@ export PATH="$HOME/.local/bin:$PATH"
 # Zoxide (smarter cd)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
-# Direnv (replaced by chpwd .env hook in task #5)
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+# fnm (Node version manager — replaces nvm). --use-on-cd reads .nvmrc/.node-version.
+command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
+
+# Auto-source .env on cd — replaces direnv (no fork+exec per directory).
+_load_local_env() {
+  [[ -f .env ]] && set -a && source .env && set +a
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook chpwd _load_local_env
 
 # FZF
 [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh

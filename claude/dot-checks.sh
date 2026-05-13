@@ -2,14 +2,31 @@
 
 hdr "claude"
 
+if [[ -L "$HOME/.claude/settings.json" ]]; then
+  ok "settings.json symlinked to dotfiles"
+elif [[ -f "$HOME/.claude/settings.json" ]]; then
+  warn "settings.json is a regular file — should be a symlink to \$DOTFILES/claude/.claude/settings.json"
+else
+  warn "~/.claude/settings.json missing"
+fi
+
 if [[ -f "$HOME/.claude/settings.json" ]]; then
   if python3 -c "import json,sys; json.load(open('$HOME/.claude/settings.json'))" 2>/dev/null; then
     ok "settings.json parses"
   else
     fail "settings.json does not parse as JSON"
   fi
-else
-  warn "~/.claude/settings.json missing"
+fi
+
+# Custom agents tracked.
+if [[ -d "$HOME/.claude/agents" ]]; then
+  unlinked=$(find "$HOME/.claude/agents" -maxdepth 1 -name '*.md' -type f 2>/dev/null | head -3)
+  if [[ -n "$unlinked" ]]; then
+    warn "untracked custom agents (real files, not symlinks) — should be moved into \$DOTFILES/claude/.claude/agents/:"
+    printf '      %s\n' "$unlinked"
+  else
+    ok "custom agents tracked (or none)"
+  fi
 fi
 
 # settings.local.json should not contain hardcoded /Users/phall/ paths post-task#2

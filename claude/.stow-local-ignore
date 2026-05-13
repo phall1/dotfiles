@@ -1,0 +1,5 @@
+# Files in this package that should NEVER be symlinked into $HOME.
+# (Helpers and checks colocate with the package but aren't part of the install.)
+
+^dot-checks\.sh$
+^README\.md$

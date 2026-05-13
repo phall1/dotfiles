@@ -4,9 +4,8 @@
     "plugin": [
       "oh-my-openagent",
       "opencode-pty",
-      "file:///Users/Patrick.Hall/workspace/opencode-anthropic-auth",
       "opencode-cursor-oauth",
-      "file:///Users/Patrick.Hall/.config/opencode/plugin/autoresearch"
+      "file:///Users/phall/.config/opencode/plugin/autoresearch"
     ],
     "instructions": [
         // "~/.config/opencode/plugin/shell-strategy/shell_strategy.md"

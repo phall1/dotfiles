@@ -4,11 +4,6 @@
 #
 #
 
-####################
-# EPHEMERAL PROBLY REMOVE THESE AT SOME POTINS
-# ###################
-export TASK_X_REMOTE_TASKFILES=1
-
 # Source OS detection from .zprofile if available
 [[ -f ~/.zprofile ]] && source ~/.zprofile
 
@@ -25,10 +20,10 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 # PATH - composable additions
 # ============================================================================
 #
-export PATH="/Users/Patrick.Hall/.firecrew/bin:$PATH"
+[[ -d "$HOME/.firecrew/bin" ]] && export PATH="$HOME/.firecrew/bin:$PATH"
 
 # Opencode
-export PATH="$HOME/.opencode/bin:$PATH"
+[[ -d "$HOME/.opencode/bin" ]] && export PATH="$HOME/.opencode/bin:$PATH"
 
 # Local binaries (user-installed)
 export PATH="$HOME/.local/bin:$PATH"
@@ -62,8 +57,6 @@ command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
 # Atuin (shell history)
 command -v atuin &>/dev/null && eval "$(atuin init zsh)"
-
-command -v fuck &>/dev/null && eval "$(thefuck --alias)"
 
 # ============================================================================
 # Modular Config Loading
@@ -133,16 +126,9 @@ export VISUAL="${VISUAL:-nvim}"
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# Warp terminal
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-
 # OpenFang
 [[ -d "$HOME/.openfang/bin" ]] && export PATH="$HOME/.openfang/bin:$PATH"
 
 # Google Cloud SDK
 [ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"
 [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
-
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-# [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion

@@ -1,9 +1,0 @@
-{
-  "settingsVersion": "2.3",
-  "exclusionRules": [
-    {
-      "passKeys": "/",
-      "pattern": "https://github.com/*"
-    }
-  ]
-}

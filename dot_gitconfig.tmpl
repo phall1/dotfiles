@@ -1,12 +1,35 @@
+{{/*
+   Three layers of per-machine divergence:
+
+   1. Default identity — driven by data in ~/.config/chezmoi/chezmoi.toml
+      (lives outside the repo, per-machine). Change name/email there.
+
+   2. Hostname-aware branching — `{{ if eq .chezmoi.hostname "..." }}`.
+      Extend the block below with whatever per-host overrides you need
+      (signing keys, custom ssh commands, alternate pagers).
+
+   3. Directory-aware include — `[includeIf "gitdir:~/work/"]` below.
+      Drop a ~/.gitconfig-work (untracked) on any machine that has
+      work repos. git auto-includes it for any repo under ~/work/.
+      Template at scripts/.gitconfig-work.example.
+*/ -}}
+
 [user]
 	email = {{ .git.email }}
 	name = {{ .git.name }}
+{{- if hasKey .git "signingkey" }}
+	signingkey = {{ .git.signingkey }}
+[commit]
+	gpgsign = true
+{{- end }}
+
 [credential "https://github.com"]
 	helper =
 	helper = !{{ lookPath "gh" }} auth git-credential
 [credential "https://gist.github.com"]
 	helper =
 	helper = !{{ lookPath "gh" }} auth git-credential
+
 [core]
 	pager = delta
 [interactive]
@@ -21,3 +44,16 @@
 	conflictstyle = zdiff3
 [diff]
 	colorMoved = default
+
+{{/* Hostname-specific tweaks. Add branches here as new machines come online.
+     Example:
+       {{ if eq .chezmoi.hostname "work-laptop" }}
+       [core]
+           sshCommand = "ssh -i ~/.ssh/work_id_ed25519"
+       {{ end }}
+*/ -}}
+
+# Per-directory override — git auto-loads ~/.gitconfig-work for repos under ~/work/.
+# Create that file (NOT tracked) from scripts/.gitconfig-work.example when needed.
+[includeIf "gitdir:~/work/"]
+	path = ~/.gitconfig-work

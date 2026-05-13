@@ -64,6 +64,54 @@ dot-doctor    # some "wanted" tools may be missing on Pi (ghostty etc.) — acce
 dot-bench     # target on Pi: first_prompt_lag < 150ms
 ```
 
+## Per-machine identity & overrides
+
+Three knobs, increasing specificity:
+
+### 1. Per-machine identity (`~/.config/chezmoi/chezmoi.toml`)
+
+Lives outside the repo. Each machine has its own. Edit name/email here:
+
+```toml
+sourceDir = "~/dotfiles"
+[data.git]
+    name = "Patrick Hall"
+    email = "phallsignup@gmail.com"
+    # signingkey = "ABC123..."  # optional, enables gpgsign
+```
+
+`chezmoi apply` re-renders `~/.gitconfig` from that data.
+
+### 2. Hostname-aware overrides (`dot_gitconfig.tmpl`)
+
+Branch inside the template on `{{ .chezmoi.hostname }}` for anything more
+than identity. Already wired in `dot_gitconfig.tmpl` — extend the empty
+block when a new machine needs special handling.
+
+### 3. Per-directory override (`~/.gitconfig-work`, untracked)
+
+Cleanest for the work/personal split. The tracked template already has:
+
+```gitconfig
+[includeIf "gitdir:~/work/"]
+    path = ~/.gitconfig-work
+```
+
+To activate on a machine that has work repos:
+
+```bash
+cp ~/dotfiles/scripts/.gitconfig-work.example ~/.gitconfig-work
+$EDITOR ~/.gitconfig-work    # edit email/signing key
+```
+
+Any repo under `~/work/` now uses the work identity; everything else uses
+the personal one from layer 1. Zero machine-aware code paths needed.
+
+### gh CLI auth
+
+`~/.config/gh/hosts.yml` contains per-machine OAuth tokens. **Never tracked**
+(not in chezmoi source). Each machine runs `gh auth login` once.
+
 ## Daily workflow (both hosts)
 
 ```bash

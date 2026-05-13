@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Runs once per machine to install zsh plugins per plugins.lock.
+# Re-run by deleting the chezmoi state for this script:
+#   chezmoi state delete-bucket --bucket=scriptState
+
+set -euo pipefail
+
+"{{ .chezmoi.sourceDir }}/dot_local/bin/executable_dot-install-zsh-plugins"

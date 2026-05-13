@@ -1,0 +1,113 @@
+#!/usr/bin/env bash
+# dot-bench — measure zsh startup latency, compare to pinned baseline.
+# Uses romkatv/zsh-bench when available (real PTY, accurate), falls back to
+# repeated `zsh -i -c exit` otherwise.
+#
+# Baseline lives at $DOTFILES/PERF.md as `key: value_ms` pairs.
+# Regression > $REGRESSION_PCT (default 10%) exits nonzero.
+
+set -uo pipefail
+
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/share}/dotfiles/bench"
+mkdir -p "$STATE_DIR"
+
+REGRESSION_PCT="${REGRESSION_PCT:-10}"
+ITERATIONS="${ITERATIONS:-10}"
+PERF_FILE="$DOTFILES/PERF.md"
+
+RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'; DIM=$'\033[2m'; RST=$'\033[0m'
+
+# --- measurement ------------------------------------------------------------
+
+measure() {
+  local name="$1" value="$2"
+  printf "  %-28s ${DIM}%6.1f ms${RST}" "$name" "$value"
+
+  local baseline
+  baseline=$(grep -E "^${name}:" "$PERF_FILE" 2>/dev/null | awk '{print $2}')
+  if [[ -z "$baseline" ]]; then
+    printf "  ${DIM}(no baseline)${RST}\n"
+    return 0
+  fi
+
+  local delta_pct
+  delta_pct=$(awk -v cur="$value" -v base="$baseline" \
+    'BEGIN { if (base == 0) print 0; else printf "%.1f", ((cur - base) / base) * 100 }')
+
+  if awk -v d="$delta_pct" -v t="$REGRESSION_PCT" 'BEGIN { exit !(d > t) }'; then
+    printf "  ${RED}+%s%% vs %sms baseline${RST}\n" "$delta_pct" "$baseline"
+    REGRESSED=$((REGRESSED + 1))
+  elif awk -v d="$delta_pct" 'BEGIN { exit !(d < -5) }'; then
+    printf "  ${GRN}${delta_pct}%% vs %sms${RST}\n" "$baseline"
+  else
+    printf "  ${DIM}${delta_pct}%% vs %sms${RST}\n" "$baseline"
+  fi
+}
+
+REGRESSED=0
+declare -A RESULTS
+
+if command -v zsh-bench >/dev/null 2>&1; then
+  printf "${DIM}# Using romkatv/zsh-bench (%d iterations)${RST}\n" "$ITERATIONS"
+  out=$(zsh-bench --iters "$ITERATIONS" 2>&1) || { echo "zsh-bench failed:"; echo "$out"; exit 2; }
+
+  # zsh-bench prints lines like "first_prompt_lag_ms=42"
+  while IFS='=' read -r k v; do
+    [[ "$k" =~ _ms$ ]] || continue
+    RESULTS[$k]=$v
+  done <<< "$(echo "$out" | grep -E '^[a-z_]+=')"
+else
+  printf "${YLW}# zsh-bench not installed — using fallback (less accurate)${RST}\n"
+  printf "${DIM}# install: git clone https://github.com/romkatv/zsh-bench ~/.zsh-bench && ln -s ~/.zsh-bench/zsh-bench ~/.local/bin/zsh-bench${RST}\n"
+
+  total=0
+  for i in $(seq 1 "$ITERATIONS"); do
+    start=$(date +%s%N)
+    zsh -i -c exit 2>/dev/null
+    end=$(date +%s%N)
+    elapsed_ms=$(( (end - start) / 1000000 ))
+    total=$((total + elapsed_ms))
+  done
+  avg=$((total / ITERATIONS))
+  RESULTS[interactive_startup_ms]=$avg
+fi
+
+echo
+echo "Results:"
+for k in "${!RESULTS[@]}"; do
+  measure "$k" "${RESULTS[$k]}"
+done
+
+# --- persist ----------------------------------------------------------------
+
+ts=$(date +%s)
+out_file="$STATE_DIR/$ts.json"
+{
+  echo "{"
+  echo "  \"timestamp\": $ts,"
+  echo "  \"iso\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\","
+  echo "  \"host\": \"$(hostname -s)\","
+  echo "  \"os\": \"$(uname -s)\","
+  echo "  \"arch\": \"$(uname -m)\","
+  echo "  \"git_sha\": \"$(cd "$DOTFILES" && git rev-parse --short HEAD 2>/dev/null || echo unknown)\","
+  echo "  \"results\": {"
+  first=1
+  for k in "${!RESULTS[@]}"; do
+    [[ $first -eq 1 ]] && first=0 || echo ","
+    printf "    \"%s\": %s" "$k" "${RESULTS[$k]}"
+  done
+  echo
+  echo "  }"
+  echo "}"
+} > "$out_file"
+
+printf "\n${DIM}wrote %s${RST}\n" "$out_file"
+
+# --- exit code --------------------------------------------------------------
+
+if [[ "$REGRESSED" -gt 0 ]]; then
+  printf "\n${RED}%d metric(s) regressed >%s%% — failing${RST}\n" "$REGRESSED" "$REGRESSION_PCT"
+  exit 2
+fi
+exit 0

@@ -1,142 +1,124 @@
-# Dotfiles
+# dotfiles
 
-Portable development environment configuration.
+Personal development substrate. Managed by [chezmoi](https://chezmoi.io/),
+running on Mac + Raspberry Pi.
 
-## How It Works
+## Philosophy
 
-This repo uses [GNU Stow](https://www.gnu.org/software/stow/) to manage symlinks. Each top-level directory is a "package" that mirrors the structure of your home directory. When you run `stow <package>`, it creates symlinks from your home directory to the files in that package.
+The shell is the substrate. Every layer is **measured** (`dot-bench`),
+**checked** (`dot-doctor`), and **drift-detectable** (`dot-audit`). Adding a
+new concern is a one-file change — never edit the orchestrators.
+
+Plugins live OUTSIDE the dotfile tree (`~/.local/share/zsh/plugins/`) so the
+source repo never has to deal with nested git checkouts. Tools are
+SHA-pinned (`plugins.lock`).
+
+## Stack
+
+| Layer | Pick | Why |
+|---|---|---|
+| Shell | zsh | substrate |
+| Prompt | Powerlevel10k + gitstatusd | 2ms first prompt, romkatv uses it himself |
+| Plugin loader | raw `source` + `zsh-defer` (no manager) | zero indirection |
+| History | atuin | sqlite, fuzzy TUI |
+| `cd` | zoxide | smart jump |
+| Tab | fzf-tab | killer plugin |
+| Python | uv | Astral, Rust |
+| Node | fnm | Rust, `--use-on-cd` |
+| Rust | rustup | optimal already |
+| Go | `GOTOOLCHAIN=auto` | built-in |
+| Env-per-dir | chpwd hook on `.env` | replaces direnv (no fork+exec) |
+| Diff pager | delta | side-by-side, syntax highlight |
+| Terminal (Mac) | Ghostty | Metal, native |
+| Multiplexer | tmux + sesh | reliable + discoverable session picker |
+| Dotfiles | chezmoi | templated, cross-host, materialized as real files |
+| Secrets | age | one Go binary, X25519 |
+
+## Layout
+
+chezmoi-flat. Source tree mirrors `$HOME`, with `dot_` prefix replacing leading `.`:
 
 ```
-~/dotfiles/starship/.config/starship.toml  →  ~/.config/starship.toml
-~/dotfiles/zsh/.zshrc                      →  ~/.zshrc
+~/dotfiles/                      # this repo, == chezmoi source dir
+├── dot_zshrc                    # → $HOME/.zshrc
+├── dot_zshenv                   # → $HOME/.zshenv  (lean — <30 lines, enforced)
+├── dot_zprofile                 # → $HOME/.zprofile
+├── dot_p10k.zsh                 # → $HOME/.p10k.zsh
+├── dot_zsh/                     # → $HOME/.zsh/  (modular configs)
+├── dot_gitconfig.tmpl           # chezmoi template, rendered to $HOME/.gitconfig
+├── dot_local/bin/executable_*   # → $HOME/.local/bin/*  (+x preserved)
+├── dot_config/                  # → $HOME/.config/  (ghostty, nvim, opencode, …)
+├── dot_claude/                  # → $HOME/.claude/  (settings, agents, skills)
+├── plugins.lock                 # SHA-pinned zsh plugins (NOT applied to $HOME)
+├── plugins.bin                  # binaries to symlink from plugin dirs
+├── checks/                      # dot-doctor's plugin dir (NOT applied)
+├── scripts/                     # one-off scripts e.g. migrate-to-chezmoi.sh
+├── run_once_*.sh.tmpl           # chezmoi: one-time bootstrap hooks
+└── run_onchange_*.sh.tmpl       # chezmoi: hooks that re-run when content changes
 ```
 
-Stow figures out the target path by removing the package name prefix. This keeps configs organized and version-controlled while your system sees them in the expected locations.
-
-## Quick Start
+## Bootstrap on a fresh machine
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
-cd ~/dotfiles
-chmod +x install.sh configure.sh
-./install.sh
+# 1. Install chezmoi + age + git (and a brew/apt of your choice).
+brew install chezmoi age            # mac
+# or: sudo apt install chezmoi age  # pi
+
+# 2. Point chezmoi at this repo.
+chezmoi init https://github.com/YOUR/dotfiles.git
+# or for an already-cloned dir:
+git clone YOUR/dotfiles.git ~/dotfiles
+mkdir -p ~/.config/chezmoi
+cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
+sourceDir = "~/dotfiles"
+[data.git]
+    name = "Your Name"
+    email = "you@example.com"
+EOF
+
+# 3. Apply.
+chezmoi apply
+
+# 4. Verify.
+~/.local/bin/dot-doctor    # health
+~/.local/bin/dot-bench     # perf vs PERF.md baselines
+~/.local/bin/dot-audit     # drift detection
+~/.local/bin/dot-status    # single-pane dashboard
 ```
 
-The installer will prompt for your user-specific settings (git name, email, GitHub username) on first run.
+Apply triggers `run_once_install-zsh-plugins.sh.tmpl` (clones plugins per
+`plugins.lock`) and `run_onchange_zcompile.sh.tmpl` (pre-compiles bytecode).
 
-## What's Included
-
-- **Zsh**: Shell config with vi mode, history, and modular config files
-- **Neovim**: Editor config with LSP, Treesitter, and Twenty theme
-- **Ghostty**: Terminal config with Twenty theme (hacker edition)
-- **Starship**: Fast shell prompt with Twenty theme
-- **Tmux**: Terminal multiplexer with vim-style navigation
-- **Git**: Global git configuration
-- **Nix**: Portable `~/.config/nix/nix.conf` plus shell initialization for common installers
-
-## Structure
-
-```
-dotfiles/
-├── ghostty/          # Ghostty terminal → ~/.config/
-│   └── .config/
-│       └── ghostty/
-│           ├── config
-│           └── themes/
-│               ├── twenty.ghostty
-│               └── twenty-dark
-├── neovim/           # Neovim → ~/.config/
-│   └── .config/
-│       └── nvim/
-│           ├── init.lua
-│           └── colors/
-│               └── twenty.lua
-├── starship/         # Starship prompt → ~/.config/
-│   └── .config/
-│       └── starship.toml
-├── zsh/              # Zsh configs → ~/
-│   ├── .zshrc
-│   ├── .zsh_plugins.txt
-│   └── .zsh/
-├── tmux/             # Tmux config → ~/
-│   └── .tmux.conf
-├── git/              # Git config → ~/
-│   └── .gitconfig
-├── nix/              # Nix config → ~/.config/
-│   └── .config/
-│       └── nix/
-│           └── nix.conf
-├── brew.txt          # Homebrew packages
-├── stow-all.sh       # Stow all packages
-└── install.sh        # Setup script
-```
-
-## Manual Setup
-
-If you don't want to use the install script:
+## Daily flow
 
 ```bash
-# Install dependencies
-brew install stow antidote starship
+# Edit source.
+$EDITOR ~/dotfiles/dot_zshrc
 
-# Link configs (run from dotfiles directory)
-./stow-all.sh
+# Apply to $HOME.
+chezmoi apply
 
-# Install tmux plugin manager
-git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
+# (chezmoi auto-runs zcompile if zsh files changed.)
 ```
 
-## Nix Setup
+`chezmoi diff` shows what would change before apply. `chezmoi status`
+shows what's diverged.
 
-This repo tracks the portable parts of Nix setup:
+## Observability
 
-- `nix/.config/nix/nix.conf`
-- shell init in `zsh/.zprofile` for common Nix install layouts
+| command | purpose |
+|---|---|
+| `dot-doctor` | health check. plugin-based — drop a `*.sh` in `checks/` to add a check. Exit 0/1/2 = green/warn/fail. |
+| `dot-bench` | zsh-bench wrapper. Pinned baselines in `PERF.md`. Regression >10% exits nonzero. JSON archived to `~/.local/share/dotfiles/bench/`. |
+| `dot-audit` | drift detection. Repo state, submodules, brew bundle, claude features delta. |
+| `dot-status` | single-pane dashboard. |
 
-It intentionally does **not** track machine-specific installer state like launch daemons,
-APFS volume setup, or installer receipts.
+## Secrets
 
-If you want the same installer again, use Determinate Nix:
-
-```bash
-curl -fsSL https://install.determinate.systems/nix | sh -s -- install
-```
-
-For a few more notes on what is and is not tracked, see `docs/nix.md`.
-
-Then restow the repo:
+`~/.zsh_secrets` is gitignored. Copy from `dot_zsh_secrets.example`. For
+secrets that should live in the repo, use chezmoi-age:
 
 ```bash
-./stow-all.sh
-```
-
-## Secrets Management
-
-API keys and secrets should go in `~/.zsh_secrets` (gitignored):
-
-```bash
-cp zsh/.zsh_secrets.example ~/.zsh_secrets
-# Edit and add your secrets
-```
-
-## Customization
-
-- **User Settings**: Run `./configure.sh` to update git name/email and GitHub username
-- **Zsh**: Add machine-specific configs to `zsh/.zsh/work.zsh`
-- **Aliases**: Add custom aliases to `zsh/.zsh/aliases.zsh`
-- **Functions**: Add custom functions to `zsh/.zsh/functions.zsh`
-
-## Updating
-
-```bash
-cd ~/dotfiles
-git pull
-./stow-all.sh  # Restow every package
-```
-
-## Uninstalling
-
-```bash
-cd ~/dotfiles
-./stow-all.sh -D  # Remove all symlinks
+chezmoi add --encrypt ~/.some-private-file
+# Source becomes encrypted_dot_some-private-file.age
 ```

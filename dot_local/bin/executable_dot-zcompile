@@ -1,0 +1,36 @@
+#!/usr/bin/env zsh
+# dot-zcompile — pre-compile zsh source files to bytecode (.zwc).
+#
+# zsh prefers <file>.zwc over <file> when the bytecode is newer. Compiling
+# .zshrc / .zshenv / modular configs shaves real milliseconds off startup.
+# Idempotent: skips files whose .zwc is already newer than the source.
+
+set -u
+
+DOTFILES="${DOTFILES:-$HOME/dotfiles}"
+
+# Resolve a path through any symlinks, then zcompile the real file. zsh
+# loads bytecode by inspecting the literal path, so we compile next to
+# the source-of-truth, not next to the symlink.
+_compile() {
+  local target="$1"
+  [[ -f "$target" ]] || return 0
+  local real="${target:A}"      # zsh-only: :A resolves symlinks
+  local zwc="${real}.zwc"
+  if [[ ! -f "$zwc" || "$real" -nt "$zwc" ]]; then
+    if zcompile -R -- "$zwc" "$real" 2>/dev/null; then
+      printf "  compiled  %s\n" "${real/#$HOME/~}"
+    else
+      printf "  ${fg[red]:-}failed${reset_color:-}    %s\n" "${real/#$HOME/~}" >&2
+    fi
+  fi
+}
+
+echo "zcompiling…"
+_compile "$HOME/.zshenv"
+_compile "$HOME/.zshrc"
+_compile "$HOME/.p10k.zsh"
+for f in "$HOME"/.zsh/*.zsh(N); do
+  _compile "$f"
+done
+echo "done"

@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# dot-status — single-pane dashboard. Reads cached state from doctor/bench/audit.
+
+set -uo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/share}/dotfiles"
+BENCH_DIR="$STATE_DIR/bench"
+
+DIM=$'\033[2m'; RST=$'\033[0m'; GRN=$'\033[32m'; YLW=$'\033[33m'; RED=$'\033[31m'; BLD=$'\033[1m'
+
+printf "${BLD}dotfiles status${RST}  ${DIM}%s${RST}\n" "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+printf "${DIM}host:${RST} %s  ${DIM}os:${RST} %s/%s\n\n" "$(hostname -s)" "$(uname -s)" "$(uname -m)"
+
+# --- latest bench -----------------------------------------------------------
+printf "${BLD}bench${RST}\n"
+latest=$(ls -1t "$BENCH_DIR"/*.json 2>/dev/null | head -1)
+if [[ -z "$latest" ]]; then
+  printf "  ${DIM}no benchmark runs yet — run \`dot-bench\`${RST}\n"
+else
+  age_s=$(( $(date +%s) - $(stat -f %m "$latest" 2>/dev/null || stat -c %Y "$latest") ))
+  age_h=$((age_s / 3600))
+  if command -v jq >/dev/null 2>&1; then
+    jq -r '.results | to_entries[] | "  \(.key): \(.value)ms"' "$latest"
+  else
+    grep -E '"[a-z_]+_ms":' "$latest" | sed -E 's/.*"([a-z_]+)": ([0-9.]+).*/  \1: \2ms/'
+  fi
+  printf "  ${DIM}(${age_h}h ago)${RST}\n"
+fi
+
+# --- doctor (run fresh) -----------------------------------------------------
+echo
+printf "${BLD}doctor${RST}  ${DIM}(running fresh — pass --no-doctor to skip)${RST}\n"
+if [[ "${1:-}" != "--no-doctor" ]] && command -v dot-doctor >/dev/null 2>&1; then
+  dot-doctor 2>&1 | tail -2 | sed 's/^/  /'
+fi
+
+# --- audit summary ----------------------------------------------------------
+echo
+printf "${BLD}audit${RST}\n"
+if command -v dot-audit >/dev/null 2>&1; then
+  dot-audit 2>&1 | grep -E '^\s+(\?\?|M|A|D|R|U)|ahead|behind|dirty|clean|new feature' | head -6 | sed 's/^/  /'
+fi
+
+exit 0

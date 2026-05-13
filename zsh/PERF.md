@@ -18,7 +18,10 @@ in the commit message ("baseline rewritten because <reason>").
 Format: `key: value_ms` — `dot-bench` greps for this.
 
 <!-- BASELINE_START -->
-interactive_startup_ms: 250
+first_prompt_lag_ms: 50
+first_command_lag_ms: 200
+command_lag_ms: 25
+input_lag_ms: 10
 <!-- BASELINE_END -->
 
 ## How to re-pin

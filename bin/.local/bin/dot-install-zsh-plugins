@@ -65,5 +65,21 @@ done < "$LOCK"
 echo
 printf "${DIM}ok=%d installed=%d updated=%d failed=%d  plugin dir: %s${RST}\n" "$ok" "$installed" "$updated" "$failed" "$PLUGIN_DIR"
 
+# Symlink any binaries declared in plugins.bin into ~/.local/bin/
+BIN_MANIFEST="$DOTFILES/zsh/plugins.bin"
+BIN_TARGET="$HOME/.local/bin"
+if [[ -f "$BIN_MANIFEST" ]]; then
+  mkdir -p "$BIN_TARGET"
+  while read -r plug script linkname; do
+    [[ -z "$plug" || "$plug" =~ ^# ]] && continue
+    src="$PLUGIN_DIR/$plug/$script"
+    name="${linkname:-$(basename "$script")}"
+    if [[ -f "$src" ]]; then
+      ln -sf "$src" "$BIN_TARGET/$name"
+      printf "${DIM}link ${RST}%s -> %s\n" "$BIN_TARGET/$name" "$src"
+    fi
+  done < "$BIN_MANIFEST"
+fi
+
 [[ "$failed" -gt 0 ]] && exit 2
 exit 0

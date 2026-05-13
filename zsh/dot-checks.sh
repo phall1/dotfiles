@@ -37,11 +37,25 @@ else
   warn ".zsh_secrets missing (gitignored — copy from zsh/.zsh_secrets.example)"
 fi
 
-# gitstatusd daemon alive (P10k runs it; only check if P10k installed).
-if [[ -d "$DOTFILES/zsh/.zsh/plugins/powerlevel10k" ]]; then
+# P10k state: instant-prompt cache + gitstatusd daemon.
+ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins}"
+if [[ -d "$ZSH_PLUGIN_DIR/powerlevel10k" ]]; then
+  cache="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh"
+  if [[ -f "$cache" ]]; then
+    ok "p10k instant-prompt cache present"
+  else
+    warn "p10k instant-prompt cache missing — first shell after install is slow until generated"
+  fi
   if pgrep -x gitstatusd >/dev/null 2>&1; then
     ok "gitstatusd daemon alive"
   else
-    warn "P10k installed but gitstatusd not running — restart shell"
+    warn "gitstatusd not running (interactive shell hasn't started yet?)"
   fi
+fi
+
+# zsh-bench available (perf measurement substrate).
+if command -v zsh-bench >/dev/null 2>&1; then
+  ok "zsh-bench installed"
+else
+  warn "zsh-bench missing — re-run dot-install-zsh-plugins"
 fi

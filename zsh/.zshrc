@@ -40,16 +40,32 @@ export PATH="$HOME/.local/bin:$PATH"
 [[ -d "$HOME/.npm-global/bin" ]] && export PATH="$HOME/.npm-global/bin:$PATH"
 
 # ============================================================================
+# Plugins — loaded from $XDG_DATA_HOME/zsh/plugins (see zsh/plugins.lock).
+# Plugins live OUTSIDE the dotfiles repo so the stow tree stays clean.
+# Bootstrap: `dot-install-zsh-plugins`.
+# ============================================================================
+
+ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins}"
+
+# zsh-defer must be sourced eagerly — it's the deferral primitive.
+[[ -f "$ZSH_PLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh" ]] \
+  && source "$ZSH_PLUGIN_DIR/zsh-defer/zsh-defer.plugin.zsh"
+
+# zsh-completions adds to fpath; must run BEFORE compinit.
+[[ -d "$ZSH_PLUGIN_DIR/zsh-completions/src" ]] \
+  && fpath=("$ZSH_PLUGIN_DIR/zsh-completions/src" $fpath)
+
+# ============================================================================
 # Tool Initializations - only if tools exist
 # ============================================================================
 
-# Starship prompt
+# Starship prompt (replaced by P10k in task #4)
 command -v starship &>/dev/null && eval "$(starship init zsh)"
 
 # Zoxide (smarter cd)
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
-# Direnv
+# Direnv (replaced by chpwd .env hook in task #5)
 command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
 
 # FZF
@@ -87,8 +103,27 @@ export KEYTIMEOUT=1
 # Completion System
 # ============================================================================
 
-# Initialize completion system
-autoload -Uz compinit && compinit
+# Initialize completion system (24h-cached — full compinit only if .zcompdump
+# is older than 24h or missing, else fast-path with -C).
+# Idiom from ctechols/ca1035271ad134841284.
+autoload -Uz compinit
+if [[ -n "$HOME/.zcompdump"(N.mh-24) ]]; then
+  compinit -C
+else
+  compinit
+fi
+
+# fzf-tab — must load AFTER compinit, BEFORE anything that defines
+# completion widgets it might override. Deferring breaks tab on first prompt.
+[[ -f "$ZSH_PLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh" ]] \
+  && source "$ZSH_PLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh"
+
+# Deferred plugins (load after first prompt — visible startup speedup).
+if (( $+functions[zsh-defer] )); then
+  zsh-defer source "$ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  # fast-syntax-highlighting MUST be last among the highlighters.
+  zsh-defer source "$ZSH_PLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+fi
 
 # gt (graphite CLI) completions
 if command -v gt &>/dev/null; then

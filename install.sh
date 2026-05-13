@@ -27,24 +27,12 @@ fi
 
 if [ "$OS" == "macos" ]; then
   echo "📦 Installing Homebrew packages..."
-  if [ -f "brew.txt" ]; then
-    xargs brew install < brew.txt
-  fi
   brew install stow
-
-  # Install antidote (zsh plugin manager)
-  if [ ! -d "$(brew --prefix)/share/antidote" ]; then
-    brew install antidote
-  fi
-
-  # Install starship
-  if ! command -v starship &> /dev/null; then
-    brew install starship
-  fi
+  # Brewfile lands in task #7 (chezmoi migration). Until then, packages are
+  # provisioned by phall-dev playbook (macOS) and apt/nix (Linux).
 
 elif [ "$OS" == "linux" ]; then
   echo "📦 Checking Linux dependencies..."
-  # Stow should be installed, but check just in case
   if ! command -v stow &> /dev/null; then
     if command -v nix &> /dev/null; then
       nix profile install nixpkgs#stow
@@ -55,14 +43,13 @@ elif [ "$OS" == "linux" ]; then
       exit 1
     fi
   fi
-
-  # Install antidote via git on Linux
-  if [ ! -d "$HOME/.antidote" ]; then
-    git clone --depth=1 https://github.com/mattmc3/antidote.git "$HOME/.antidote"
-  fi
-
-  # Starship is already installed via phall-dev playbook
 fi
+
+# Zsh plugins (raw — no plugin manager). Bootstrap clones into
+# $XDG_DATA_HOME/zsh/plugins/ per zsh/plugins.lock.
+echo ""
+echo "🔌 Installing zsh plugins..."
+"$SCRIPT_DIR/bin/.local/bin/dot-install-zsh-plugins"
 
 echo ""
 echo "📥 Initializing git submodules..."

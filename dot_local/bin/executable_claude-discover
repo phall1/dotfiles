@@ -1,0 +1,147 @@
+#!/usr/bin/env bash
+# claude-discover — snapshot the Claude Code surface and report what's new
+# since last invocation. Called by the `/discover` skill but works standalone.
+#
+# Output: a single markdown document on stdout. Persists state to
+# $XDG_STATE_HOME/dotfiles/claude/known-features.json.
+
+set -uo pipefail
+
+STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/dotfiles/claude"
+SNAPSHOT="$STATE_DIR/known-features.json"
+CLAUDE_HOME="$HOME/.claude"
+mkdir -p "$STATE_DIR"
+
+# Collect current state as a single JSON blob using jq from primitive inputs.
+collect() {
+  jq -n \
+    --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+    --arg version "$(claude --version 2>/dev/null || echo unknown)" \
+    --arg host "$(hostname -s)" \
+    --argjson env_flags "$(env | awk -F= '/^(CLAUDE_CODE_|ANTHROPIC_)/ {print $1}' | jq -R . | jq -s .)" \
+    --argjson settings "$([[ -f "$CLAUDE_HOME/settings.json" ]] && cat "$CLAUDE_HOME/settings.json" || echo '{}')" \
+    --argjson skills "$(find "$CLAUDE_HOME/skills" -maxdepth 1 -mindepth 1 -type d 2>/dev/null | xargs -n1 basename 2>/dev/null | jq -R . | jq -s .)" \
+    --argjson agents "$(find "$CLAUDE_HOME/agents" -maxdepth 1 -name '*.md' 2>/dev/null | xargs -n1 basename 2>/dev/null | sed 's/\.md$//' | jq -R . | jq -s .)" \
+    --argjson commands "$(find "$CLAUDE_HOME/commands" -maxdepth 1 -name '*.md' 2>/dev/null | xargs -n1 basename 2>/dev/null | sed 's/\.md$//' | jq -R . | jq -s .)" \
+    '{ timestamp: $ts, version: $version, host: $host, env_flags: $env_flags,
+       enabled_plugins: ($settings.enabledPlugins // {} | keys),
+       hooks: ($settings.hooks // {} | keys),
+       mcp_servers: ($settings.mcpServers // {} | keys),
+       statusline: ($settings.statusLine // null),
+       skills: $skills,
+       agents: $agents,
+       commands: $commands }'
+}
+
+current=$(collect)
+
+# Compute new-since-last for each collection.
+delta_field() {
+  local field="$1" current_json="$2" prev_json="$3"
+  if [[ -z "$prev_json" || "$prev_json" == "null" ]]; then
+    echo "[]"
+    return
+  fi
+  jq -n \
+    --argjson cur "$(echo "$current_json" | jq ".$field // []")" \
+    --argjson prev "$(echo "$prev_json"    | jq ".$field // []")" \
+    '$cur - $prev'
+}
+
+prev="null"
+[[ -f "$SNAPSHOT" ]] && prev=$(cat "$SNAPSHOT")
+
+# Build delta report.
+delta_env=$(delta_field env_flags "$current" "$prev")
+delta_plugins=$(delta_field enabled_plugins "$current" "$prev")
+delta_hooks=$(delta_field hooks "$current" "$prev")
+delta_mcp=$(delta_field mcp_servers "$current" "$prev")
+delta_skills=$(delta_field skills "$current" "$prev")
+delta_agents=$(delta_field agents "$current" "$prev")
+delta_commands=$(delta_field commands "$current" "$prev")
+
+# Render markdown.
+echo "# Claude Code surface — $(date '+%Y-%m-%d %H:%M')"
+echo
+echo "**Version:** $(echo "$current" | jq -r .version)  •  **Host:** $(echo "$current" | jq -r .host)"
+if [[ "$prev" != "null" ]]; then
+  echo "**Last snapshot:** $(echo "$prev" | jq -r .timestamp)"
+else
+  echo "**Last snapshot:** _(first run — no delta to report)_"
+fi
+echo
+
+# Section: experimental env flags
+echo "## Experimental flags (CLAUDE_CODE_* / ANTHROPIC_*)"
+echo
+flags=$(echo "$current" | jq -r '.env_flags[]?' 2>/dev/null)
+if [[ -z "$flags" ]]; then
+  echo "_none set_"
+else
+  echo "$flags" | sed 's/^/- `/' | sed 's/$/`/'
+fi
+if [[ "$prev" != "null" ]] && [[ "$(echo "$delta_env" | jq 'length')" -gt 0 ]]; then
+  echo
+  echo "**NEW since last:**"
+  echo "$delta_env" | jq -r '.[] | "- 🆕 `" + . + "`"'
+fi
+echo
+
+# Section: enabled plugins
+echo "## Enabled plugins"
+plugins=$(echo "$current" | jq -r '.enabled_plugins[]?')
+[[ -z "$plugins" ]] && echo "_none_" || echo "$plugins" | sed 's/^/- /'
+if [[ "$(echo "$delta_plugins" | jq 'length')" -gt 0 ]]; then
+  echo "**NEW:** $(echo "$delta_plugins" | jq -r 'join(", ")')"
+fi
+echo
+
+# Section: hooks
+echo "## Hooks (settings.json)"
+hooks=$(echo "$current" | jq -r '.hooks[]?')
+[[ -z "$hooks" ]] && echo "_none_" || echo "$hooks" | sed 's/^/- /'
+if [[ "$(echo "$delta_hooks" | jq 'length')" -gt 0 ]]; then
+  echo "**NEW:** $(echo "$delta_hooks" | jq -r 'join(", ")')"
+fi
+echo
+
+# Section: MCP servers
+echo "## MCP servers"
+mcp=$(echo "$current" | jq -r '.mcp_servers[]?')
+[[ -z "$mcp" ]] && echo "_none configured in user settings.json_" || echo "$mcp" | sed 's/^/- /'
+echo
+
+# Section: skills
+echo "## Skills ($(echo "$current" | jq '.skills | length'))"
+echo "$current" | jq -r '.skills[]?' | sed 's/^/- /'
+if [[ "$(echo "$delta_skills" | jq 'length')" -gt 0 ]]; then
+  echo
+  echo "**NEW since last:**"
+  echo "$delta_skills" | jq -r '.[] | "- 🆕 " + .'
+fi
+echo
+
+# Section: agents
+echo "## Custom agents ($(echo "$current" | jq '.agents | length'))"
+echo "$current" | jq -r '.agents[]?' | sed 's/^/- /'
+if [[ "$(echo "$delta_agents" | jq 'length')" -gt 0 ]]; then
+  echo
+  echo "**NEW:**"
+  echo "$delta_agents" | jq -r '.[] | "- 🆕 " + .'
+fi
+echo
+
+# Section: slash commands
+if [[ "$(echo "$current" | jq '.commands | length')" -gt 0 ]]; then
+  echo "## Slash commands ($(echo "$current" | jq '.commands | length'))"
+  echo "$current" | jq -r '.commands[]?' | sed 's/^/- /'
+  if [[ "$(echo "$delta_commands" | jq 'length')" -gt 0 ]]; then
+    echo "**NEW:** $(echo "$delta_commands" | jq -r 'join(", ")')"
+  fi
+fi
+
+# Persist new snapshot.
+echo "$current" > "$SNAPSHOT"
+echo
+echo "---"
+echo "_snapshot saved to \`$SNAPSHOT\`_"

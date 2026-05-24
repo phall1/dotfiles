@@ -16,26 +16,28 @@ at the top.
 
 ## 2026-05-24 — macOS menu bar auto-hide
 
-**What:** the macOS menu bar now auto-hides; cursor to the top edge to
-reveal it.
+**What:** the macOS menu bar auto-hides; cursor to the top edge to reveal it.
 
 **Why:** sketchybar already shows time, battery, and volume, so the macOS
-bar was visually doubling the top of the screen during initial rice setup.
+bar visually doubles the top of the screen.
 
-**Apply:**
-```sh
-defaults write NSGlobalDomain _HIHideMenuBar -bool true
-killall SystemUIServer
-```
+**Apply (macOS 13 Ventura and later — must use System Settings UI):**
+The `defaults write NSGlobalDomain _HIHideMenuBar` key is silently ignored
+on Ventura+. The setting is in a sandboxed pref store that only the
+Settings app can write reliably.
 
-**Revert:**
-```sh
-defaults write NSGlobalDomain _HIHideMenuBar -bool false
-killall SystemUIServer
-```
+  1. System Settings → Control Center
+  2. Scroll to "Menu Bar Only"
+  3. "Automatically hide and show the menu bar" → **Always**
 
-**Verify:** `defaults read NSGlobalDomain _HIHideMenuBar` → `1` when enabled,
-`0` when reverted.
+**Revert:** same path, set to **Never** (or "On Desktop Only" / "In Full
+Screen Only" for a middle ground).
+
+**Verify:** move cursor away from the top of the screen — bar should
+disappear within ~1s. Move back to top edge — it reveals.
+
+**Pre-Ventura legacy command (kept for reference; doesn't work on macOS 26):**
+`defaults write NSGlobalDomain _HIHideMenuBar -bool true && killall SystemUIServer`
 
 ---
 

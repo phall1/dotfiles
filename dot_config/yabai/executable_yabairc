@@ -13,11 +13,11 @@ yabai -m config layout                       bsp
 yabai -m config window_placement             second_child
 
 # ─── Gaps & padding ─────────────────────────────────────────────────────────
-yabai -m config top_padding                  12
-yabai -m config bottom_padding               12
-yabai -m config left_padding                 12
-yabai -m config right_padding                12
-yabai -m config window_gap                   10
+yabai -m config top_padding                  4
+yabai -m config bottom_padding               4
+yabai -m config left_padding                 4
+yabai -m config right_padding                4
+yabai -m config window_gap                   4
 
 # ─── Mouse ──────────────────────────────────────────────────────────────────
 yabai -m config mouse_follows_focus          off
@@ -49,6 +49,12 @@ yabai -m rule --add app="^Activity Monitor$"  manage=off
 yabai -m rule --add app="^1Password$"         manage=off
 yabai -m rule --add app="^Raycast$"           manage=off
 yabai -m rule --add title="^Preferences$"     manage=off
+
+# Cheat-sheet popup (alt+slash in skhd) — floats centered, ~60% screen.
+yabai -m rule --add title="^rice-cheatsheet$" manage=off grid=10:10:2:2:6:6
+
+# Ghostty's quick-terminal dropdown — float it (doesn't belong in tiling tree).
+yabai -m rule --add app="^[gG]hostty$" title="^Quick Terminal" manage=off
 
 # ─── Signals — keep sketchybar in sync with window/space events ─────────────
 yabai -m signal --add event=window_focused   action="sketchybar --trigger window_focus"

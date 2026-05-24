@@ -27,7 +27,8 @@ You can ignore all this and just open windows — they tile automatically.
 
 | Chord | Action |
 |---|---|
-| `alt + return` | New Ghostty terminal |
+| `alt + return` | New Ghostty terminal (uses existing process — no new instance) |
+| `alt + /` | **Open this cheat sheet** in a floating Ghostty popup (press `q` to dismiss) |
 | `alt + h / j / k / l` | Focus left / down / up / right |
 | `shift + alt + h/j/k/l` | **Swap** focused window with neighbor |
 | `alt + f` | Zoom focused window to fill space (toggle) |
@@ -184,6 +185,8 @@ sketchybar/borders use `brew services info <name>` for log paths.
 | Focused window is wrong color | Edit `bordersrc` `active_color` (hex 0xAARRGGBB). |
 | `shift + alt + N` does nothing for moving windows | That feature requires SIP partially disabled. See [`RICE.md`](./RICE.md) "SIP upgrade path". |
 | Tiling looks chaotic after sleep/wake | `ctrl + alt + cmd + r` to reset, or `yabai -m space --balance`. |
+| Ghostty windows don't tile / yabai can't move them | `has-ax-reference: false` issue. Fix: close ALL Ghostty windows (`cmd+Q`), reopen ONE fresh, then `yabai --restart-service`. yabai needs to be running when Ghostty starts to capture AX refs. |
+| Multiple Ghostty processes showing in `ps aux` | Caused by `open -na Ghostty` (the `-n` flag forces new instance). The `alt + return` binding now uses AppleScript to avoid this. To clean up: `cmd+Q` from each Ghostty, then reopen one fresh. |
 
 ---
 

@@ -9,7 +9,11 @@
 # in this file (Edit → replace-all) and reload.
 
 # ─── Launchers ──────────────────────────────────────────────────────────────
-alt - return  : open -na Ghostty
+# Opens a new Ghostty window in the EXISTING Ghostty process (sends cmd+N).
+# Why not `open -na Ghostty`? The -n flag spawns a fresh process each time,
+# accumulating zombie processes that confuse yabai's window tracking.
+alt - return  : osascript -e 'tell application "Ghostty" to activate' \
+                          -e 'tell application "System Events" to keystroke "n" using command down'
 
 # ─── Focus windows (vim keys) ───────────────────────────────────────────────
 alt - h       : yabai -m window --focus west
@@ -72,6 +76,13 @@ alt - f       : yabai -m window --toggle zoom-fullscreen
 shift + alt - f : yabai -m window --toggle native-fullscreen
 alt - t       : yabai -m window --toggle float --grid 4:4:1:1:2:2  # float centered
 alt - p       : yabai -m window --toggle sticky --toggle topmost   # pin on top
+
+# ─── Cheat sheet popup ──────────────────────────────────────────────────────
+# alt + / opens a floating Ghostty with the rice cheat sheet rendered via bat.
+# yabai rule (title=rice-cheatsheet) makes it float centered at ~60% screen.
+# Press q (less keybind) to dismiss.
+alt - slash : open -na Ghostty --args --title=rice-cheatsheet \
+              --command="bat --paging=always --color=always --style=plain $HOME/docs/RICE-CHEATSHEET.md"
 
 # ─── Service controls ───────────────────────────────────────────────────────
 ctrl + alt + cmd - r : yabai --restart-service && skhd --restart-service && \

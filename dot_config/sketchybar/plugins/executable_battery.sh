@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# battery.sh — show battery percent + icon. Triggered on power_source_change.
+# battery.sh — battery % + state icon. Triggered on power_source_change.
+# Part of system_bracket (with volume).
 
 PERCENTAGE=$(pmset -g batt | grep -Eo "\d+%" | cut -d% -f1)
 CHARGING=$(pmset -g batt | grep 'AC Power')

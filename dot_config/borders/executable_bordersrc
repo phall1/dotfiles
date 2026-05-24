@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# JankyBorders — colored borders around macOS windows.
+# Edits land in $HOME/.config/borders/bordersrc via chezmoi apply.
+# Reload: borders --reload
+# Docs:   https://github.com/FelixKratz/JankyBorders
+
+options=(
+  style=round
+  width=6.0
+  hidpi=on
+  active_color=0xff89b4fa
+  inactive_color=0xff45475a
+  background_color=0x00000000
+)
+
+borders "${options[@]}"

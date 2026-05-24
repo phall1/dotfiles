@@ -1,0 +1,78 @@
+# skhd — simple hotkey daemon. Drives yabai.
+# Edits to this file land in $HOME/.config/skhd/skhdrc via chezmoi apply.
+# Reload: skhd --restart-service
+# Syntax: <mod> [+ <mod>] - <key> : <command>
+#         alt = option (⌥)   cmd = command (⌘)   ctrl = control (⌃)   shift = ⇧
+#
+# Modifier chosen for this setup: ALT (option).
+# If you find it conflicts with Option-letter text input, swap "alt" → "cmd + alt"
+# in this file (Edit → replace-all) and reload.
+
+# ─── Launchers ──────────────────────────────────────────────────────────────
+alt - return  : open -na Ghostty
+
+# ─── Focus windows (vim keys) ───────────────────────────────────────────────
+alt - h       : yabai -m window --focus west
+alt - j       : yabai -m window --focus south
+alt - k       : yabai -m window --focus north
+alt - l       : yabai -m window --focus east
+
+# ─── Swap window positions ──────────────────────────────────────────────────
+shift + alt - h : yabai -m window --swap west
+shift + alt - j : yabai -m window --swap south
+shift + alt - k : yabai -m window --swap north
+shift + alt - l : yabai -m window --swap east
+
+# ─── Move + reinsert (changes tree shape) ───────────────────────────────────
+ctrl + alt - h : yabai -m window --warp west
+ctrl + alt - j : yabai -m window --warp south
+ctrl + alt - k : yabai -m window --warp north
+ctrl + alt - l : yabai -m window --warp east
+
+# ─── Resize (grow/shrink active edge) ───────────────────────────────────────
+alt - left    : yabai -m window --resize left:-40:0  ; yabai -m window --resize right:-40:0
+alt - right   : yabai -m window --resize left:40:0   ; yabai -m window --resize right:40:0
+alt - up      : yabai -m window --resize bottom:0:-40 ; yabai -m window --resize top:0:-40
+alt - down    : yabai -m window --resize bottom:0:40  ; yabai -m window --resize top:0:40
+
+# ─── Space switching ────────────────────────────────────────────────────────
+alt - 1 : yabai -m space --focus 1
+alt - 2 : yabai -m space --focus 2
+alt - 3 : yabai -m space --focus 3
+alt - 4 : yabai -m space --focus 4
+alt - 5 : yabai -m space --focus 5
+alt - 6 : yabai -m space --focus 6
+alt - 7 : yabai -m space --focus 7
+alt - 8 : yabai -m space --focus 8
+alt - 9 : yabai -m space --focus 9
+
+# ─── Send window to space [SIP] ─────────────────────────────────────────────
+# These require yabai's scripting addition (SIP partially disabled).
+# Without SIP off, focusing the destination space still works (above), but the
+# window itself won't move. See docs/RICE.md to enable.
+shift + alt - 1 : yabai -m window --space 1
+shift + alt - 2 : yabai -m window --space 2
+shift + alt - 3 : yabai -m window --space 3
+shift + alt - 4 : yabai -m window --space 4
+shift + alt - 5 : yabai -m window --space 5
+shift + alt - 6 : yabai -m window --space 6
+shift + alt - 7 : yabai -m window --space 7
+shift + alt - 8 : yabai -m window --space 8
+shift + alt - 9 : yabai -m window --space 9
+
+# ─── Layout actions ─────────────────────────────────────────────────────────
+alt - r       : yabai -m space --rotate 90          # rotate layout 90°
+alt - y       : yabai -m space --mirror y-axis      # flip horizontally
+alt - x       : yabai -m space --mirror x-axis      # flip vertically
+alt - e       : yabai -m space --balance            # equalize splits
+alt - s       : yabai -m window --toggle split      # toggle split orientation
+
+# ─── Window state toggles ───────────────────────────────────────────────────
+alt - f       : yabai -m window --toggle zoom-fullscreen
+shift + alt - f : yabai -m window --toggle native-fullscreen
+alt - t       : yabai -m window --toggle float --grid 4:4:1:1:2:2  # float centered
+alt - p       : yabai -m window --toggle sticky --toggle topmost   # pin on top
+
+# ─── Service controls ───────────────────────────────────────────────────────
+ctrl + alt + cmd - r : yabai --restart-service && skhd --restart-service && \
+                       sketchybar --reload && borders --reload

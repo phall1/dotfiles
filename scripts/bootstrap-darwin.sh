@@ -11,6 +11,14 @@ if ! command -v brew >/dev/null 2>&1; then
   eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
+# Ricing taps:
+#   koekeishiya/formulae  — yabai (skhd is on this tap too but in maintenance mode; we use the Zig rewrite below)
+#   FelixKratz/formulae   — sketchybar, borders
+#   jackielii/tap         — skhd-zig (actively-maintained drop-in replacement for skhd)
+brew tap koekeishiya/formulae 2>/dev/null || true
+brew tap FelixKratz/formulae 2>/dev/null || true
+brew tap jackielii/tap 2>/dev/null || true
+
 # Required substrate.
 brew_packages=(
   # Core tools
@@ -25,10 +33,24 @@ brew_packages=(
   neovim gh git tig gitui lazygit
   # Misc
   direnv
+  # Ricing — window manager, hotkeys, status bar, window borders.
+  # SIP is NOT disabled by default; see docs/RICE.md for the SIP upgrade path.
+  # skhd-zig auto-reloads on config change (no manual restart needed).
+  yabai skhd-zig sketchybar borders
 )
 echo "Installing brew packages..."
 for pkg in "${brew_packages[@]}"; do
   brew list "$pkg" >/dev/null 2>&1 || brew install "$pkg"
+done
+
+# Casks (fonts for sketchybar icons + nerd-font glyphs).
+brew_casks=(
+  font-jetbrains-mono-nerd-font
+  font-sketchybar-app-font
+)
+echo "Installing brew casks..."
+for cask in "${brew_casks[@]}"; do
+  brew list --cask "$cask" >/dev/null 2>&1 || brew install --cask "$cask"
 done
 
 # coreutils for GNU versions on macOS (zprofile prepends them to PATH).

@@ -170,6 +170,9 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 | Add a CLAUDE.md hook / MCP server / skill | Edit `dot_claude/settings.json` for hooks/MCP. Drop a `dot_claude/skills/<name>/SKILL.md` for a skill. Run `/discover` after to confirm pickup. |
 | Add a chezmoi template variable | Add to `~/.config/chezmoi/chezmoi.toml` under `[data]`. Reference as `{{ .key }}` in a `.tmpl` file. |
 | Add per-machine override | Three options in increasing specificity: chezmoi.toml per machine → hostname branch in `dot_gitconfig.tmpl` → `~/.gitconfig-work` via `includeIf`. See docs/setup.md. |
+| Set up the alt git identity on a new machine | `~/dotfiles/scripts/setup-alt-identity.sh` — interactive; writes `~/.gitconfig-alt`, generates `~/.ssh/id_ed25519_alt`, runs `gh auth login` into `~/.config/gh-alt/`. Untracked outputs are per-machine. |
+| Apply the alt identity to a repo | `git identity alt` (one-shot per repo: sets local `user.name`/`email` from `~/.gitconfig-alt`, rewrites origin to the `github.com-alt` SSH alias). `git identity` shows current; `git identity primary` reverts. |
+| Hit the alt GitHub API | `gh-alt ...` — same surface as `gh`, but `GH_CONFIG_DIR=~/.config/gh-alt` so it always operates on the alt account regardless of `gh auth switch` state. |
 | Change the shell prompt | Edit `dot_p10k.zsh` directly OR re-run `p10k configure` and commit the result. |
 
 ---

@@ -28,6 +28,7 @@
     # os_icon               # os identifier
     dir                     # current directory
     vcs                     # git status
+    git_identity            # non-default git user.email in current repo (see prompt_git_identity below)
     # =========================[ Line #2 ]=========================
     newline                 # \n
     prompt_char             # prompt symbol
@@ -1641,6 +1642,24 @@
   # typeset -g POWERLEVEL9K_TIME_VISUAL_IDENTIFIER_EXPANSION='⭐'
   # Custom prefix.
   # typeset -g POWERLEVEL9K_TIME_PREFIX='%fat '
+
+  # git_identity: fires only when the current repo has a *local* [user] override
+  # (i.e., after `git identity alt`). Silent for the default phall1 case, so it
+  # adds zero noise unless you're committing as someone else.
+  # alt   = origin uses the github.com-alt SSH alias  -> red
+  # local = local user.email set, but origin is plain -> yellow
+  function prompt_git_identity() {
+    local email
+    email=$(command git config --local user.email 2>/dev/null) || return
+    [[ -n "$email" ]] || return
+    local origin label color
+    origin=$(command git config --local remote.origin.url 2>/dev/null)
+    case "$origin" in
+      *github.com-alt:*) label='alt';   color=red ;;
+      *)                 label='local'; color=yellow ;;
+    esac
+    p10k segment -f "$color" -t "$label"
+  }
 
   # Example of a user-defined prompt segment. Function prompt_example will be called on every
   # prompt if `example` prompt segment is added to POWERLEVEL9K_LEFT_PROMPT_ELEMENTS or

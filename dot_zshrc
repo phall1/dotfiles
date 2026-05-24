@@ -147,6 +147,21 @@ if command -v gt &>/dev/null; then
   compdef _gt_yargs_completions gt
 fi
 
+# git-identity / gh-alt completions.
+# gh-alt is a transparent wrapper; reuse gh's completion.
+compdef gh-alt=gh
+# git-identity has three subcommands. Defining _git-identity also gives us
+# `git identity <TAB>` for free (git's framework picks up _git-<subcmd>).
+_git-identity() {
+  local -a subcommands=(
+    'show:print the identity this repo will commit as'
+    'alt:apply alt identity from ~/.gitconfig-alt and rewrite origin'
+    'primary:revert to default identity'
+  )
+  _describe 'subcommand' subcommands
+}
+compdef _git-identity git-identity
+
 # Enable color support
 export CLICOLOR=1
 [[ "$DOTFILES_OS" == "linux" ]] && alias ls='ls --color=auto'

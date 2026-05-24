@@ -1,0 +1,13 @@
+# SSH config — managed by chezmoi.
+# Source: ~/dotfiles/private_dot_ssh/config
+
+# Alternate GitHub identity. The host suffix is what lets ssh pick a
+# different IdentityFile per account. Use as:
+#   git clone git@github.com-alt:OWNER/REPO.git
+# Or in an existing repo: `git identity alt` rewrites the remote for you.
+Host github.com-alt
+    HostName github.com
+    User git
+    IdentityFile ~/.ssh/id_ed25519_alt
+    IdentitiesOnly yes
+    AddKeysToAgent yes

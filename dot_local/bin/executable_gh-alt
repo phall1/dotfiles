@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# gh-alt — invoke `gh` against the alt GitHub account regardless of which
+# account `gh auth switch` is currently on.
+#
+# Uses GH_CONFIG_DIR to keep alt auth state in ~/.config/gh-alt/, separate
+# from ~/.config/gh/. First-time setup populates that dir via:
+#   ~/dotfiles/scripts/setup-alt-identity.sh
+
+export GH_CONFIG_DIR="${GH_CONFIG_DIR:-$HOME/.config/gh-alt}"
+exec gh "$@"

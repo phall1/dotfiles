@@ -22,6 +22,7 @@ want_bin uv             "Python toolchain"
 want_bin fnm            "Node toolchain"
 want_bin sesh           "tmux session picker"
 want_bin claude         "Claude Code CLI"
+want_bin lstags         "ls + Finder tags (cargo install via run_onchange)"
 
 case "$(uname -s)" in
   Darwin) want_bin ghostty "Mac terminal" ;;

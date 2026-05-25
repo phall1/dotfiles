@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+# Rebuilds and installs `lstags` (Rust binary, source at src/lstags/) when any
+# of its tracked source files change. Hash comments below are the trigger.
+#
+# {{ include "src/lstags/Cargo.toml" | sha256sum }}
+# {{ include "src/lstags/Cargo.lock" | sha256sum }}
+# {{ include "src/lstags/src/main.rs" | sha256sum }}
+# {{ include "src/lstags/src/tags.rs" | sha256sum }}
+
+set -euo pipefail
+
+export PATH="$HOME/.cargo/bin:$PATH"
+
+if ! command -v cargo >/dev/null 2>&1; then
+  printf "lstags: cargo not on PATH — skipping rebuild. Install rust via 'brew install rustup && rustup default stable'.\n" >&2
+  exit 0
+fi
+
+cargo install --path "{{ .chezmoi.sourceDir }}/src/lstags" --locked --quiet

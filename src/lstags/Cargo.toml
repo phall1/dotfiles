@@ -1,0 +1,21 @@
+[package]
+name = "lstags"
+version = "0.1.0"
+edition = "2021"
+description = "ls but it shows your Finder tags"
+license = "MIT"
+authors = ["phall"]
+
+[dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+plist = "1"
+serde_json = "1"
+xattr = "1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+strip = true
+panic = "abort"

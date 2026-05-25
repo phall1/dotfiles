@@ -33,3 +33,6 @@ git/.gitconfig
 .envrc
 
 bun.lock
+
+# Compiled tool build artifacts (source is tracked, target/ is not)
+src/*/target/

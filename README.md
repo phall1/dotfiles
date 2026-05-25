@@ -21,6 +21,7 @@ hand-holding. Start with **`AGENTS.md`** (universal) and **`CLAUDE.md`**
 | **[`PERF.md`](./PERF.md)** | Pinned bench baselines + how to investigate regressions. |
 | **[`checks/README.md`](./checks/README.md)** | doctor's plugin-check architecture. |
 | **[`docs/nix.md`](./docs/nix.md)** | Nix install + what is/isn't tracked. |
+| **[`docs/IDEAS.md`](./docs/IDEAS.md)** | Half-baked ideas worth revisiting. Not commitments. |
 | **`git log`** | Commit messages explain the **why** of recent changes — read it before assuming. |
 
 ---

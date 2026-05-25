@@ -49,7 +49,7 @@ sketchybar --default updates=when_shown \
 
 # Apple logo (accent pill)
 sketchybar --add item apple.logo left \
-           --set apple.logo icon="" \
+           --set apple.logo icon="" \
                             icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
                             icon.color=0xff1e1e2e \
                             icon.padding_left=12 \
@@ -87,7 +87,7 @@ sketchybar --add item space_windows left \
 
 # Small separator
 sketchybar --add item separator left \
-           --set separator icon="" \
+           --set separator icon="" \
                            label.drawing=off \
                            background.drawing=off \
                            width=8
@@ -112,7 +112,7 @@ sketchybar --add item front_app left \
 # ─── CPU ────────────────────────────────────────────────────────────────────
 sketchybar --add item cpu right \
            --set cpu update_freq=5 \
-                     icon="" \
+                     icon="" \
                      icon.color=0xfffab387 \
                      icon.padding_left=12 \
                      label.padding_right=12 \
@@ -122,7 +122,7 @@ sketchybar --add item cpu right \
 # ─── WiFi ───────────────────────────────────────────────────────────────────
 sketchybar --add item wifi right \
            --set wifi update_freq=30 \
-                      icon="" \
+                      icon="" \
                       icon.color=0xff89b4fa \
                       icon.padding_left=12 \
                       label.padding_right=12 \
@@ -132,7 +132,7 @@ sketchybar --add item wifi right \
 
 # ─── System bracket (volume + battery in one pill) ──────────────────────────
 sketchybar --add item volume right \
-           --set volume icon="" \
+           --set volume icon="" \
                         icon.padding_left=12 \
                         label.padding_right=8 \
                         background.drawing=off \
@@ -141,7 +141,7 @@ sketchybar --add item volume right \
 
 sketchybar --add item battery right \
            --set battery update_freq=120 \
-                         icon="" \
+                         icon="" \
                          icon.padding_left=4 \
                          label.padding_right=12 \
                          background.drawing=off \
@@ -157,7 +157,7 @@ sketchybar --add bracket system_bracket battery volume \
 # ─── Time bracket (calendar + clock in one pill) ────────────────────────────
 sketchybar --add item calendar right \
            --set calendar update_freq=60 \
-                          icon="" \
+                          icon="" \
                           icon.color=0xffcba6f7 \
                           icon.padding_left=12 \
                           label.padding_right=8 \
@@ -166,7 +166,7 @@ sketchybar --add item calendar right \
 
 sketchybar --add item clock right \
            --set clock update_freq=10 \
-                       icon="" \
+                       icon="" \
                        icon.color=0xff89b4fa \
                        icon.padding_left=4 \
                        label.padding_right=12 \

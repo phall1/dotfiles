@@ -57,3 +57,15 @@
 # Create that file (NOT tracked) from scripts/.gitconfig-work.example when needed.
 [includeIf "gitdir:~/work/"]
 	path = ~/.gitconfig-work
+
+{{/* Alt-identity workspace override. The directory path lives in
+     ~/.config/chezmoi/chezmoi.toml as data.git.altWorkspace so the
+     committed template does not reveal which org/folder it points at.
+     Set e.g.:
+       [data.git]
+       altWorkspace = "~/workspace/somefolder/"
+     Identity itself lives in ~/.gitconfig-alt (untracked). */ -}}
+{{- if hasKey .git "altWorkspace" }}
+[includeIf "gitdir:{{ .git.altWorkspace }}"]
+	path = ~/.gitconfig-alt
+{{- end }}

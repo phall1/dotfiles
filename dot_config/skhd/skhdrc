@@ -81,7 +81,7 @@ alt - p       : yabai -m window --toggle sticky --toggle topmost   # pin on top
 # alt + / opens a floating Ghostty with the rice cheat sheet rendered via bat.
 # yabai rule (title=rice-cheatsheet) makes it float centered at ~60% screen.
 # Press q (less keybind) to dismiss.
-alt - slash : open -na Ghostty --args --title=rice-cheatsheet \
+alt - 0x2C : open -na Ghostty --args --title=rice-cheatsheet \
               --command="bat --paging=always --color=always --style=plain $HOME/docs/RICE-CHEATSHEET.md"
 
 # ─── Service controls ───────────────────────────────────────────────────────

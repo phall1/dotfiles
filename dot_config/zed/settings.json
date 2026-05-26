@@ -1,0 +1,41 @@
+// Zed — normal config with vim mode on.
+// chezmoi-managed: edit in dotfiles/dot_config/zed/, then `chezmoi apply`.
+{
+  "cli_default_open_behavior": "new_window",
+
+  "base_keymap": "VSCode",
+  "vim_mode": true,
+
+  "theme": {
+    "mode": "dark",
+    "light": "One Light",
+    "dark": "Catppuccin Mocha"
+  },
+  "icon_theme": {
+    "mode": "dark",
+    "light": "Catppuccin Macchiato",
+    "dark": "Catppuccin Frappé"
+  },
+
+  "ui_font_size": 16,
+  "buffer_font_size": 15,
+
+  "outline_panel": { "dock": "left" },
+  "collaboration_panel": { "dock": "left" },
+  "git_panel": { "dock": "left" },
+  "project_panel": { "dock": "left" },
+  "agent": {
+    "dock": "right",
+    "model_parameters": []
+  },
+
+  "node": {
+    "npm_path": "pnpm"
+  },
+
+  "git": {
+    "inline_blame": {
+      "enabled": true
+    }
+  }
+}

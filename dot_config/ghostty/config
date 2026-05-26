@@ -128,8 +128,10 @@ keybind = super+arrow_up=scroll_page_up
 keybind = super+arrow_down=scroll_page_down
 keybind = super+home=scroll_to_top
 keybind = super+end=scroll_to_bottom
-keybind = super+shift+up=scroll_page_up
-keybind = super+shift+down=scroll_page_down
+
+# Jump prompt-by-prompt via OSC 133 marks (requires shell integration)
+keybind = super+shift+arrow_up=jump_to_prompt:-1
+keybind = super+shift+arrow_down=jump_to_prompt:1
 
 # ===========================
 # KEYBINDINGS - MISC
@@ -144,3 +146,36 @@ keybind = super+k=clear_screen
 quick-terminal-screen = main
 quick-terminal-animation-duration = 0.15
 quick-terminal-position = top
+
+# ===========================
+# TIER 1 UPGRADES
+# ===========================
+# Notify when a long-running command finishes in an unfocused tab/window.
+notify-on-command-finish = unfocused
+
+# Keep zoomed-split state when navigating between splits.
+split-preserve-zoom = navigation
+
+# Apply background-opacity to cells that paint their own bg (nvim, tmux).
+background-opacity-cells = true
+
+# Eliminate dark fringing around colored text without thinning glyphs.
+alpha-blending = linear-corrected
+
+# Extend nearest cell's bg color into the window padding.
+window-padding-color = extend
+
+# Make the glyph under the block cursor invert cleanly.
+cursor-text = cell-background
+
+# ===========================
+# NICETIES
+# ===========================
+# Let macOS Shortcuts.app drive Ghostty (new tabs, send text, run actions).
+macos-shortcuts = allow
+
+# Only show URL preview tooltips for proper OSC 8 hyperlinks.
+link-previews = osc8
+
+# Subtle cursor trail — bloom removed, it glowed everything (not just bright cells).
+custom-shader = shaders/cursor_blaze.glsl

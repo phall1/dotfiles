@@ -29,6 +29,9 @@ brew_packages=(
   uv fnm rustup-init
   # Terminal stack
   ghostty tmux sesh
+  # AI agent multiplexer (self-manages its Claude/opencode hooks via
+  # `herdr integration install` — see the integration step below).
+  herdr
   # Editor + git workflow
   neovim gh git tig gitui lazygit
   # Misc
@@ -52,6 +55,14 @@ echo "Installing brew casks..."
 for cask in "${brew_casks[@]}"; do
   brew list --cask "$cask" >/dev/null 2>&1 || brew install --cask "$cask"
 done
+
+# herdr owns its own agent-state hooks in ~/.claude/settings.json (and the
+# opencode plugin). We deliberately do NOT track those hooks in chezmoi — they
+# are versioned by herdr and regenerated here. The chezmoi modify_ script for
+# settings.json merges our portable flags on top without clobbering them.
+if command -v herdr >/dev/null 2>&1; then
+  herdr integration install claude >/dev/null 2>&1 || true
+fi
 
 # coreutils for GNU versions on macOS (zprofile prepends them to PATH).
 brew list coreutils >/dev/null 2>&1 || brew install coreutils

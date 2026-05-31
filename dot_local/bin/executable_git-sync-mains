@@ -1,0 +1,252 @@
+#!/usr/bin/env bash
+# git-sync-mains — fetch sibling repos and fast-forward their main branches.
+#
+# Usage:
+#   git sync-mains [options] [workspace-or-repo ...]
+#   git-sync-mains [options] [workspace-or-repo ...]
+#
+# Options:
+#   -n, --dry-run       show what would happen without fetching or updating refs
+#   -b, --branch NAME   branch to sync (default: main)
+#   -r, --remote NAME   prefer NAME/BRANCH when the branch has no upstream
+#   -h, --help          show this help
+#
+# With no path, scans the current directory. If a path is a git repo, that repo
+# is synced. Otherwise, each direct child directory that is a git repo is synced.
+
+set -uo pipefail
+
+BRANCH="main"
+REMOTE=""
+DRY_RUN=0
+
+seen=0
+updated=0
+skipped=0
+failed=0
+
+usage() {
+  sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+}
+
+die() {
+  printf 'git-sync-mains: %s\n' "$*" >&2
+  exit 2
+}
+
+has_ref() {
+  git -C "$1" show-ref --verify --quiet "$2"
+}
+
+pick_source_ref() {
+  local repo="$1"
+  local ref
+
+  ref=$(git -C "$repo" rev-parse --abbrev-ref --symbolic-full-name "$BRANCH@{upstream}" 2>/dev/null || true)
+  if [[ -n "$ref" ]] && git -C "$repo" rev-parse --verify --quiet "$ref^{commit}" >/dev/null; then
+    printf '%s\n' "$ref"
+    return 0
+  fi
+
+  if [[ -n "$REMOTE" ]] && has_ref "$repo" "refs/remotes/$REMOTE/$BRANCH"; then
+    printf '%s/%s\n' "$REMOTE" "$BRANCH"
+    return 0
+  fi
+
+  if has_ref "$repo" "refs/remotes/upstream/$BRANCH"; then
+    printf 'upstream/%s\n' "$BRANCH"
+    return 0
+  fi
+
+  if has_ref "$repo" "refs/remotes/origin/$BRANCH"; then
+    printf 'origin/%s\n' "$BRANCH"
+    return 0
+  fi
+
+  while IFS= read -r ref; do
+    case "$ref" in
+      */"$BRANCH")
+        printf '%s\n' "$ref"
+        return 0
+        ;;
+    esac
+  done < <(git -C "$repo" for-each-ref --format='%(refname:short)' --sort=refname refs/remotes)
+
+  return 1
+}
+
+worktree_dirty() {
+  [[ -n "$(git -C "$1" status --porcelain 2>/dev/null)" ]]
+}
+
+sync_repo() {
+  local repo="$1"
+  local name source current_branch local_oid source_oid
+
+  seen=$((seen + 1))
+  name=${repo##*/}
+  printf '\n== %s\n' "$name"
+  printf '   %s\n' "$repo"
+
+  if [[ "$DRY_RUN" -eq 1 ]]; then
+    printf '   would fetch --all --prune\n'
+  elif ! git -C "$repo" fetch --all --prune; then
+    printf '   FAIL fetch failed\n'
+    failed=$((failed + 1))
+    return
+  fi
+
+  source=$(pick_source_ref "$repo" || true)
+  if [[ -z "$source" ]]; then
+    printf '   SKIP no remote %s branch found\n' "$BRANCH"
+    skipped=$((skipped + 1))
+    return
+  fi
+
+  if ! git -C "$repo" rev-parse --verify --quiet "$source^{commit}" >/dev/null; then
+    printf '   FAIL %s is not a commit\n' "$source"
+    failed=$((failed + 1))
+    return
+  fi
+
+  source_oid=$(git -C "$repo" rev-parse --verify "$source^{commit}")
+  current_branch=$(git -C "$repo" symbolic-ref --quiet --short HEAD 2>/dev/null || true)
+
+  if ! has_ref "$repo" "refs/heads/$BRANCH"; then
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      printf '   would create %s tracking %s\n' "$BRANCH" "$source"
+    elif git -C "$repo" branch --track "$BRANCH" "$source" >/dev/null; then
+      printf '   OK created %s tracking %s\n' "$BRANCH" "$source"
+    else
+      printf '   FAIL could not create %s from %s\n' "$BRANCH" "$source"
+      failed=$((failed + 1))
+      return
+    fi
+    updated=$((updated + 1))
+    return
+  fi
+
+  local_oid=$(git -C "$repo" rev-parse --verify "$BRANCH^{commit}")
+  if [[ "$local_oid" == "$source_oid" ]]; then
+    printf '   OK %s already at %s\n' "$BRANCH" "$source"
+    return
+  fi
+
+  if ! git -C "$repo" merge-base --is-ancestor "$BRANCH" "$source"; then
+    printf '   SKIP %s diverged from %s\n' "$BRANCH" "$source"
+    skipped=$((skipped + 1))
+    return
+  fi
+
+  if [[ "$current_branch" == "$BRANCH" ]]; then
+    if worktree_dirty "$repo"; then
+      printf '   SKIP %s is checked out with local changes\n' "$BRANCH"
+      skipped=$((skipped + 1))
+      return
+    fi
+
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      printf '   would fast-forward checked-out %s to %s\n' "$BRANCH" "$source"
+    elif git -C "$repo" merge --ff-only "$source"; then
+      git -C "$repo" branch --set-upstream-to="$source" "$BRANCH" >/dev/null 2>&1 || true
+      printf '   OK fast-forwarded %s to %s\n' "$BRANCH" "$source"
+    else
+      printf '   FAIL could not fast-forward %s to %s\n' "$BRANCH" "$source"
+      failed=$((failed + 1))
+      return
+    fi
+  else
+    if [[ "$DRY_RUN" -eq 1 ]]; then
+      printf '   would move %s to %s\n' "$BRANCH" "$source"
+    elif git -C "$repo" branch -f "$BRANCH" "$source" >/dev/null; then
+      git -C "$repo" branch --set-upstream-to="$source" "$BRANCH" >/dev/null 2>&1 || true
+      printf '   OK moved %s to %s\n' "$BRANCH" "$source"
+    else
+      printf '   FAIL could not move %s to %s\n' "$BRANCH" "$source"
+      failed=$((failed + 1))
+      return
+    fi
+  fi
+
+  updated=$((updated + 1))
+}
+
+visit_path() {
+  local path="$1"
+  local top child
+
+  [[ -e "$path" ]] || {
+    printf 'SKIP missing path: %s\n' "$path" >&2
+    skipped=$((skipped + 1))
+    return
+  }
+
+  top=$(git -C "$path" rev-parse --show-toplevel 2>/dev/null || true)
+  if [[ -n "$top" ]]; then
+    sync_repo "$top"
+    return
+  fi
+
+  for child in "$path"/*; do
+    [[ -d "$child" ]] || continue
+    top=$(git -C "$child" rev-parse --show-toplevel 2>/dev/null || true)
+    [[ -n "$top" && "$top" == "$child" ]] || continue
+    sync_repo "$top"
+  done
+}
+
+paths=()
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -n|--dry-run)
+      DRY_RUN=1
+      ;;
+    -b|--branch)
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || die '--branch requires a name'
+      BRANCH="$1"
+      ;;
+    -r|--remote)
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || die '--remote requires a name'
+      REMOTE="$1"
+      ;;
+    -h|--help|help)
+      usage
+      exit 0
+      ;;
+    --)
+      shift
+      while [[ $# -gt 0 ]]; do
+        paths+=("$1")
+        shift
+      done
+      break
+      ;;
+    -* )
+      die "unknown option: $1"
+      ;;
+    *)
+      paths+=("$1")
+      ;;
+  esac
+  shift
+done
+
+command -v git >/dev/null 2>&1 || die 'git not found on PATH'
+
+if [[ "${#paths[@]}" -eq 0 ]]; then
+  paths=(".")
+fi
+
+for path in "${paths[@]}"; do
+  visit_path "$path"
+done
+
+printf '\nsummary: %s repo(s), %s updated, %s skipped, %s failed\n' "$seen" "$updated" "$skipped" "$failed"
+
+if [[ "$seen" -eq 0 ]]; then
+  exit 1
+fi
+
+[[ "$failed" -eq 0 ]]

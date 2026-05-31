@@ -73,19 +73,19 @@ alias h='history'
 
 # Git shortcuts
 # alias gs='git status'
-alias ga='git add'
-alias gc='git commit'
-alias gp='git push'
-alias gpl='git pull'
-alias gco='git checkout'
-alias gb='git branch'
-alias gd='git diff'
-alias gl='git log --oneline --graph'
-alias glog='git log --oneline --graph --all --decorate'
+# alias ga='git add'
+# alias gc='git commit'
+# alias gp='git push'
+# alias gpl='git pull'
+# alias gco='git checkout'
+# alias gb='git branch'
+# alias gd='git diff'
+# alias gl='git log --oneline --graph'
+# alias glog='git log --oneline --graph --all --decorate'
 
 # gh cli shortcuts
-alias gw='gh run watch'
-alias grl='gh run list -L 10'
+# alias gw='gh run watch'
+# alias grl='gh run list -L 10'
 
 
 # Tmux shortcuts

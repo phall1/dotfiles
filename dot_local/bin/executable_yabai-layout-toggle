@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Toggle current yabai space between bsp (tiling) and float (normal).
+# Triggers a sketchybar custom event so the indicator updates immediately.
+set -euo pipefail
+
+current=$(yabai -m query --spaces --space | jq -r '.type')
+case "$current" in
+  float) next=bsp ;;
+  *)     next=float ;;
+esac
+
+yabai -m space --layout "$next"
+sketchybar --trigger yabai_layout_change layout="$next" >/dev/null 2>&1 || true

@@ -76,6 +76,7 @@ alt - f       : yabai -m window --toggle zoom-fullscreen
 shift + alt - f : yabai -m window --toggle native-fullscreen
 alt - t       : yabai -m window --toggle float --grid 4:4:1:1:2:2  # float centered
 alt - p       : yabai -m window --toggle sticky --toggle topmost   # pin on top
+cmd + alt - 0 : yabai-layout-toggle                                # toggle space: bsp <-> float
 
 # ─── Cheat sheet popup ──────────────────────────────────────────────────────
 # alt + / opens a floating Ghostty with the rice cheat sheet rendered via bat.

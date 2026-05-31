@@ -85,6 +85,17 @@ sketchybar --add item space_windows left \
                                script="$PLUGIN_DIR/space_windows.sh" \
            --subscribe space_windows space_windows_change windows_on_spaces
 
+# Yabai layout indicator (click or cmd+alt+0 to toggle bsp <-> float)
+sketchybar --add event yabai_layout_change
+sketchybar --add item yabai_layout left \
+           --set yabai_layout icon="" \
+                              icon.padding_left=12 \
+                              label.padding_right=12 \
+                              background.color=0xff313244 \
+                              click_script="yabai-layout-toggle" \
+                              script="$PLUGIN_DIR/yabai_layout.sh" \
+           --subscribe yabai_layout yabai_layout_change space_change
+
 # Small separator
 sketchybar --add item separator left \
            --set separator icon="" \

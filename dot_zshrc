@@ -57,12 +57,39 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
 
 # fnm (Node version manager — replaces nvm). --use-on-cd reads .nvmrc/.node-version.
-command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --shell zsh)"
+# --log-level error: the on-cd hook auto-runs `fnm use` in the shell's starting
+# dir, and at info level it prints "Using Node vX", which p10k flags as console
+# output during instant-prompt init. error level keeps real failures visible.
+command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --log-level error --shell zsh)"
 
-# direnv — handles .envrc (full bash, `direnv allow` security model).
-# Kept for repos that use it. The simpler chpwd hook below handles .env files
-# that direnv doesn't touch.
-command -v direnv &>/dev/null && eval "$(direnv hook zsh)"
+# direnv — LAZY. The normal `direnv hook zsh` forks `direnv export` on *every*
+# prompt, even in dirs with no .envrc — a per-command tax you pay everywhere.
+# Instead we install the real hook only the first time you cd into a tree that
+# actually contains an .envrc, then unhook this probe. Cost in non-direnv dirs:
+# one [[ -e ]] stat per cd, no fork.
+# DIRENV_LOG_FORMAT="": silence "direnv: loading/export" status lines (they'd
+# print after p10k's instant-prompt preamble). The red "blocked, run `direnv
+# allow`" error goes to stderr regardless and still shows.
+if command -v direnv &>/dev/null; then
+  export DIRENV_LOG_FORMAT=""
+  autoload -Uz add-zsh-hook
+  _direnv_lazy_load() {
+    local d=$PWD
+    while true; do
+      if [[ -e "$d/.envrc" || -e "$d/.envrc.local" ]]; then
+        add-zsh-hook -d chpwd _direnv_lazy_load
+        unfunction _direnv_lazy_load
+        eval "$(direnv hook zsh)"
+        _direnv_hook   # load the .envrc for the current dir now
+        return
+      fi
+      [[ "$d" == "/" ]] && break
+      d=${d:h}
+    done
+  }
+  add-zsh-hook chpwd _direnv_lazy_load
+  _direnv_lazy_load   # also check the shell's starting directory
+fi
 
 # Auto-source plain .env on cd (cheap, no fork+exec). Complements direnv's
 # heavier .envrc handling — they target different filenames, no conflict.
@@ -72,11 +99,13 @@ _load_local_env() {
 autoload -Uz add-zsh-hook
 add-zsh-hook chpwd _load_local_env
 
-# FZF
-[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
-
-# Atuin (shell history)
-command -v atuin &>/dev/null && eval "$(atuin init zsh)"
+# FZF — Ctrl+R fuzzy history search + Ctrl+T file search. This is our
+# reverse-search now (replaced atuin, which taxed every command with a sqlite
+# write). Native zsh history below is the backing store. `fzf --zsh` (fzf
+# >= 0.48) binds ^R in emacs/viins/vicmd, so it survives our vi mode.
+# NOTE: the old `source ~/.fzf.zsh` was dead — that file never existed, atuin
+# had been masking the missing Ctrl+R binding.
+command -v fzf &>/dev/null && eval "$(fzf --zsh)"
 
 # ============================================================================
 # Modular Config Loading
@@ -108,6 +137,17 @@ fi
 # Vi mode
 bindkey -v
 export KEYTIMEOUT=1
+
+# Up/Down do prefix history search: type a few chars, press Up to cycle only
+# matching history entries (the ergonomic bit atuin gave us, with zero cost).
+# Must run AFTER `bindkey -v` — vi mode resets the keymap and would drop these.
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search    # Up
+bindkey '^[OA' up-line-or-beginning-search    # Up (application/cursor-key mode)
+bindkey '^[[B' down-line-or-beginning-search  # Down
+bindkey '^[OB' down-line-or-beginning-search  # Down (application/cursor-key mode)
 
 # ============================================================================
 # Completion System
@@ -173,6 +213,8 @@ HISTFILE=~/.zsh_history
 setopt SHARE_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_SPACE
+setopt HIST_FIND_NO_DUPS    # skip duplicates when cycling Ctrl+R / Up-search
+setopt HIST_REDUCE_BLANKS   # tidy whitespace before saving
 
 # Editor lives in .zshenv (always-loaded).
 

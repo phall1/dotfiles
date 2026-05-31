@@ -1,4 +1,3 @@
-theme = twenty.ghostty
 auto-update = download
 
 # ===========================
@@ -17,15 +16,33 @@ font-thicken = true
 font-thicken-strength = 50
 
 # ===========================
-# COLORS (theme override)
+# COLORS — "Warp deep blue" (self-contained, no base theme)
 # ===========================
-background = #1a1b24
-foreground = #d0d0de
-cursor-color = #dcccc6
+background = #0c1018
+foreground = #c8d3e0
+cursor-color = #2dd4bf
 cursor-style = block
 cursor-style-blink = false
-selection-background = #484858
-selection-foreground = #d0d0de
+selection-background = #1e2738
+selection-foreground = #e2e8f0
+
+# ANSI 16 — deep blue base, vibrant saturated accents
+palette = 0=#1a2230
+palette = 1=#f87171
+palette = 2=#34d399
+palette = 3=#fbbf24
+palette = 4=#3b82f6
+palette = 5=#a78bfa
+palette = 6=#2dd4bf
+palette = 7=#c8d3e0
+palette = 8=#45556c
+palette = 9=#fb7185
+palette = 10=#4ade80
+palette = 11=#fcd34d
+palette = 12=#60a5fa
+palette = 13=#c084fc
+palette = 14=#5eead4
+palette = 15=#f1f5f9
 
 # ===========================
 # WINDOW & APPEARANCE
@@ -33,19 +50,23 @@ selection-foreground = #d0d0de
 window-padding-x = 4
 window-padding-y = 4
 window-padding-balance = true
-background-opacity = 0.95
-background-blur = true
+background-opacity = 1.0
+background-blur = false
 # "transparent" = clean look, tab bar only shows with 2+ tabs
 # "tabs" = always shows tab bar (good if you use tabs a lot)
 # "hidden" = no titlebar at all (tabs become separate windows)
 macos-titlebar-style = transparent
+macos-window-buttons = hidden
 macos-icon = xray
 macos-window-shadow = true
+# Non-native fullscreen — avoids macOS's slow space-swap animation and the
+# native fullscreen menubar/dock dance; plays nicer with yabai + sketchybar.
+macos-non-native-fullscreen = visible-menu
 minimum-contrast = 1.1
 
 # Unfocused split dimming
 unfocused-split-opacity = 0.85
-split-divider-color = #484858
+split-divider-color = #1e2738
 
 # ===========================
 # CURSOR & MOUSE

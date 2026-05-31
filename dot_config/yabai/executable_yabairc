@@ -12,12 +12,17 @@
 yabai -m config layout                       bsp
 yabai -m config window_placement             second_child
 
+# ─── External bar — reserve sketchybar's 36px at top so tiling math is right
+yabai -m config external_bar                 all:36:0
+
 # ─── Gaps & padding ─────────────────────────────────────────────────────────
-yabai -m config top_padding                  4
-yabai -m config bottom_padding               4
-yabai -m config left_padding                 4
-yabai -m config right_padding                4
-yabai -m config window_gap                   4
+# top_padding = 0 → windows butt up against sketchybar (no double gap up top).
+# external_bar above already accounts for the bar's height.
+yabai -m config top_padding                  0
+yabai -m config bottom_padding               6
+yabai -m config left_padding                 6
+yabai -m config right_padding                6
+yabai -m config window_gap                   6
 
 # ─── Mouse ──────────────────────────────────────────────────────────────────
 yabai -m config mouse_follows_focus          off
@@ -63,5 +68,24 @@ yabai -m rule --add app="^[gG]hostty$" title="^Quick Terminal" manage=off
 yabai -m signal --add event=window_focused   action="sketchybar --trigger window_focus"
 yabai -m signal --add event=window_created   action="sketchybar --trigger windows_on_spaces"
 yabai -m signal --add event=window_destroyed action="sketchybar --trigger windows_on_spaces"
+
+# Ghostty native macOS tabs briefly spawn a real window before merging into the
+# tab group — yabai tiles it (splitting the layout in half), then it merges
+# and the layout stays half-empty. Wait for the merge then re-balance.
+yabai -m signal --add event=window_created app="^[gG]hostty$" \
+  action='sleep 0.15; yabai -m space --balance 2>/dev/null'
+yabai -m signal --add event=window_destroyed app="^[gG]hostty$" \
+  action='sleep 0.15; yabai -m space --balance 2>/dev/null'
+
+# Auto-padding: 0 when solo / native fullscreen, 6 when 2+ windows on space.
+# Script source: dot_local/bin/executable_yabai-pad-auto
+yabai -m signal --add event=window_created         action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=window_destroyed       action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=window_focused         action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=window_minimized       action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=window_deminimized     action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=space_changed          action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=application_launched   action='~/.local/bin/yabai-pad-auto'
+yabai -m signal --add event=application_terminated action='~/.local/bin/yabai-pad-auto'
 
 echo "yabai configuration loaded"

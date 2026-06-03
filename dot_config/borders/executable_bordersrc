@@ -8,8 +8,8 @@ options=(
   style=round
   width=2.0
   hidpi=on
-  active_color=0xff89b4fa
-  inactive_color=0xff45475a
+  active_color=0xff45d0bd
+  inactive_color=0xff1d3035
   background_color=0x00000000
 )
 

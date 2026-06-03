@@ -8,16 +8,16 @@ CHARGING=$(pmset -g batt | grep 'AC Power')
 if [ -z "$PERCENTAGE" ]; then exit 0; fi
 
 case "${PERCENTAGE}" in
-  9[0-9]|100) ICON=""; COLOR=0xffa6e3a1 ;;
-  [6-8][0-9]) ICON=""; COLOR=0xffa6e3a1 ;;
-  [3-5][0-9]) ICON=""; COLOR=0xfff9e2af ;;
-  [1-2][0-9]) ICON=""; COLOR=0xfffab387 ;;
-  *)          ICON=""; COLOR=0xfff38ba8 ;;
+  9[0-9]|100) ICON=""; COLOR=0xff7fae8b ;;
+  [6-8][0-9]) ICON=""; COLOR=0xff7fae8b ;;
+  [3-5][0-9]) ICON=""; COLOR=0xffd6a84f ;;
+  [1-2][0-9]) ICON=""; COLOR=0xffc27a4a ;;
+  *)          ICON=""; COLOR=0xffe45f57 ;;
 esac
 
 if [ -n "$CHARGING" ]; then
   ICON=""
-  COLOR=0xff89b4fa
+  COLOR=0xff45d0bd
 fi
 
 sketchybar --set "$NAME" icon="$ICON" \

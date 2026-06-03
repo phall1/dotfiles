@@ -1,31 +1,28 @@
--- Twenty — soft aesthetic neovim theme
+-- Blackwater Rust — blackened water with oxidized signal accents.
 
 local M = {}
 
 M.colors = {
-    bg = "#1a1b24",
-    fg = "#d0d0de",
-    selection = "#484858",
-    comment = "#7a7a8e",
-    cursor = "#dcccc6",
+    bg = "#071012",
+    bg_dark = "#05090b",
+    bg_light = "#111b1f",
+    selection = "#1d3035",
+    fg = "#c5d0cd",
+    fg_bright = "#e6efeb",
+    comment = "#60706e",
+    dim = "#425250",
 
-    black = "#111118",
-    bg_dark = "#151620",
-    bg_light = "#2a2b36",
-    gray = "#7a7a8a",
-    light_gray = "#a8a8b8",
+    black = "#081114",
+    red = "#e45f57",
+    green = "#7fae8b",
+    yellow = "#d6a84f",
+    blue = "#6f9fbd",
+    magenta = "#9b8ac5",
+    cyan = "#45d0bd",
+    orange = "#c27a4a",
+    brass = "#b99a5f",
 
-    red = "#e08a9e",
-    green = "#95d194",
-    yellow = "#e4cfa0",
-    yellow_dim = "#e0c4a0",
-    blue = "#7da4e4",
-    magenta = "#b89aad",
-    cyan = "#86cfc3",
-    orange = "#e2a17c",
-    sand = "#d4b88c",
-
-    none = "NONE"
+    none = "NONE",
 }
 
 function M.setup()
@@ -36,41 +33,50 @@ function M.setup()
 
     vim.o.background = "dark"
     vim.o.termguicolors = true
-    vim.g.colors_name = "twenty"
+    vim.g.colors_name = "blackwater-rust"
 
     local c = M.colors
 
     local groups = {
         -- Editor UI
         Normal = { fg = c.fg, bg = c.bg },
+        NormalNC = { fg = c.fg, bg = c.bg },
         SignColumn = { fg = c.fg, bg = c.bg },
         MsgArea = { fg = c.fg, bg = c.bg },
         ModeMsg = { fg = c.yellow, style = "bold" },
+        MoreMsg = { fg = c.cyan, style = "bold" },
         MsgSeparator = { fg = c.selection, bg = c.bg },
-        SpellBad = { fg = c.red, style = "undercurl" },
-        SpellCap = { fg = c.yellow, style = "undercurl" },
-        SpellLocal = { fg = c.cyan, style = "undercurl" },
+        SpellBad = { sp = c.red, style = "undercurl" },
+        SpellCap = { sp = c.yellow, style = "undercurl" },
+        SpellLocal = { sp = c.cyan, style = "undercurl" },
         Pmenu = { fg = c.fg, bg = c.bg_dark },
-        PmenuSel = { fg = c.bg_dark, bg = c.yellow, style = "bold" },
+        PmenuSel = { fg = c.bg_dark, bg = c.cyan, style = "bold" },
         PmenuSbar = { bg = c.selection },
         PmenuThumb = { bg = c.comment },
         TabLine = { fg = c.comment, bg = c.bg_dark },
-        TabLineSel = { fg = c.bg, bg = c.fg, style = "bold" },
+        TabLineSel = { fg = c.bg_dark, bg = c.fg, style = "bold" },
         TabLineFill = { bg = c.bg },
         CursorColumn = { bg = c.bg_light },
         CursorLine = { bg = c.bg_light },
         ColorColumn = { bg = c.bg_light },
-        Cursor = { fg = c.bg, bg = c.cursor },
-        LineNr = { fg = c.gray },
-        CursorLineNr = { fg = c.fg, style = "bold" },
+        Cursor = { fg = c.bg, bg = c.cyan },
+        lCursor = { fg = c.bg, bg = c.yellow },
+        LineNr = { fg = c.dim },
+        CursorLineNr = { fg = c.yellow, style = "bold" },
         VertSplit = { fg = c.selection, bg = c.bg },
         WinSeparator = { fg = c.selection, bg = c.bg },
         StatusLine = { fg = c.fg, bg = c.selection },
         StatusLineNC = { fg = c.comment, bg = c.bg_dark },
         Visual = { fg = c.fg, bg = c.selection },
-        Search = { fg = c.bg, bg = c.yellow },
-        IncSearch = { fg = c.bg, bg = c.orange },
+        Search = { fg = c.bg_dark, bg = c.yellow },
+        IncSearch = { fg = c.bg_dark, bg = c.orange },
+        CurSearch = { fg = c.bg_dark, bg = c.orange, style = "bold" },
         MatchParen = { fg = c.yellow, style = "bold,underline" },
+        Folded = { fg = c.comment, bg = c.bg_light },
+        FoldColumn = { fg = c.dim, bg = c.bg },
+        NonText = { fg = c.dim },
+        SpecialKey = { fg = c.dim },
+        Whitespace = { fg = c.dim },
 
         -- Syntax
         Comment = { fg = c.comment, style = "italic" },
@@ -85,8 +91,8 @@ function M.setup()
         Statement = { fg = c.orange },
         Conditional = { fg = c.orange },
         Repeat = { fg = c.orange },
-        Label = { fg = c.cyan },
-        Operator = { fg = c.light_gray },
+        Label = { fg = c.brass },
+        Operator = { fg = c.fg },
         Keyword = { fg = c.orange },
         Exception = { fg = c.red, style = "bold" },
         PreProc = { fg = c.magenta },
@@ -97,15 +103,15 @@ function M.setup()
         StorageClass = { fg = c.orange },
         Structure = { fg = c.blue },
         Typedef = { fg = c.blue },
-        Special = { fg = c.yellow_dim },
-        SpecialChar = { fg = c.yellow_dim },
-        Tag = { fg = c.yellow_dim },
-        Delimiter = { fg = c.light_gray },
+        Special = { fg = c.brass },
+        SpecialChar = { fg = c.brass },
+        Tag = { fg = c.brass },
+        Delimiter = { fg = c.fg },
         SpecialComment = { fg = c.comment, style = "bold" },
         Debug = { fg = c.red },
-        Underlined = { style = "underline" },
+        Underlined = { fg = c.blue, style = "underline" },
         Error = { fg = c.red, style = "bold" },
-        Todo = { fg = c.bg, bg = c.yellow, style = "bold" },
+        Todo = { fg = c.bg_dark, bg = c.yellow, style = "bold" },
 
         -- Treesitter / LSP
         ["@variable"] = { fg = c.fg },
@@ -129,48 +135,58 @@ function M.setup()
         ["@type.builtin"] = { fg = c.blue, style = "bold" },
         ["@type.qualifier"] = { fg = c.orange },
         ["@constructor"] = { fg = c.blue },
-        ["@property"] = { fg = c.yellow_dim },
-        ["@field"] = { fg = c.yellow_dim },
+        ["@property"] = { fg = c.brass },
+        ["@field"] = { fg = c.brass },
         ["@parameter"] = { fg = c.fg, style = "italic" },
         ["@attribute"] = { fg = c.magenta },
         ["@attribute.builtin"] = { fg = c.magenta },
-        ["@operator"] = { fg = c.light_gray },
-        ["@punctuation"] = { fg = c.light_gray },
-        ["@punctuation.bracket"] = { fg = c.light_gray },
-        ["@punctuation.delimiter"] = { fg = c.light_gray },
+        ["@operator"] = { fg = c.fg },
+        ["@punctuation"] = { fg = c.fg },
+        ["@punctuation.bracket"] = { fg = c.comment },
+        ["@punctuation.delimiter"] = { fg = c.comment },
         ["@string"] = { fg = c.green },
-        ["@string.escape"] = { fg = c.yellow_dim },
+        ["@string.escape"] = { fg = c.brass },
         ["@number"] = { fg = c.yellow },
         ["@boolean"] = { fg = c.cyan, style = "bold" },
         ["@module"] = { fg = c.fg },
         ["@namespace"] = { fg = c.fg },
 
+        -- Diagnostics
+        DiagnosticError = { fg = c.red },
+        DiagnosticWarn = { fg = c.yellow },
+        DiagnosticInfo = { fg = c.blue },
+        DiagnosticHint = { fg = c.cyan },
+        DiagnosticUnderlineError = { sp = c.red, style = "undercurl" },
+        DiagnosticUnderlineWarn = { sp = c.yellow, style = "undercurl" },
+        DiagnosticUnderlineInfo = { sp = c.blue, style = "undercurl" },
+        DiagnosticUnderlineHint = { sp = c.cyan, style = "undercurl" },
+
         -- Gitsigns
         GitSignsAdd = { fg = c.green },
-        GitSignsChange = { fg = c.blue },
+        GitSignsChange = { fg = c.yellow },
         GitSignsDelete = { fg = c.red },
 
         -- Telescope
-        TelescopeBorder = { fg = c.gray },
-        TelescopePromptBorder = { fg = c.gray },
-        TelescopeResultsBorder = { fg = c.gray },
-        TelescopePreviewBorder = { fg = c.gray },
+        TelescopeBorder = { fg = c.dim, bg = c.bg },
+        TelescopePromptBorder = { fg = c.dim, bg = c.bg_dark },
+        TelescopeResultsBorder = { fg = c.dim, bg = c.bg },
+        TelescopePreviewBorder = { fg = c.dim, bg = c.bg },
+        TelescopePromptNormal = { fg = c.fg, bg = c.bg_dark },
+        TelescopePromptPrefix = { fg = c.cyan, bg = c.bg_dark },
         TelescopeMatching = { fg = c.yellow, style = "bold" },
-        TelescopeSelection = { fg = c.fg, bg = c.selection },
+        TelescopeSelection = { fg = c.fg_bright, bg = c.selection },
 
         -- Floating windows
         NormalFloat = { fg = c.fg, bg = c.bg_light },
-        FloatBorder = { fg = c.gray, bg = c.bg_light },
+        FloatBorder = { fg = c.dim, bg = c.bg_light },
 
-        -- Directory
-        Directory = { fg = c.sand },
-
-        -- Neo-tree
-        NeoTreeDirectoryIcon = { fg = c.sand },
-        NeoTreeDirectoryName = { fg = c.sand },
+        -- Directory / file explorers
+        Directory = { fg = c.blue },
+        NeoTreeDirectoryIcon = { fg = c.blue },
+        NeoTreeDirectoryName = { fg = c.blue },
         NeoTreeFileName = { fg = c.fg },
-        NeoTreeIndentMarker = { fg = c.gray },
-        NeoTreeRootName = { fg = c.sand, style = "bold" },
+        NeoTreeIndentMarker = { fg = c.dim },
+        NeoTreeRootName = { fg = c.cyan, style = "bold" },
         NeoTreeGitAdded = { fg = c.green },
         NeoTreeGitModified = { fg = c.yellow },
         NeoTreeGitDeleted = { fg = c.red },
@@ -178,15 +194,18 @@ function M.setup()
     }
 
     for group, highlight in pairs(groups) do
-        local style = highlight.style and "gui=" .. highlight.style or "gui=NONE"
-        local fg = highlight.fg and "guifg=" .. highlight.fg or "guifg=NONE"
-        local bg = highlight.bg and "guibg=" .. highlight.bg or "guibg=NONE"
-        local sp = highlight.sp and "guisp=" .. highlight.sp or ""
-        vim.cmd(string.format("highlight %s %s %s %s %s", group, style, fg, bg, sp))
+        vim.api.nvim_set_hl(0, group, {
+            fg = highlight.fg,
+            bg = highlight.bg,
+            sp = highlight.sp,
+            bold = highlight.style and highlight.style:find("bold", 1, true) ~= nil or nil,
+            italic = highlight.style and highlight.style:find("italic", 1, true) ~= nil or nil,
+            underline = highlight.style and highlight.style:find("underline", 1, true) ~= nil or nil,
+            undercurl = highlight.style and highlight.style:find("undercurl", 1, true) ~= nil or nil,
+        })
     end
 end
 
--- Allow :colorscheme twenty to work
 M.setup()
 
 return M

@@ -1,33 +1,33 @@
-# Lazygit configuration with Twenty theme
+# Lazygit configuration with Blackwater Rust theme
 # Place at ~/.config/lazygit/config.yml
 
 # ============================================
 # GUI SETTINGS
 # ============================================
 gui:
-  # Theme colors matching Twenty theme
+  # Theme colors matching Blackwater Rust.
   theme:
     activeBorderColor:
-      - "#d4b88c"  # Sand - active panel border
+      - "#45d0bd"  # Teal - active panel border
       - "bold"
     inactiveBorderColor:
-      - "#555562"  # Gray - inactive panel border
+      - "#425250"  # Dim slate - inactive panel border
     optionsTextColor:
-      - "#95d194"  # Green - options text
+      - "#7fae8b"  # Green - options text
     selectedLineBgColor:
-      - "#3e3e48"  # Selection background
+      - "#1d3035"  # Selection background
     selectedRangeBgColor:
-      - "#3e3e48"  # Selection background
+      - "#1d3035"  # Selection background
     cherryPickedCommitBgColor:
-      - "#b89aad"  # Mauve
+      - "#9b8ac5"  # Violet
     cherryPickedCommitFgColor:
-      - "#b8b8c8"  # Foreground
+      - "#c5d0cd"  # Foreground
     unstagedChangesColor:
-      - "#e08a9e"  # Pink - unstaged
+      - "#d6a84f"  # Amber - unstaged
     defaultFgColor:
-      - "#b8b8c8"  # Default foreground
+      - "#c5d0cd"  # Default foreground
     searchingActiveBorderColor:
-      - "#e4cfa0"  # Yellow for search
+      - "#d6a84f"  # Amber for search
 
   # Nicer UI elements
   showIcons: true

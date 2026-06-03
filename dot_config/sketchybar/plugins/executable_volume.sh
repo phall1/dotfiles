@@ -5,10 +5,10 @@
 VOLUME="${INFO:-$(osascript -e 'output volume of (get volume settings)')}"
 
 case "$VOLUME" in
-  [6-9][0-9]|100) ICON=""; COLOR=0xffa6e3a1 ;;
-  [3-5][0-9])     ICON=""; COLOR=0xffcdd6f4 ;;
-  [1-9]|[1-2][0-9]) ICON=""; COLOR=0xff6c7086 ;;
-  *)              ICON=""; COLOR=0xff6c7086 ;;
+  [6-9][0-9]|100) ICON=""; COLOR=0xff7fae8b ;;
+  [3-5][0-9])     ICON=""; COLOR=0xffc5d0cd ;;
+  [1-9]|[1-2][0-9]) ICON=""; COLOR=0xff60706e ;;
+  *)              ICON=""; COLOR=0xff60706e ;;
 esac
 
 sketchybar --set "$NAME" icon="$ICON" \

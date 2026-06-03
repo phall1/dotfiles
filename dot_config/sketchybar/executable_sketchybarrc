@@ -4,10 +4,10 @@
 # Reload: sketchybar --reload   (or "ctrl + alt + cmd - r" via skhd)
 # Docs:   https://felixkratz.github.io/SketchyBar/
 #
-# Palette — Catppuccin Mocha:
-#   BAR_BG=ee1e1e2e  ITEM_BG=ff313244  ALT_BG=ff45475a  FG=ffcdd6f4
-#   DIM=ff6c7086    ACCENT=ff89b4fa   GREEN=ffa6e3a1   YELLOW=fff9e2af
-#   ORANGE=fffab387 RED=fff38ba8      MAUVE=ffcba6f7
+# Palette — Blackwater Rust:
+#   BAR_BG=ee071012  ITEM_BG=ff111b1f  ALT_BG=ff1d3035  FG=ffc5d0cd
+#   DIM=ff60706e    ACCENT=ff45d0bd   GREEN=ff7fae8b   YELLOW=ffd6a84f
+#   ORANGE=ffc27a4a RED=ffe45f57      VIOLET=ff9b8ac5
 
 PLUGIN_DIR="$CONFIG_DIR/plugins"
 source "$PLUGIN_DIR/icon_map.sh" 2>/dev/null || source "$PLUGIN_DIR/icon_map.sh"
@@ -16,7 +16,7 @@ source "$PLUGIN_DIR/icon_map.sh" 2>/dev/null || source "$PLUGIN_DIR/icon_map.sh"
 sketchybar --bar position=top \
                  height=36 \
                  blur_radius=30 \
-                 color=0xee1e1e2e \
+                 color=0xee071012 \
                  padding_left=8 \
                  padding_right=8 \
                  corner_radius=0 \
@@ -29,14 +29,14 @@ sketchybar --bar position=top \
 # ─── Default item style (pill base) ─────────────────────────────────────────
 sketchybar --default updates=when_shown \
                      icon.font="JetBrainsMono Nerd Font:Bold:14.0" \
-                     icon.color=0xffcdd6f4 \
+                     icon.color=0xffc5d0cd \
                      icon.padding_left=10 \
                      icon.padding_right=4 \
                      label.font="JetBrainsMono Nerd Font:Semibold:13.0" \
-                     label.color=0xffcdd6f4 \
+                     label.color=0xffc5d0cd \
                      label.padding_left=4 \
                      label.padding_right=10 \
-                     background.color=0xff313244 \
+                     background.color=0xff111b1f \
                      background.corner_radius=13 \
                      background.height=26 \
                      background.drawing=on \
@@ -51,11 +51,11 @@ sketchybar --default updates=when_shown \
 sketchybar --add item apple.logo left \
            --set apple.logo icon="" \
                             icon.font="JetBrainsMono Nerd Font:Bold:16.0" \
-                            icon.color=0xff1e1e2e \
+                            icon.color=0xff071012 \
                             icon.padding_left=12 \
                             icon.padding_right=12 \
                             label.drawing=off \
-                            background.color=0xff89b4fa \
+                            background.color=0xff45d0bd \
                             click_script="open -a 'System Settings'"
 
 # Space pills (1-9)
@@ -67,13 +67,13 @@ for i in "${!SPACE_ICONS[@]}"; do
                                 icon="${SPACE_ICONS[i]}" \
                                 icon.padding_left=10 \
                                 icon.padding_right=10 \
-                                icon.color=0xff6c7086 \
+                                icon.color=0xff60706e \
                                 label.font="sketchybar-app-font:Regular:14.0" \
                                 label.padding_right=10 \
-                                label.color=0xffcdd6f4 \
+                                label.color=0xffc5d0cd \
                                 label.y_offset=-1 \
                                 label.drawing=off \
-                                background.color=0xff313244 \
+                                background.color=0xff111b1f \
                                 script="$PLUGIN_DIR/space.sh" \
                                 click_script="yabai -m space --focus $sid"
 done
@@ -91,7 +91,7 @@ sketchybar --add item yabai_layout left \
            --set yabai_layout icon="" \
                               icon.padding_left=12 \
                               label.padding_right=12 \
-                              background.color=0xff313244 \
+                              background.color=0xff111b1f \
                               click_script="yabai-layout-toggle" \
                               script="$PLUGIN_DIR/yabai_layout.sh" \
            --subscribe yabai_layout yabai_layout_change space_change
@@ -105,13 +105,13 @@ sketchybar --add item separator left \
 
 # Front app pill (app-font glyph + name)
 sketchybar --add item front_app left \
-           --set front_app background.color=0xff45475a \
+           --set front_app background.color=0xff1d3035 \
                            icon.font="sketchybar-app-font:Regular:16.0" \
-                           icon.color=0xff89b4fa \
+                           icon.color=0xff45d0bd \
                            icon.padding_left=12 \
                            icon.padding_right=6 \
                            label.font="JetBrainsMono Nerd Font:Bold:13.0" \
-                           label.color=0xffcdd6f4 \
+                           label.color=0xffc5d0cd \
                            label.padding_right=12 \
                            script="$PLUGIN_DIR/front_app.sh" \
            --subscribe front_app front_app_switched
@@ -124,20 +124,20 @@ sketchybar --add item front_app left \
 sketchybar --add item cpu right \
            --set cpu update_freq=5 \
                      icon="" \
-                     icon.color=0xfffab387 \
+                     icon.color=0xffc27a4a \
                      icon.padding_left=12 \
                      label.padding_right=12 \
-                     background.color=0xff313244 \
+                     background.color=0xff111b1f \
                      script="$PLUGIN_DIR/cpu.sh"
 
 # ─── WiFi ───────────────────────────────────────────────────────────────────
 sketchybar --add item wifi right \
            --set wifi update_freq=30 \
                       icon="" \
-                      icon.color=0xff89b4fa \
+                      icon.color=0xff45d0bd \
                       icon.padding_left=12 \
                       label.padding_right=12 \
-                      background.color=0xff313244 \
+                      background.color=0xff111b1f \
                       script="$PLUGIN_DIR/wifi.sh" \
            --subscribe wifi wifi_change system_woke
 
@@ -160,7 +160,7 @@ sketchybar --add item battery right \
            --subscribe battery system_woke power_source_change
 
 sketchybar --add bracket system_bracket battery volume \
-           --set system_bracket background.color=0xff313244 \
+           --set system_bracket background.color=0xff111b1f \
                                 background.corner_radius=13 \
                                 background.height=26 \
                                 background.drawing=on
@@ -169,7 +169,7 @@ sketchybar --add bracket system_bracket battery volume \
 sketchybar --add item calendar right \
            --set calendar update_freq=60 \
                           icon="" \
-                          icon.color=0xffcba6f7 \
+                          icon.color=0xff9b8ac5 \
                           icon.padding_left=12 \
                           label.padding_right=8 \
                           background.drawing=off \
@@ -178,14 +178,14 @@ sketchybar --add item calendar right \
 sketchybar --add item clock right \
            --set clock update_freq=10 \
                        icon="" \
-                       icon.color=0xff89b4fa \
+                       icon.color=0xff45d0bd \
                        icon.padding_left=4 \
                        label.padding_right=12 \
                        background.drawing=off \
                        script="$PLUGIN_DIR/clock.sh"
 
 sketchybar --add bracket time_bracket clock calendar \
-           --set time_bracket background.color=0xff45475a \
+           --set time_bracket background.color=0xff1d3035 \
                               background.corner_radius=13 \
                               background.height=26 \
                               background.drawing=on

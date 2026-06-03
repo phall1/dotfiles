@@ -1,5 +1,5 @@
 {
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
-  "theme": "dark"
+  "theme": "blackwater-rust"
 }

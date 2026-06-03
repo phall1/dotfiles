@@ -1,8 +1,8 @@
 # Pi Config TODO
 
 ## Themes
-- [ ] Activate `twenty.json` theme (add `"theme": "twenty"` to settings.json)
-- [ ] Tweak twenty theme colors to match Ghostty/nvim setup
+- [x] Activate `blackwater-rust.json` theme
+- [x] Align agent theme colors with Ghostty/nvim setup
 - [ ] Try built-in `dark` / `light` to compare
 
 ## Extensions to Explore

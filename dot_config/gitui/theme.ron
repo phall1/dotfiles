@@ -1,22 +1,22 @@
 (
-    background: "#1e1e22",
-    foreground: "#b8b8c8",
+    background: "#071012",
+    foreground: "#c5d0cd",
 
-    selected_bg: "#3e3e48",
-    selection_bg: "#3e3e48",
+    selected_bg: "#1d3035",
+    selection_bg: "#1d3035",
 
-    diff_line_add: "#95d194",
-    diff_line_delete: "#e08a9e",
-    diff_file_added: "#95d194",
-    diff_file_removed: "#e08a9e",
-    diff_file_moved: "#7da4e4",
-    diff_file_modified: "#e4cfa0",
+    diff_line_add: "#7fae8b",
+    diff_line_delete: "#e45f57",
+    diff_file_added: "#7fae8b",
+    diff_file_removed: "#e45f57",
+    diff_file_moved: "#6f9fbd",
+    diff_file_modified: "#d6a84f",
 
-    commit_hash: "#95d194",
-    commit_author: "#7da4e4",
-    commit_time: "#b89aad",
+    commit_hash: "#7fae8b",
+    commit_author: "#6f9fbd",
+    commit_time: "#9b8ac5",
 
-    branch_tag: "#e4cfa0",
-    branch_local: "#95d194",
-    branch_remote: "#7da4e4",
+    branch_tag: "#d6a84f",
+    branch_local: "#7fae8b",
+    branch_remote: "#6f9fbd",
 )

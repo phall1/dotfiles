@@ -42,20 +42,22 @@ Install everything from scratch: `~/dotfiles/scripts/bootstrap-darwin.sh`.
 ## Common edits (the cheat sheet)
 
 ### Change the color palette
-All four configs use the same Catppuccin Mocha palette. Search and replace these hex codes across `dot_config/{yabai,sketchybar,borders}/`:
+The desktop chrome uses the same Blackwater Rust palette as Ghostty, Neovim, and the shell prompt. Search and replace these hex codes across `dot_config/{ghostty,nvim,sketchybar,borders}/` and `dot_p10k.zsh`:
 
 | Role | Current | Where it lives |
 |---|---|---|
-| Bar background | `0xee1e1e2e` | `sketchybarrc` `--bar` color |
-| Foreground text | `0xffcdd6f4` | `sketchybarrc` defaults + plugin scripts |
-| Accent (active space, border, apple) | `0xff89b4fa` | `sketchybarrc` + `bordersrc` `active_color` |
-| Dim (inactive border, inactive space) | `0xff45475a` | `bordersrc` `inactive_color` + `space.sh` |
-| Battery green/yellow/red | `a6e3a1` / `f9e2af` / `f38ba8` | `plugins/battery.sh` |
+| Bar background | `0xee071012` | `sketchybarrc` `--bar` color |
+| Item surface | `0xff111b1f` | `sketchybarrc` default pill backgrounds |
+| Foreground text | `0xffc5d0cd` | `sketchybarrc` defaults + plugin scripts |
+| Accent (active space, border, apple) | `0xff45d0bd` | `sketchybarrc` + `bordersrc` `active_color` |
+| Dim (inactive border, inactive space) | `0xff1d3035` / `0xff60706e` | `bordersrc` `inactive_color` + `space.sh` |
+| Battery green/yellow/red | `7fae8b` / `d6a84f` / `e45f57` | `plugins/battery.sh` |
 
-Other palette ideas (just swap the hex blocks):
-- **Tokyo Night**: bg=`1a1b26`, fg=`c0caf5`, accent=`7aa2f7`, dim=`414868`
-- **Gruvbox**: bg=`282828`, fg=`ebdbb2`, accent=`83a598`, dim=`504945`
-- **Rose Pine**: bg=`191724`, fg=`e0def4`, accent=`c4a7e7`, dim=`403d52`
+Core palette roles:
+- **Blackwater**: bg=`071012`, bg_dark=`05090b`, bg_light=`111b1f`, selection=`1d3035`
+- **Text**: fg=`c5d0cd`, bright=`e6efeb`, comment=`60706e`, dim=`425250`
+- **Signal**: teal=`45d0bd`, blue=`6f9fbd`, green=`7fae8b`, violet=`9b8ac5`
+- **Rust**: amber=`d6a84f`, copper=`c27a4a`, coral=`e45f57`
 
 ### Change the modifier key
 `alt` is used everywhere in `skhd/skhdrc`. To swap to `cmd + alt`:
@@ -97,11 +99,11 @@ yabai -m rule --add app="^MyApp$" manage=off
 yabai --restart-service        # after editing yabairc
 # skhd-zig auto-reloads on edit — no manual reload needed for skhdrc changes.
 sketchybar --reload            # after editing sketchybarrc or plugins
-borders --reload               # after editing bordersrc
+~/.config/borders/bordersrc     # after editing bordersrc
 
 # Or just restart everything (also bound to ctrl+alt+cmd+r via skhd):
 yabai --restart-service && skhd --restart-service && \
-  sketchybar --reload && borders --reload
+  sketchybar --reload && ~/.config/borders/bordersrc
 ```
 
 To start fresh after install:

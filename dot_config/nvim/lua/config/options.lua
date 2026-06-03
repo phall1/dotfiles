@@ -36,4 +36,4 @@ do
 	end
 end
 
-vim.cmd("colorscheme twenty")
+vim.cmd("colorscheme blackwater-rust")

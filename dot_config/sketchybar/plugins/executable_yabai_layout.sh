@@ -11,20 +11,20 @@ fi
 case "$layout" in
   float)
     sketchybar --set "$NAME" icon="" \
-                             icon.color=0xfff38ba8 \
+                             icon.color=0xffe45f57 \
                              label="float" \
-                             label.color=0xfff38ba8
+                             label.color=0xffe45f57
     ;;
   stack)
     sketchybar --set "$NAME" icon="" \
-                             icon.color=0xfff9e2af \
+                             icon.color=0xffd6a84f \
                              label="stack" \
-                             label.color=0xfff9e2af
+                             label.color=0xffd6a84f
     ;;
   *)
     sketchybar --set "$NAME" icon="" \
-                             icon.color=0xffa6e3a1 \
+                             icon.color=0xff7fae8b \
                              label="bsp" \
-                             label.color=0xffa6e3a1
+                             label.color=0xff7fae8b
     ;;
 esac

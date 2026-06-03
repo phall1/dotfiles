@@ -1,4 +1,4 @@
-# Twenty — soft aesthetic prompt
+# Blackwater Rust — blackened water with oxidized signal accents.
 
 # Increase timeout for git operations (default 500ms is too aggressive)
 command_timeout = 2000
@@ -9,50 +9,50 @@ format = """$directory $git_branch$git_state$git_status$aws$gcloud${custom.githu
 $character"""
 
 [directory]
-style = "#d4b88c"
+style = "#6f9fbd"
 format = "[$path]($style)"
 truncation_length = 3
 truncate_to_repo = true
 
 [character]
-success_symbol = "[❯](#d4b88c)"
-error_symbol = "[❯](#e08a9e)"
-vimcmd_symbol = "[❮](#b89aad)"
+success_symbol = "[❯](#45d0bd)"
+error_symbol = "[❯](#e45f57)"
+vimcmd_symbol = "[❮](#9b8ac5)"
 
 # ── Git ──────────────────────────────────────────────────────────────────────
 [git_branch]
 format = "[$branch]($style)"
-style = "#86cfc3"
+style = "#7fae8b"
 symbol = ""
 
 [git_status]
 format = "[$all_status$ahead_behind]($style)"
-style = "#7a7a8e"
-conflicted = "[!](#e08a9e)"
-untracked = "[?](#68687a)"
-modified = "[~](#e4cfa0)"
-staged = "[+](#95d194)"
-renamed = "[»](#68687a)"
-deleted = "[✕](#e08a9e)"
-stashed = "[≡](#68687a)"
-ahead = "[↑${count}](#a8a8b8)"
-behind = "[↓${count}](#68687a)"
-diverged = "[↕${ahead_count}↓${behind_count}](#e08a9e)"
+style = "#60706e"
+conflicted = "[!](#e45f57)"
+untracked = "[?](#45d0bd)"
+modified = "[~](#d6a84f)"
+staged = "[+](#7fae8b)"
+renamed = "[»](#60706e)"
+deleted = "[✕](#e45f57)"
+stashed = "[≡](#60706e)"
+ahead = "[↑${count}](#c5d0cd)"
+behind = "[↓${count}](#60706e)"
+diverged = "[↕${ahead_count}↓${behind_count}](#e45f57)"
 ignore_submodules = true
 
 [git_state]
 format = '[$state( $progress_current/$progress_total)]($style) '
-style = "italic #7a7a8e"
+style = "italic #60706e"
 
 [cmd_duration]
 format = "[$duration]($style)"
-style = "#7a7a8a"
+style = "#c27a4a"
 min_time = 2000
 
 # ── Cloud / infra ────────────────────────────────────────────────────────────
 [aws]
 format = '[$profile]($style) '
-style = '#7da4e4'
+style = '#6f9fbd'
 symbol = ''
 [aws.region_aliases]
 us-east-1 = 'va'
@@ -61,18 +61,18 @@ CompanyGroupFrobozzOnCallAccess = 'Frobozz'
 
 [gcloud]
 format = '[$active]($style) '
-style = '#7da4e4'
+style = '#6f9fbd'
 symbol = ''
 
 [docker_context]
 format = '[docker:$context]($style) '
-style = '#68687a'
+style = '#60706e'
 symbol = ''
 only_with_files = true
 
 [terraform]
 format = '[tf:$version $workspace]($style) '
-style = '#b89aad'
+style = '#9b8ac5'
 symbol = ''
 
 # ── Language / runtime contexts ──────────────────────────────────────────────
@@ -80,7 +80,7 @@ symbol = ''
 
 [direnv]
 format = '[$allowed]($style) '
-style = '#68687a'
+style = '#60706e'
 symbol = ''
 allowed_msg = '✓'
 denied_msg = '✗'
@@ -90,28 +90,28 @@ disabled = false
 
 [nix_shell]
 format = '[nix:$state$name]($style) '
-style = '#7da4e4'
+style = '#6f9fbd'
 symbol = ''
 impure_msg = ''
 pure_msg = 'pure'
 
 [rust]
 format = '[rs:$version]($style) '
-style = '#e08a9e'
+style = '#c27a4a'
 symbol = ''
 
 [golang]
 format = '[go:$version]($style) '
-style = '#86cfc3'
+style = '#45d0bd'
 symbol = ''
 
 [python]
 format = "[py:$virtualenv]($style) "
-style = "#95d194"
+style = "#7fae8b"
 
 [nodejs]
 format = '[node:$version]($style) '
-style = '#95d194'
+style = '#7fae8b'
 symbol = ''
 detect_extensions = []
 detect_files = ['.node-version', '.nvmrc']
@@ -119,12 +119,12 @@ detect_folders = []
 
 [bun]
 format = '[bun:$version]($style) '
-style = '#e4cfa0'
+style = '#d6a84f'
 symbol = ''
 
 [package]
 format = '[$version]($style) '
-style = '#68687a'
+style = '#60706e'
 symbol = ''
 display_private = true
 
@@ -151,7 +151,7 @@ command = '''
   awk '/^[^ ]/{host=$0} host && /^    user:/{gsub(/^    user: */,""); print; exit}' "$cfg"
 '''
 when = 'test -f "${GH_CONFIG_DIR:-$HOME/.config/gh}/hosts.yml"'
-format = ' [$output](#b89aad)'
+format = ' [$output](#9b8ac5)'
 
 # ── Firecrew / Spectre ──────────────────────────────────────────────────────
 # Shows spectre daemon state + session count when active.
@@ -168,4 +168,4 @@ command = '''
   fi
 '''
 when = 'test -S "${SPECTRE_SOCKET:-/tmp/spectre.sock}"'
-format = ' [$output](#7a7a8e)'
+format = ' [$output](#60706e)'

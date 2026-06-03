@@ -16,33 +16,33 @@ font-thicken = true
 font-thicken-strength = 50
 
 # ===========================
-# COLORS — "Warp deep blue" (self-contained, no base theme)
+# COLORS — Blackwater Rust (blackened water, oxidized signal accents)
 # ===========================
-background = #0c1018
-foreground = #c8d3e0
-cursor-color = #2dd4bf
+background = #071012
+foreground = #c5d0cd
+cursor-color = #45d0bd
 cursor-style = block
 cursor-style-blink = false
-selection-background = #1e2738
-selection-foreground = #e2e8f0
+selection-background = #1d3035
+selection-foreground = #e6efeb
 
-# ANSI 16 — deep blue base, vibrant saturated accents
-palette = 0=#1a2230
-palette = 1=#f87171
-palette = 2=#34d399
-palette = 3=#fbbf24
-palette = 4=#3b82f6
-palette = 5=#a78bfa
-palette = 6=#2dd4bf
-palette = 7=#c8d3e0
-palette = 8=#45556c
-palette = 9=#fb7185
-palette = 10=#4ade80
-palette = 11=#fcd34d
-palette = 12=#60a5fa
-palette = 13=#c084fc
-palette = 14=#5eead4
-palette = 15=#f1f5f9
+# ANSI 16 — low-noise blackwater base with rust/sonar state colors.
+palette = 0=#081114
+palette = 1=#e45f57
+palette = 2=#7fae8b
+palette = 3=#d6a84f
+palette = 4=#6f9fbd
+palette = 5=#9b8ac5
+palette = 6=#45d0bd
+palette = 7=#c5d0cd
+palette = 8=#425250
+palette = 9=#ff786f
+palette = 10=#9bc7a4
+palette = 11=#e5bc65
+palette = 12=#8bb7d7
+palette = 13=#b3a4d8
+palette = 14=#62e6d2
+palette = 15=#e6efeb
 
 # ===========================
 # WINDOW & APPEARANCE
@@ -66,7 +66,7 @@ minimum-contrast = 1.1
 
 # Unfocused split dimming
 unfocused-split-opacity = 0.85
-split-divider-color = #1e2738
+split-divider-color = #1d3035
 
 # ===========================
 # CURSOR & MOUSE

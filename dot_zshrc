@@ -2,6 +2,15 @@
 # Zsh Configuration - Cross-Platform & Composable
 # ============================================================================
 
+# Machine-local EARLY hook — sourced BEFORE the p10k instant-prompt preamble,
+# so it is the ONLY safe place for startup console output (MOTD banners, env
+# announcements). Anything that echoes at load time must live here. Putting it
+# in ~/.zsh_local instead (sourced near the end of this file) prints AFTER
+# instant prompt has painted the terminal, which trips p10k's "console output
+# during zsh initialization" warning and makes the prompt jump. Gitignored,
+# per-machine — same convention as ~/.zsh_local / ~/.zsh_secrets.
+[[ -f ~/.zsh_early ]] && source ~/.zsh_early
+
 # Powerlevel10k instant prompt — MUST stay at the very top of .zshrc.
 # Initialization that produces output (autocompleted welcome msgs, ssh-agent
 # spinup) breaks instant prompt. Move such code to ~/.zprofile or below.

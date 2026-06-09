@@ -40,6 +40,13 @@ This is a living organism. Local-maxima fixes get rejected.
    `perf(scope):`, `fix(scope):`, `chore:`, `refactor:`, `docs:`.
 7. **Never run `git add -A` or `chezmoi apply --force` without diffing first.**
    `chezmoi diff` and `git diff --cached` are mandatory pre-flight.
+8. **Startup console output goes in `~/.zsh_early` only.** It's sourced at the
+   top of `dot_zshrc`, *before* the p10k instant-prompt preamble — the one safe
+   place for stdout during init. Banners/MOTDs in `~/.zsh_local` (or any
+   late-sourced file) print after instant prompt paints and trip p10k's
+   "console output during zsh initialization" warning. Doctor enforces both the
+   hook ordering and load-time hygiene of late-sourced files. Template:
+   `dot_zsh_early.example`.
 
 ---
 

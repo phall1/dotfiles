@@ -51,6 +51,41 @@ if [[ -d "$ZSH_PLUGIN_DIR/powerlevel10k" ]]; then
   fi
 fi
 
+# Startup-output hygiene. The instant-prompt preamble paints the terminal early,
+# so ANY stdout after it trips p10k's "console output during zsh initialization"
+# warning and makes the prompt jump. The sanctioned place for startup output is
+# ~/.zsh_early, sourced BEFORE the preamble. Enforce two things:
+#   (a) source-side ordering invariant — the hook exists and precedes the preamble.
+#   (b) runtime hygiene — late-sourced machine-local files don't echo at load time.
+zshrc_src="$DOTFILES/dot_zshrc"
+if [[ -f "$zshrc_src" ]]; then
+  early_ln=$(grep -n '\.zsh_early' "$zshrc_src" | head -1 | cut -d: -f1)
+  ip_ln=$(grep -n 'p10k-instant-prompt' "$zshrc_src" | head -1 | cut -d: -f1)
+  if [[ -z "$early_ln" ]]; then
+    fail "~/.zsh_early hook missing from dot_zshrc — no sanctioned place for startup output"
+  elif [[ -z "$ip_ln" ]]; then
+    warn "can't locate p10k instant-prompt block in dot_zshrc — hook ordering unverifiable"
+  elif (( early_ln < ip_ln )); then
+    ok "~/.zsh_early hook precedes instant-prompt preamble (line $early_ln < $ip_ln)"
+  else
+    fail "~/.zsh_early sourced AFTER instant-prompt preamble (line $early_ln > $ip_ln) — startup output will break instant prompt"
+  fi
+fi
+
+# Late-sourced machine-local files must not write stdout at load time. Heuristic:
+# a column-0 echo/print/printf/cat with no redirection is load-time stdout;
+# function-body output is indented (won't match) and redirected output (>&2, >file)
+# is filtered out. A warn, not a fail — it's advisory, and points at the fix.
+for late in "$HOME/.zsh_local" "$HOME/.zsh_secrets"; do
+  [[ -f "$late" ]] || continue
+  disp="~${late#"$HOME"}"
+  if grep -nE '^(echo|print|printf|cat)\b' "$late" 2>/dev/null | grep -qvE '>'; then
+    warn "$disp emits stdout at load time — move banners to ~/.zsh_early (sourced before instant prompt)"
+  else
+    ok "$disp clean (no load-time stdout)"
+  fi
+done
+
 # zsh-bench available (perf measurement substrate).
 if command -v zsh-bench >/dev/null 2>&1; then
   ok "zsh-bench installed"

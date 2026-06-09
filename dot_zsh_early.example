@@ -1,0 +1,19 @@
+# Copy this file to ~/.zsh_early for per-machine startup output.
+# This file should NOT be committed to git (it's machine-local, like ~/.zsh_local).
+#
+# WHY THIS FILE EXISTS
+# --------------------
+# ~/.zsh_early is sourced at the very top of ~/.zshrc, BEFORE the Powerlevel10k
+# instant-prompt preamble paints the terminal. It is the ONLY safe place for
+# console output during shell init.
+#
+# Anything that echoes from ~/.zsh_local / ~/.zsh_secrets / ~/.zsh/*.zsh runs
+# AFTER instant prompt has already drawn the prompt — which trips p10k's
+# "console output during zsh initialization" warning and makes the prompt jump.
+# Put startup banners / MOTDs / env announcements HERE instead.
+#
+# dot-doctor's zsh check enforces this: it flags load-time stdout in the
+# late-sourced files and verifies this hook still precedes the preamble.
+
+# Example: a per-machine banner (the kind that belongs here, not in ~/.zsh_local)
+# echo "gce-devbox loaded — Terraform $(terraform version -json | jq -r .terraform_version), just $(just --version | awk '{print $2}')"

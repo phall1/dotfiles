@@ -43,6 +43,8 @@
   # The pile of version-manager / cloud / shell segments is intentionally gone —
   # re-add any you actually want from the p10k-lean preset.
   typeset -g POWERLEVEL9K_RIGHT_PROMPT_ELEMENTS=(
+    nix_shell               # inside a nix dev shell (replaces flake banner echo)
+    mise                    # active mise environment (.mise.toml in tree)
     command_execution_time  # duration of the last command (only if slow)
   )
 
@@ -704,7 +706,8 @@
   # typeset -g POWERLEVEL9K_NIX_SHELL_INFER_FROM_PATH=false
 
   # Tip: If you want to see just the icon without "pure" and "impure", uncomment the next line.
-  # typeset -g POWERLEVEL9K_NIX_SHELL_CONTENT_EXPANSION=
+  # Compact: just the nix icon, no "impure"/"pure" text — keeps the prompt inline.
+  typeset -g POWERLEVEL9K_NIX_SHELL_CONTENT_EXPANSION=
 
   # Custom icon.
   # typeset -g POWERLEVEL9K_NIX_SHELL_VISUAL_IDENTIFIER_EXPANSION='⭐'
@@ -1596,6 +1599,16 @@
       *)                 label='local'; color='#d6a84f' ;;
     esac
     p10k segment -f "$color" -t "$label"
+  }
+
+  # mise: shows "mise" in the right prompt when the current directory (or any
+  # parent) contains a .mise.toml, indicating that versioned tools are active.
+  function prompt_mise() {
+    local dir=$PWD
+    while [[ $dir != / ]]; do
+      [[ -f $dir/.mise.toml ]] && { p10k segment -f 208 -t 'mise'; return }
+      dir=${dir:h}
+    done
   }
 
   # Example of a user-defined prompt segment. Function prompt_example will be called on every

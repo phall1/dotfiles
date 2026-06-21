@@ -81,6 +81,13 @@ command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --log-level error --sh
 # DIRENV_LOG_FORMAT="": silence "direnv: loading/export" status lines (they'd
 # print after p10k's instant-prompt preamble). The red "blocked, run `direnv
 # allow`" error goes to stderr regardless and still shows.
+# The startup-dir load (last line) is additionally muffled with &>/dev/null:
+# .envrc-loaded dev shells (e.g. nix `use flake`) often echo a banner from
+# their shellHook to stderr, which DIRENV_LOG_FORMAT can't catch — that banner
+# is exactly the "console output during init" p10k warns about. Suppressing it
+# only at startup is safe: the real direnv hook is installed in the same load,
+# so a genuinely blocked dir re-surfaces its error on the very next prompt.
+# Dev-shell state is shown inline instead via the p10k `nix_shell` segment.
 if command -v direnv &>/dev/null; then
   export DIRENV_LOG_FORMAT=""
   autoload -Uz add-zsh-hook
@@ -99,8 +106,12 @@ if command -v direnv &>/dev/null; then
     done
   }
   add-zsh-hook chpwd _direnv_lazy_load
-  _direnv_lazy_load   # also check the shell's starting directory
+  _direnv_lazy_load &>/dev/null   # starting-dir load, silenced (see note above)
 fi
+
+# mise — auto-activates pinned tool versions when entering a dir with .mise.toml.
+# No manual `mise exec` needed; PATH is updated on cd.
+command -v mise &>/dev/null && eval "$(mise activate zsh)"
 
 # Auto-source plain .env on cd (cheap, no fork+exec). Complements direnv's
 # heavier .envrc handling — they target different filenames, no conflict.

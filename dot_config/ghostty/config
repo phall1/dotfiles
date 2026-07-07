@@ -59,8 +59,7 @@ macos-titlebar-style = transparent
 macos-window-buttons = hidden
 macos-icon = xray
 macos-window-shadow = true
-# Non-native fullscreen — avoids macOS's slow space-swap animation and the
-# native fullscreen menubar/dock dance; plays nicer with yabai + sketchybar.
+# Non-native fullscreen avoids macOS's slow space-swap animation.
 macos-non-native-fullscreen = visible-menu
 minimum-contrast = 1.1
 

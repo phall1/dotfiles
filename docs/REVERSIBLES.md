@@ -14,12 +14,42 @@ at the top.
 
 ---
 
+## 2026-07-07 — removed macOS rice stack
+
+**What:** yabai, skhd, sketchybar, and borders are no longer managed by this
+repo. Native macOS window management and the native menu bar are the default
+again.
+
+**Why:** the custom tiling and top bar setup was too intrusive for daily use.
+
+**Apply:** remove the tracked configs, stop the launchd services, and uninstall
+the packages:
+
+```sh
+yabai --stop-service
+skhd --stop-service
+launchctl bootout "gui/$(id -u)/homebrew.mxcl.sketchybar"
+launchctl bootout "gui/$(id -u)/homebrew.mxcl.borders"
+rm -f ~/Library/LaunchAgents/{com.asmvik.yabai,com.jackielii.skhd,homebrew.mxcl.sketchybar,homebrew.mxcl.borders}.plist
+brew uninstall --force yabai sketchybar borders
+brew uninstall --cask --force skhd-zig font-sketchybar-app-font
+brew untap jackielii/tap FelixKratz/formulae koekeishiya/formulae
+```
+
+**Revert:** restore the removed files from git history, run
+`scripts/bootstrap-darwin.sh`, then start the services you want.
+
+**Verify:** `launchctl list | grep -E "yabai|skhd|sketchybar|borders"` should
+return no running service rows.
+
+---
+
 ## 2026-05-24 — macOS menu bar auto-hide
 
 **What:** the macOS menu bar auto-hides; cursor to the top edge to reveal it.
 
-**Why:** sketchybar already shows time, battery, and volume, so the macOS
-bar visually doubles the top of the screen.
+**Why:** sketchybar showed time, battery, and volume, so the macOS bar visually
+doubled the top of the screen. This is obsolete now that sketchybar is removed.
 
 **Apply (macOS 13 Ventura and later — must use System Settings UI):**
 The `defaults write NSGlobalDomain _HIHideMenuBar` key is silently ignored
@@ -31,24 +61,14 @@ Settings app can write reliably.
   3. "Automatically hide and show the menu bar" → **Always**
 
 **Revert:** same path, set to **Never** (or "On Desktop Only" / "In Full
-Screen Only" for a middle ground).
+Screen Only" for a middle ground). On pre-Ventura systems, this command may
+also work: `defaults write NSGlobalDomain _HIHideMenuBar -bool false && killall SystemUIServer`.
 
 **Verify:** move cursor away from the top of the screen — bar should
 disappear within ~1s. Move back to top edge — it reveals.
 
 **Pre-Ventura legacy command (kept for reference; doesn't work on macOS 26):**
 `defaults write NSGlobalDomain _HIHideMenuBar -bool true && killall SystemUIServer`
-
----
-
-## Not yet applied — SIP partial-disable (yabai scripting addition)
-
-Listed here so it's tracked in one place if/when you do it. See
-`docs/RICE.md` for the recovery-boot procedure. Until applied, cross-space
-window move, opacity, and animations are off.
-
-**Revert path:** boot to recovery → `csrutil enable` → reboot → `sudo yabai
---uninstall-sa`.
 
 ---
 

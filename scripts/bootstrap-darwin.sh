@@ -4,68 +4,74 @@
 
 set -euo pipefail
 
+# Feature flag: the macOS desktop "rice" stack (yabai/skhd/sketchybar/borders)
+# is opt-in. Bootstrap runs before chezmoi is configured, so it reads an env
+# var rather than chezmoi data. Mirror the chezmoi `gui` flag on this machine:
+#   DOT_GUI=1 ~/dotfiles/scripts/bootstrap-darwin.sh
+# Default off for portability. See docs/RICE.md.
+DOT_GUI="${DOT_GUI:-0}"
+
 # Brew itself.
 if ! command -v brew >/dev/null 2>&1; then
-    echo "Installing Homebrew…"
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    eval "$(/opt/homebrew/bin/brew shellenv)"
+  echo "Installing Homebrew…"
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  eval "$(/opt/homebrew/bin/brew shellenv)"
 fi
 
-install_formula() {
-    local formula="$1"
-
-    if brew list --formula "$formula" >/dev/null 2>&1; then
-        echo "  ok: $formula"
-    else
-        brew install "$formula"
-    fi
-}
-
-install_cask_app() {
-    local cask="$1"
-    shift
-
-    if brew list --cask "$cask" >/dev/null 2>&1; then
-        echo "  ok: $cask"
-        return
-    fi
-
-    for app_path in "$@"; do
-        if [[ -e "$app_path" ]]; then
-            echo "  ok: $cask ($app_path already exists)"
-            return
-        fi
-    done
-
-    brew install --cask "$cask"
-}
+# Ricing taps (only when GUI is opted in):
+#   koekeishiya/formulae  — yabai (skhd is on this tap too but in maintenance mode; we use the Zig rewrite below)
+#   FelixKratz/formulae   — sketchybar, borders
+#   jackielii/tap         — skhd-zig (actively-maintained drop-in replacement for skhd)
+if [ "$DOT_GUI" = "1" ]; then
+  brew tap koekeishiya/formulae 2>/dev/null || true
+  brew tap FelixKratz/formulae 2>/dev/null || true
+  brew tap jackielii/tap 2>/dev/null || true
+fi
 
 # Required substrate.
-brew_formulae=(
-    # Core tools
-    chezmoi age stow
-    # Shell substrate
-    atuin fzf fd eza git-delta zoxide bat ripgrep jq
-    # Language toolchains
-    uv fnm rustup-init
-    # Terminal stack
-    ghostty tmux sesh
-    # AI agent multiplexer (self-manages its Claude/opencode hooks via
-    # `herdr integration install` — see the integration step below).
-    herdr
-    # Editor + git workflow
-    neovim gh git tig gitui lazygit
-    # Misc
-    direnv coreutils
+brew_packages=(
+  # Core tools
+  chezmoi age stow
+  # Shell substrate
+  atuin fzf fd eza git-delta zoxide bat ripgrep jq
+  # Language toolchains
+  uv fnm rustup-init
+  # Terminal stack
+  ghostty tmux sesh
+  # Resilient remote shell over UDP (roaming + local echo; survives sleep/IP
+  # changes where plain ssh stalls). Needs Remote Login (sshd) to bootstrap
+  # and UDP 60000-61000 reachable — see docs/setup.md.
+  mosh
+  # AI agent multiplexer (self-manages its Claude/opencode hooks via
+  # `herdr integration install` — see the integration step below).
+  herdr
+  # Editor + git workflow
+  neovim gh git tig gitui lazygit
+  # Misc
+  direnv
 )
-brew_casks=(
-    ghostty
-    font-jetbrains-mono-nerd-font
-)
+# Ricing — window manager, hotkeys, status bar, window borders. Opt-in via
+# DOT_GUI=1. SIP is NOT disabled by default; see docs/RICE.md for the SIP
+# upgrade path. skhd-zig auto-reloads on config change (no restart needed).
+if [ "$DOT_GUI" = "1" ]; then
+  brew_packages+=(yabai skhd-zig sketchybar borders)
+fi
+echo "Installing brew packages..."
+for pkg in "${brew_packages[@]}"; do
+  brew list "$pkg" >/dev/null 2>&1 || brew install "$pkg"
+done
 
-echo "Installing brew formulae..."
-for formula in "${brew_formulae[@]}"; do
-    install_formula "$formula"
+# Casks. font-jetbrains-mono-nerd-font drives terminal + prompt glyphs (always
+# wanted); font-sketchybar-app-font is rice-only (gated behind DOT_GUI).
+brew_casks=(
+  font-jetbrains-mono-nerd-font
+)
+if [ "$DOT_GUI" = "1" ]; then
+  brew_casks+=(font-sketchybar-app-font)
+fi
+echo "Installing brew casks..."
+for cask in "${brew_casks[@]}"; do
+  brew list --cask "$cask" >/dev/null 2>&1 || brew install --cask "$cask"
 done
 
 # herdr owns its own agent-state hooks in ~/.claude/settings.json (and the
@@ -73,18 +79,11 @@ done
 # are versioned by herdr and regenerated here. The chezmoi modify_ script for
 # settings.json merges our portable flags on top without clobbering them.
 if command -v herdr >/dev/null 2>&1; then
-    herdr integration install claude >/dev/null 2>&1 || true
+  herdr integration install claude >/dev/null 2>&1 || true
 fi
 
 # coreutils for GNU versions on macOS (zprofile prepends them to PATH).
 brew list coreutils >/dev/null 2>&1 || brew install coreutils
-echo "Installing brew casks..."
-for cask in "${brew_casks[@]}"; do
-    case "$cask" in
-    ghostty) install_cask_app "$cask" "/Applications/Ghostty.app" "$HOME/Applications/Ghostty.app" ;;
-    *) install_cask_app "$cask" ;;
-    esac
-done
 
 cat <<'EOF'
 

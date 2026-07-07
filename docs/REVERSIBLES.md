@@ -61,8 +61,9 @@ Settings app can write reliably.
   3. "Automatically hide and show the menu bar" → **Always**
 
 **Revert:** same path, set to **Never** (or "On Desktop Only" / "In Full
-Screen Only" for a middle ground). On pre-Ventura systems, this command may
-also work: `defaults write NSGlobalDomain _HIHideMenuBar -bool false && killall SystemUIServer`.
+Screen Only" for a middle ground). These defaults set the same "Never" state
+on current macOS releases:
+`defaults write NSGlobalDomain _HIHideMenuBar -bool false && defaults write NSGlobalDomain AppleMenuBarVisibleInFullscreen -bool true && killall SystemUIServer`.
 
 **Verify:** move cursor away from the top of the screen — bar should
 disappear within ~1s. Move back to top edge — it reveals.

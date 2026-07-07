@@ -63,7 +63,7 @@ Settings app can write reliably.
 **Revert:** same path, set to **Never** (or "On Desktop Only" / "In Full
 Screen Only" for a middle ground). These defaults set the same "Never" state
 on current macOS releases:
-`defaults write NSGlobalDomain _HIHideMenuBar -bool false && defaults write NSGlobalDomain AppleMenuBarVisibleInFullscreen -bool true && killall SystemUIServer`.
+`defaults write com.apple.controlcenter AutoHideMenuBarOption -int 3 && defaults write NSGlobalDomain _HIHideMenuBar -bool false && defaults write NSGlobalDomain AppleMenuBarVisibleInFullscreen -bool true && killall cfprefsd ControlCenter SystemUIServer`.
 
 **Verify:** move cursor away from the top of the screen — bar should
 disappear within ~1s. Move back to top edge — it reveals.

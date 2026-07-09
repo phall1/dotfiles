@@ -1,11 +1,11 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    "plugin": [
-        "oh-my-openagent",
-        "opencode-pty"
-    ],
-    "instructions": [],
     "mcp": {
+        "notion": {
+            "type": "remote",
+            "url": "https://mcp.notion.com/mcp",
+            "enabled": false
+        },
         "kit-dev-mcp": {
             "type": "local",
             "command": [
@@ -25,9 +25,7 @@
                 "mcp-remote",
                 "https://mcp.linear.app/mcp"
             ],
-            "enabled": true
+            "enabled": false
         }
-    },
-    "tools": {},
-    "provider": {}
+    }
 }

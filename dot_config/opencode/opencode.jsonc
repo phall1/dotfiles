@@ -1,18 +1,10 @@
 {
     "$schema": "https://opencode.ai/config.json",
-    // "share": "disabled",
-    "plugin": [
-      "opencode-pty",
-      "opencode-cursor-oauth",
-      "file:///Users/phall/.config/opencode/plugin/autoresearch"
-    ],
-    "instructions": [
-        // "~/.config/opencode/plugin/shell-strategy/shell_strategy.md"
-    ],
     "mcp": {
         "notion": {
             "type": "remote",
             "url": "https://mcp.notion.com/mcp",
+            "enabled": false
         },
         "kit-dev-mcp": {
             "type": "local",
@@ -33,15 +25,7 @@
                 "mcp-remote",
                 "https://mcp.linear.app/mcp"
             ],
-            "enabled": true
-        }
-    },
-    "tools": {
-        // "linear_*": false
-    },
-    "provider": {
-        "cursor": {
-            "name": "Cursor"
+            "enabled": false
         }
     }
 }

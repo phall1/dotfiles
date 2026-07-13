@@ -46,6 +46,7 @@
     nix_shell               # inside a nix dev shell (replaces flake banner echo)
     mise                    # active mise environment (.mise.toml in tree)
     command_execution_time  # duration of the last command (only if slow)
+    host_id                 # immutable fleet ID, or short hostname as fallback
   )
 
   # Defines character set used by powerlevel10k. It's best to let `p10k configure` set it for you.
@@ -1609,6 +1610,20 @@
       [[ -f $dir/.mise.toml ]] && { p10k segment -f 208 -t 'mise'; return }
       dir=${dir:h}
     done
+  }
+
+  # host_id: registered machines get a stable visual identity; unknown hosts
+  # remain identifiable without requiring a dotfiles update first.
+  function prompt_host_id() {
+    local host=${DOT_HOST_ID:-${HOST%%.*}}
+    case $host in
+      mk01) p10k segment -f '#d6a84f' -t 'MK01' ;;
+      *)    p10k segment -f '#708090' -t "$host" ;;
+    esac
+  }
+
+  function instant_prompt_host_id() {
+    prompt_host_id
   }
 
   # Example of a user-defined prompt segment. Function prompt_example will be called on every

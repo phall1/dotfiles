@@ -15,14 +15,26 @@ else
   warn "dot_zshenv missing in source"
 fi
 
-# Completion cache freshness.
+# Completion cache freshness. Age is NOT the signal — dot_zshrc keys cache
+# invalidation on fpath directory mtimes, so a months-old dump is correct as
+# long as no completion dir has changed under it. What matters: is the dump
+# older than a directory that has since gained completions? If so the next
+# shell rebuilds it (self-healing), but flag it so a `compdef x=y` against a
+# not-yet-registered command isn't a mystery.
 if [[ -f "$HOME/.zcompdump" ]]; then
-  if age_h=$(file_age_h "$HOME/.zcompdump"); then
-    if [[ "$age_h" -lt 168 ]]; then
-      ok ".zcompdump fresh (${age_h}h)"
-    else
-      warn ".zcompdump stale (${age_h}h) — completions may miss new tools"
+  comp_stale=""
+  for d in /opt/homebrew/share/zsh/site-functions /usr/local/share/zsh/site-functions \
+           "${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins/zsh-completions/src"; do
+    [[ -d "$d" ]] || continue
+    if [[ "$d" -nt "$HOME/.zcompdump" ]]; then
+      comp_stale="$d"
+      break
     fi
+  done
+  if [[ -n "$comp_stale" ]]; then
+    warn ".zcompdump older than $comp_stale — next shell start rebuilds it"
+  else
+    ok ".zcompdump current with fpath dirs"
   fi
 else
   warn ".zcompdump missing — first shell start will be slow"
@@ -76,6 +88,19 @@ fi
 # a column-0 echo/print/printf/cat with no redirection is load-time stdout;
 # function-body output is indented (won't match) and redirected output (>&2, >file)
 # is filtered out. A warn, not a fail — it's advisory, and points at the fix.
+# `compdef alias=cmd` is a stderr landmine: if the source completion isn't
+# registered (tool not installed on this machine, cold completion cache) zsh
+# prints "compdef: unknown command or service: <cmd>" during init, which trips
+# the instant-prompt warning. Every such line must be guarded by a conditional.
+if [[ -f "$zshrc_src" ]]; then
+  unguarded=$(grep -nE '^[[:space:]]*compdef[[:space:]]+[A-Za-z0-9_.-]+=' "$zshrc_src" 2>/dev/null || true)
+  if [[ -n "$unguarded" ]]; then
+    fail "unguarded 'compdef x=y' in dot_zshrc (line ${unguarded%%:*}) — errors to stderr when y is unregistered; wrap in (( \$+_comps[y] ))"
+  else
+    ok "no unguarded 'compdef x=y' in dot_zshrc"
+  fi
+fi
+
 for late in "$HOME/.zsh_local" "$HOME/.zsh_secrets"; do
   [[ -f "$late" ]] || continue
   disp="~${late#"$HOME"}"

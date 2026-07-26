@@ -40,6 +40,7 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 [[ -d "$HOME/.cache/.bun/bin" ]] && export PATH="$HOME/.cache/.bun/bin:$PATH"
 [[ -d "$HOME/.npm-global/bin" ]] && export PATH="$HOME/.npm-global/bin:$PATH"
 [[ -d "$HOME/.kimi-code/bin" ]]  && export PATH="$HOME/.kimi-code/bin:$PATH"
+[[ -d "$HOME/.grok/bin" ]]       && export PATH="$HOME/.grok/bin:$PATH"
 
 # ============================================================================
 # Plugins — loaded from $XDG_DATA_HOME/zsh/plugins (see zsh/plugins.lock).
@@ -59,6 +60,12 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 # zsh-completions adds to fpath; must run BEFORE compinit.
 [[ -d "$ZSH_PLUGIN_DIR/zsh-completions/src" ]] \
   && fpath=("$ZSH_PLUGIN_DIR/zsh-completions/src" $fpath)
+
+# grok's installer appends its own fpath line + a second `compinit -C` to the
+# END of ~/.zshrc, which is too late to register anything. Owned here instead,
+# ahead of compinit, so re-running that installer is a no-op we can revert.
+[[ -d "$HOME/.grok/completions/zsh" ]] \
+  && fpath=("$HOME/.grok/completions/zsh" $fpath)
 
 # ============================================================================
 # Tool Initializations - only if tools exist
@@ -175,15 +182,25 @@ bindkey '^[OB' down-line-or-beginning-search  # Down (application/cursor-key mod
 # Completion System
 # ============================================================================
 
-# Initialize completion system (24h-cached — full compinit only if .zcompdump
-# is older than 24h or missing, else fast-path with -C).
-# Idiom from ctechols/ca1035271ad134841284.
+# Initialize completion system. Cache invalidation is keyed on fpath directory
+# mtimes, NOT wall-clock age: a directory's mtime bumps whenever a completion
+# file is added or removed (new brew formula, new plugin), so this notices a
+# newly-installed tool on the very next shell instead of up to 24h later. A
+# stale dump is not cosmetic — `compdef foo=bar` against an unregistered `bar`
+# errors to stderr during init, which breaks p10k's instant prompt.
+# Cost is one stat per fpath entry (~20), not a scan of every completion file.
 autoload -Uz compinit
-if [[ -n "$HOME/.zcompdump"(N.mh-24) ]]; then
-  compinit -C
+_zcompdump="$HOME/.zcompdump"
+_zcomp_stale=( ${^fpath}(N/e:'[[ $REPLY -nt $_zcompdump ]]':) )
+if [[ -f "$_zcompdump" ]] && (( ! $#_zcomp_stale )); then
+  compinit -C -d "$_zcompdump"
 else
-  compinit
+  # Drop the dump so compinit does a full rescan and rewrites it. compinit's own
+  # change detection is a file-count heuristic and can miss same-count churn.
+  rm -f "$_zcompdump" "$_zcompdump.zwc"
+  compinit -d "$_zcompdump"
 fi
+unset _zcompdump _zcomp_stale
 
 # fzf-tab — must load AFTER compinit, BEFORE anything that defines
 # completion widgets it might override. Deferring breaks tab on first prompt.
@@ -210,8 +227,10 @@ if command -v gt &>/dev/null; then
 fi
 
 # git-identity / gh-alt completions.
-# gh-alt is a transparent wrapper; reuse gh's completion.
-compdef gh-alt=gh
+# gh-alt is a transparent wrapper; reuse gh's completion. Guarded: the `=` form
+# errors to stderr if the source completion isn't registered (gh not installed
+# on this machine), and stderr during init breaks p10k's instant prompt.
+(( $+_comps[gh] )) && compdef gh-alt=gh
 # git-identity has three subcommands. Defining _git-identity also gives us
 # `git identity <TAB>` for free (git's framework picks up _git-<subcmd>).
 _git-identity() {

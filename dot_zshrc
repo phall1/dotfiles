@@ -116,9 +116,31 @@ if command -v direnv &>/dev/null; then
   _direnv_lazy_load &>/dev/null   # starting-dir load, silenced (see note above)
 fi
 
-# mise — auto-activates pinned tool versions when entering a dir with .mise.toml.
-# No manual `mise exec` needed; PATH is updated on cd.
-command -v mise &>/dev/null && eval "$(mise activate zsh)"
+# mise — LAZY, same shape as the direnv probe above and for the same reason.
+# `mise activate zsh` installs a precmd hook that forks `mise hook-env` on
+# EVERY prompt (~11ms measured), even in trees with no .mise.toml — a tax paid
+# everywhere for a tool most dirs don't use. Instead probe for .mise.toml on cd
+# (pure stats, no fork) and only install the real hook once you're actually in
+# a mise-managed tree. Cost elsewhere: one walk up the tree per cd.
+if command -v mise &>/dev/null; then
+  autoload -Uz add-zsh-hook
+  _mise_lazy_load() {
+    local d=$PWD
+    while true; do
+      if [[ -e "$d/.mise.toml" || -e "$d/mise.toml" || -e "$d/.mise/config.toml" ]]; then
+        add-zsh-hook -d chpwd _mise_lazy_load
+        unfunction _mise_lazy_load
+        eval "$(mise activate zsh)"
+        _mise_hook   # apply the current dir's tool versions now
+        return
+      fi
+      [[ "$d" == "/" ]] && break
+      d=${d:h}
+    done
+  }
+  add-zsh-hook chpwd _mise_lazy_load
+  _mise_lazy_load   # starting-dir activation
+fi
 
 # Auto-source plain .env on cd (cheap, no fork+exec). Complements direnv's
 # heavier .envrc handling — they target different filenames, no conflict.
@@ -199,6 +221,12 @@ else
   # change detection is a file-count heuristic and can miss same-count churn.
   rm -f "$_zcompdump" "$_zcompdump.zwc"
   compinit -d "$_zcompdump"
+fi
+# Byte-compile the dump. Sourcing the plain file costs ~7ms at every startup
+# (it's ~3k lines); the .zwc removes most of that. Only ever runs on the rebuild
+# path, and backgrounded so the current shell never waits for it.
+if [[ ! -f "$_zcompdump.zwc" || "$_zcompdump" -nt "$_zcompdump.zwc" ]]; then
+  { zcompile -R -- "$_zcompdump.zwc" "$_zcompdump" } &!
 fi
 unset _zcompdump _zcomp_stale
 

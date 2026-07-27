@@ -1589,17 +1589,48 @@
   # adds zero noise unless you're committing as someone else.
   # alt   = origin uses the github.com-alt SSH alias  -> hot rust
   # local = local user.email set, but origin is plain -> amber
+  #
+  # Cached: the naive version forked `git config` TWICE on every prompt (~11ms
+  # per prompt inside any repo — it dominated command_lag). The answer only
+  # changes when .git/config does, so key a cache on that file's mtime. Steady
+  # state is one zstat and zero forks; the fork happens on repo change or after
+  # `git identity`. Repo root comes from gitstatus (already computed for the
+  # `vcs` segment, which precedes this one) and falls back to a fork-free walk.
+  zmodload -F zsh/stat b:zstat 2>/dev/null
+  typeset -g _p9k_gi_key= _p9k_gi_email= _p9k_gi_origin=
   function prompt_git_identity() {
-    local email
-    email=$(command git config --local user.email 2>/dev/null) || return
-    [[ -n "$email" ]] || return
-    local origin label color
-    origin=$(command git config --local remote.origin.url 2>/dev/null)
-    case "$origin" in
-      *github.com-alt:*) label='alt';   color='#e45f57' ;;
-      *)                 label='local'; color='#d6a84f' ;;
+    local root=${VCS_STATUS_WORKDIR:-}
+    if [[ -z $root ]]; then
+      root=$PWD
+      while [[ $root != / && ! -e $root/.git ]]; do root=${root:h}; done
+      [[ -e $root/.git ]] || return
+    fi
+
+    local -a st
+    # A .git *file* means a worktree or submodule — config lives elsewhere, so
+    # the mtime key would be wrong. Fall through uncached rather than lie.
+    if [[ -f $root/.git ]] || ! zstat -A st +mtime -- $root/.git/config 2>/dev/null; then
+      _p9k_gi_key=
+      _p9k_gi_email=$(command git config --local user.email 2>/dev/null)
+      _p9k_gi_origin=$(command git config --local remote.origin.url 2>/dev/null)
+    elif [[ $_p9k_gi_key != "$root/.git/config:$st[1]" ]]; then
+      _p9k_gi_key="$root/.git/config:$st[1]"
+      _p9k_gi_email= _p9k_gi_origin=
+      local line
+      # One fork instead of two: both keys in a single --get-regexp.
+      for line in ${(f)"$(command git config --local --get-regexp '^(user\.email|remote\.origin\.url)$' 2>/dev/null)"}; do
+        case $line in
+          'user.email '*)        _p9k_gi_email=${line#user.email } ;;
+          'remote.origin.url '*) _p9k_gi_origin=${line#remote.origin.url } ;;
+        esac
+      done
+    fi
+
+    [[ -n $_p9k_gi_email ]] || return
+    case $_p9k_gi_origin in
+      *github.com-alt:*) p10k segment -f '#e45f57' -t 'alt' ;;
+      *)                 p10k segment -f '#d6a84f' -t 'local' ;;
     esac
-    p10k segment -f "$color" -t "$label"
   }
 
   # mise: shows "mise" in the right prompt when the current directory (or any

@@ -60,14 +60,14 @@
 [includeIf "gitdir:~/work/"]
 	path = ~/.gitconfig-work
 
-{{/* Alt-identity workspace override. The directory path lives in
-     ~/.config/chezmoi/chezmoi.toml as data.git.altWorkspace so the
-     committed template does not reveal which org/folder it points at.
-     Set e.g.:
-       [data.git]
-       altWorkspace = "~/workspace/somefolder/"
-     Identity itself lives in ~/.gitconfig-alt (untracked). */ -}}
+{{/* Alt-identity workspace override. Paths live in per-machine chezmoi data,
+     keeping the committed template independent of any org or local layout.
+     altConfig defaults to the legacy ~/.gitconfig-alt when omitted. */ -}}
 {{- if hasKey .git "altWorkspace" }}
 [includeIf "gitdir:{{ .git.altWorkspace }}"]
+{{- if hasKey .git "altConfig" }}
+	path = {{ .git.altConfig }}
+{{- else }}
 	path = ~/.gitconfig-alt
+{{- end }}
 {{- end }}

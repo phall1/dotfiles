@@ -18,7 +18,7 @@ set -eu
 
 # Portable OmO + Codex settings that should follow you across machines.
 # These are the "opinionated defaults" for oh-my-openagent usage.
-MANAGED_TOML='model = "gpt-5.5"
+MANAGED_TOML='model = "gpt-5.6-sol"
 model_reasoning_effort = "high"
 approval_policy = "never"
 sandbox_mode = "danger-full-access"

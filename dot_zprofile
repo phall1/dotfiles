@@ -41,3 +41,10 @@ fi
 
 # Note: Completions moved to .zshrc - compdef requires completion system to be initialized first
 
+# OrbStack. Its installer appends this block to the live ~/.zprofile, which
+# meant every `chezmoi apply` silently deleted it and broke the `orb`/`docker`
+# CLI integration until the next OrbStack launch re-added it. Owned here so the
+# source is authoritative and re-running the installer is a no-op.
+[[ -f "$HOME/.orbstack/shell/init.zsh" ]] && \
+  source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
+

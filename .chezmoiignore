@@ -2,3 +2,22 @@
 # copied into $HOME. Templates and run_onchange hooks read these via `include`,
 # which works regardless of this ignore.
 src
+
+# Repo's own documentation and tooling. These are read from $DOTFILES by the
+# scripts that need them (dot-doctor resolves $DOTFILES/checks,
+# dot-install-zsh-plugins resolves $DOTFILES/plugins.lock — verified, nothing
+# reads them from $HOME), so copying them into the home directory served no
+# purpose. Worse, it made `chezmoi status` list a dozen repo files as drifted
+# targets, burying the drift that actually matters.
+# Leading `/` anchors to $HOME so a nested docs/ or scripts/ inside a managed
+# config tree is unaffected.
+/AGENTS.md
+/CLAUDE.md
+/LICENSE
+/PERF.md
+/README.md
+/checks
+/docs
+/plugins.bin
+/plugins.lock
+/scripts

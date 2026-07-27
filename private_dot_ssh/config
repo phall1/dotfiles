@@ -1,3 +1,9 @@
+# OrbStack: 'orb' SSH host for Linux machines. MUST stay at the very top —
+# ssh_config takes the first value for each keyword, so an Include placed after
+# any Host block would be shadowed. OrbStack's installer prepends this itself;
+# owned here so `chezmoi apply` stops deleting it.
+Include ~/.orbstack/ssh/config
+
 # SSH config — managed by chezmoi.
 # Source: ~/dotfiles/private_dot_ssh/config
 

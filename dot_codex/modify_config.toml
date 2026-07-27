@@ -70,11 +70,35 @@ config_file = "./agents/plan.toml"
 current="$(cat)"
 [ -n "$current" ] || current=""
 
-# If tomlq is available, do a proper TOML merge
+# SAFETY: this script's stdout becomes ~/.codex/config.toml verbatim. Emitting
+# nothing truncates the file, so every path below must produce output or defer
+# to the next one, and the final guard re-emits `current` unchanged if all of
+# them came up empty. A broken merge must degrade to "no change", never to
+# "empty config".
+result=''
+
 if command -v tomlq >/dev/null 2>&1; then
-    # Merge: managed wins on conflict, current preserved otherwise
-    printf '%s\n%s' "$MANAGED_TOML" "$current" | tomlq -t 'reduce .[] as $item ({}; . * $item)' -
-else
+    tmpd=$(mktemp -d) || tmpd=''
+    if [ -n "$tmpd" ]; then
+        trap 'rm -rf "$tmpd"' EXIT INT TERM
+        printf '%s\n' "$current"      > "$tmpd/current.toml"
+        printf '%s\n' "$MANAGED_TOML" > "$tmpd/managed.toml"
+        # Slurp both documents into an array (-s) and deep-merge left to right
+        # with jq's `*`, so managed comes LAST and wins on conflict while every
+        # key the tool wrote survives.
+        #
+        # They must be two separate inputs. Concatenating them into one stream
+        # -- which this script used to do -- yields a single TOML document with
+        # duplicate [features]/[notice] tables, and tomlq dies with
+        # 'Key "features" already exists', printing nothing. That failure was
+        # invisible for as long as tomlq wasn't installed; installing it would
+        # have silently emptied the config on the next apply.
+        result=$(tomlq -s -t 'reduce .[] as $i ({}; . * $i)' \
+                     "$tmpd/current.toml" "$tmpd/managed.toml" 2>/dev/null) || result=''
+    fi
+fi
+
+if [ -z "$result" ]; then
     # Fallback: prepend managed settings. This is "good enough" because TOML
     # uses "last key wins" semantics for duplicate top-level keys. The managed
     # block comes first, but if Codex wrote a conflicting key later in the
@@ -82,7 +106,7 @@ else
     #
     # Better fallback: write managed first, then append current but skip
     # any lines that set keys we manage. This is imperfect but functional.
-    printf '%s\n' "$MANAGED_TOML"
+    result=$(printf '%s\n' "$MANAGED_TOML"
     # Filter out lines that would conflict with managed settings
     printf '%s\n' "$current" | awk '
         /^model[[:space:]]*=/ { next }
@@ -99,5 +123,12 @@ else
         skip && /^\[/ { skip=0 }
         skip { next }
         { print }
-    '
+    ')
+fi
+
+# Last line of defence: never hand chezmoi an empty file.
+if [ -z "$result" ]; then
+    printf '%s\n' "$current"
+else
+    printf '%s\n' "$result"
 fi

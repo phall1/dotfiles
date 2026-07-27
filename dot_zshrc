@@ -71,8 +71,37 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 # Tool Initializations - only if tools exist
 # ============================================================================
 
+# `eval "$(tool init zsh)"` forks a whole process on every shell start. Measured
+# here with an xtrace through the first prompt: fzf --zsh 10.4ms, zoxide 4.3ms.
+# The emitted snippet only changes when the tool binary does, so cache it and
+# invalidate when the binary is newer than the cache — no version fork needed.
+#
+# NOT every tool init is cacheable. `fnm env` bakes a per-shell multishell path
+# (~/.local/state/fnm_multishells/<pid>_<ts>) into its output, so a cached copy
+# would point every future shell at one dead directory. Verified by diffing the
+# output across runs before caching anything; fnm is deliberately left forking.
+_evalcache() {
+  local name=$1; shift
+  local bin=${commands[$1]}
+  [[ -n $bin ]] || return 1
+  local f="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/evalcache/$name.zsh"
+  if [[ ! -s $f || $bin -nt $f ]]; then
+    mkdir -p ${f:h} 2>/dev/null
+    # Write to a temp and rename so a killed shell can never leave a truncated
+    # cache that the next shell would source.
+    if "$@" >| $f.$$ 2>/dev/null && [[ -s $f.$$ ]]; then
+      mv -f $f.$$ $f 2>/dev/null
+    else
+      rm -f $f.$$ 2>/dev/null
+      eval "$("$@" 2>/dev/null)"   # cache unusable — fall back to a live fork
+      return
+    fi
+  fi
+  source $f
+}
+
 # Zoxide (smarter cd)
-command -v zoxide &>/dev/null && eval "$(zoxide init zsh)"
+command -v zoxide &>/dev/null && _evalcache zoxide zoxide init zsh
 
 # fnm (Node version manager — replaces nvm). --use-on-cd reads .nvmrc/.node-version.
 # --log-level error: the on-cd hook auto-runs `fnm use` in the shell's starting
@@ -156,7 +185,7 @@ add-zsh-hook chpwd _load_local_env
 # >= 0.48) binds ^R in emacs/viins/vicmd, so it survives our vi mode.
 # NOTE: the old `source ~/.fzf.zsh` was dead — that file never existed, atuin
 # had been masking the missing Ctrl+R binding.
-command -v fzf &>/dev/null && eval "$(fzf --zsh)"
+command -v fzf &>/dev/null && _evalcache fzf fzf --zsh
 
 # ============================================================================
 # Modular Config Loading
@@ -235,11 +264,24 @@ unset _zcompdump _zcomp_stale
 [[ -f "$ZSH_PLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh" ]] \
   && source "$ZSH_PLUGIN_DIR/fzf-tab/fzf-tab.plugin.zsh"
 
-# Deferred plugins (load after first prompt — visible startup speedup).
+# fast-syntax-highlighting — EAGER, and it must stay that way.
+#
+# This was previously `zsh-defer source`d, and it silently never loaded: no
+# fast-theme, no -fast-highlight-process, FAST_HIGHLIGHT empty, and zsh-bench
+# reporting has_syntax_highlighting=0. Reproduced against a minimal zshrc
+# containing nothing but zsh-defer and this plugin — deferred load leaves it
+# absent, eager load works — so it is a plain zsh-defer/f-sy-h incompatibility,
+# not an interaction with anything else here. It costs ~21ms; syntax
+# highlighting that actually exists is worth 21ms.
+[[ -f "$ZSH_PLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]] \
+  && source "$ZSH_PLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+
+# zsh-autosuggestions — deferred (it survives zsh-defer fine, unlike the above).
+# Loading it AFTER the highlighter is the order upstream recommends, and
+# deferring it preserves that: the highlighter is already in place by the time
+# this runs at the first prompt.
 if (( $+functions[zsh-defer] )); then
   zsh-defer source "$ZSH_PLUGIN_DIR/zsh-autosuggestions/zsh-autosuggestions.zsh"
-  # fast-syntax-highlighting MUST be last among the highlighters.
-  zsh-defer source "$ZSH_PLUGIN_DIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
 fi
 
 # gt (graphite CLI) completions

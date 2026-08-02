@@ -14,4 +14,4 @@
 # vs:
 #   opencode                         # vanilla mode (default)
 
-exec env XDG_CONFIG_HOME="$HOME/.config/oc" opencode "$@"
+exec env XDG_CONFIG_HOME="$HOME/.config/oc" "$HOME/.local/bin/opencode" "$@"

@@ -1,0 +1,19 @@
+#!/bin/sh
+set -eu
+
+repo=https://github.com/phall1/opencode-worktree.git
+rev=ca76226f5c5f147d02b35f6ef76145ec11d63a59
+dest=${XDG_DATA_HOME:-"$HOME/.local/share"}/opencode-worktree
+
+mkdir -p "${dest%/*}"
+if [ ! -d "$dest/.git" ]; then
+  git clone --quiet "$repo" "$dest"
+elif [ "$(git -C "$dest" remote get-url origin)" != "$repo" ]; then
+  printf 'opencode-worktree: unexpected origin in %s\n' "$dest" >&2
+  exit 1
+fi
+
+if [ "$(git -C "$dest" rev-parse HEAD)" != "$rev" ]; then
+  git -C "$dest" fetch --quiet origin "$rev"
+  git -C "$dest" checkout --quiet --detach "$rev"
+fi

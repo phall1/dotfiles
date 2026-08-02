@@ -41,6 +41,9 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 [[ -d "$HOME/.npm-global/bin" ]] && export PATH="$HOME/.npm-global/bin:$PATH"
 [[ -d "$HOME/.kimi-code/bin" ]]  && export PATH="$HOME/.kimi-code/bin:$PATH"
 [[ -d "$HOME/.grok/bin" ]]       && export PATH="$HOME/.grok/bin:$PATH"
+# Keep managed launchers ahead of the vendor bins they wrap (notably
+# ~/.local/bin/opencode -> ~/.opencode/bin/opencode).
+[[ -d "$HOME/.local/bin" ]]      && export PATH="$HOME/.local/bin:$PATH"
 
 # ============================================================================
 # Plugins — loaded from $XDG_DATA_HOME/zsh/plugins (see zsh/plugins.lock).

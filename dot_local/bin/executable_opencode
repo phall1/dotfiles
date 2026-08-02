@@ -1,0 +1,9 @@
+#!/bin/sh
+set -eu
+
+shim=${XDG_DATA_HOME:-"$HOME/.local/share"}/opencode-worktree/bin/opencode
+if [ ! -x "$shim" ]; then
+  printf 'opencode-worktree is not installed; run chezmoi apply\n' >&2
+  exit 1
+fi
+exec "$shim" "$@"

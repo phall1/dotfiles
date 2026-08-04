@@ -1,0 +1,5 @@
+#!/bin/sh
+# Prompt for tool permissions instead of inheriting the global bypass default.
+set -eu
+
+exec claude --permission-mode manual "$@"

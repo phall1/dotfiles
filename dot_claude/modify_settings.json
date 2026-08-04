@@ -11,8 +11,8 @@
 # overwriting the file.
 #
 # Managed (enforced) keys win on conflict; everything else on disk -- herdr's
-# hooks, permissions.defaultMode, skipAutoPermissionPrompt, etc. -- is
-# preserved untouched. Requires jq.
+# hooks, status line, project state, etc. -- is preserved untouched. Requires
+# jq.
 
 set -eu
 
@@ -27,6 +27,9 @@ managed='{
   "theme": "dark",
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
+  "permissions": {
+    "defaultMode": "bypassPermissions"
+  },
   "alwaysThinkingEnabled": true,
   "showThinkingSummaries": true,
   "editorMode": "vim",

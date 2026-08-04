@@ -1,0 +1,5 @@
+#!/bin/sh
+# Restore Codex's standard workspace sandbox and on-request approvals.
+set -eu
+
+exec codex --sandbox workspace-write --ask-for-approval on-request "$@"

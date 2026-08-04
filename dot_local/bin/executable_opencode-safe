@@ -1,0 +1,6 @@
+#!/bin/sh
+# Override the global allow policy with prompts for this OpenCode process.
+set -eu
+
+export OPENCODE_CONFIG_CONTENT='{"permission":"ask"}'
+exec opencode "$@"

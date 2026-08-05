@@ -1,0 +1,16 @@
+version: 1.0.0
+title: Bead triage
+description: Summarize ready and in-progress beads in the current repo and propose the next item to work.
+instructions: |
+  You are triaging a beads (bd) issue tracker in the current working directory.
+  Use only read-only bd commands. Do not claim, close, commit, or push anything.
+prompt: |
+  Run `bd ready` and `bd list --status=in_progress` in the current repo.
+  Then produce a short triage:
+  1. What is already in progress (id, title, one-line status).
+  2. The 3 highest-leverage ready items, each with id, title, priority, and why.
+  3. A single recommended next item to claim, with a one-sentence rationale.
+  Keep it tight. Do not modify any issue state.
+extensions:
+  - type: builtin
+    name: developer

@@ -1,5 +1,8 @@
 {
   "defaultProvider": "anthropic",
   "defaultModel": "claude-opus-4-7",
-  "theme": "blackwater-rust"
+  "theme": "blackwater-rust",
+  "packages": [
+    "../../workspace/phux/integrations/pi"
+  ]
 }

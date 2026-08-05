@@ -1,0 +1,27 @@
+# Global Goose hints (phall)
+
+Durable working conventions that apply across projects. Repo-specific rules
+live in a repo-level `.goosehints` and take precedence.
+
+## Task tracking
+- In any repo with a `.beads/` directory, use **bd (beads)** for task tracking,
+  not ad-hoc TODO lists. `bd ready` to find work, `bd show <id>` for detail,
+  `bd update <id> --claim` to start, `bd close <id>` when done.
+- Do not `git commit`/`push` or run remote sync unless explicitly asked.
+
+## Dotfiles are chezmoi-managed
+- Files under `~/.config`, `~/.zshrc`, etc. are managed by chezmoi with the
+  source in `~/dotfiles`. Edit the **source** (`chezmoi edit` or the
+  `~/dotfiles/...` file), then `chezmoi apply` — never edit the live file
+  directly, or the change is lost on next apply.
+
+## Data access
+- Prefer service-layer CLIs and typed APIs over raw database access. Do not
+  reach for `psql`/raw SQL against a durable application datastore for
+  diagnostics; use the app's own read commands. Raw DB access should be a
+  deliberate, logged exception, not a reflex.
+
+## Style
+- No emojis in committed files (code, configs, commit messages).
+- Match the surrounding code's conventions, naming, and comment density.
+- Lead with the outcome; keep explanations in prose, not fragment chains.

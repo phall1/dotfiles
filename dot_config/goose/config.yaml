@@ -8,7 +8,7 @@ extensions:
     bundled: true
     available_tools: []
   code_execution:
-    enabled: false
+    enabled: true
     type: platform
     name: code_execution
     description: Goose will make extension calls through code execution, saving tokens
@@ -32,7 +32,7 @@ extensions:
     bundled: true
     available_tools: []
   chatrecall:
-    enabled: false
+    enabled: true
     type: platform
     name: chatrecall
     description: Search past conversations and load session summaries for contextual memory
@@ -95,6 +95,50 @@ extensions:
     display_name: Todo
     bundled: true
     available_tools: []
+  computercontroller:
+    enabled: true
+    type: builtin
+    name: computercontroller
+    description: Web scraping, automation, and desktop/computer control
+    display_name: Computer Controller
+    timeout: 300
+    bundled: true
+    available_tools: []
+  fetch:
+    enabled: true
+    type: stdio
+    name: fetch
+    cmd: uvx
+    args:
+    - mcp-server-fetch
+    envs: {}
+    env_keys: []
+    description: Fetch a URL and return its content as markdown
+    timeout: 300
+    bundled: null
+    available_tools: []
+  buzz:
+    enabled: true
+    type: stdio
+    name: buzz
+    cmd: /Applications/Buzz.app/Contents/MacOS/buzz-dev-mcp
+    args: []
+    envs: {}
+    env_keys: []
+    description: Buzz collaboration workspace tools (channels, threads, shared surfaces)
+    timeout: 300
+    bundled: null
+    available_tools: []
 CLAUDE_CODE_COMMAND: claude
-GOOSE_PROVIDER: claude-code
-GOOSE_MODEL: default
+providers:
+  claude-code:
+    enabled: true
+    model: default
+    configured: true
+  chatgpt_codex:
+    enabled: true
+    model: gpt-5.6-sol
+    configured: true
+active_provider: chatgpt_codex
+GOOSE_THINKING_EFFORT: high
+GOOSE_TELEMETRY_ENABLED: false

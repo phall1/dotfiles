@@ -68,3 +68,7 @@ fi
 [[ -f "$HOME/.orbstack/shell/init.zsh" ]] && \
   source "$HOME/.orbstack/shell/init.zsh" 2>/dev/null || :
 
+# Explicit startup sentinel. Environment variables such as NIX_PROFILES can be
+# injected by launchd without this profile ever running, so they cannot prove
+# that PATH initialization above has happened.
+export DOTFILES_ZPROFILE_SOURCED=1

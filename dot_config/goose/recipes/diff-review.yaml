@@ -1,0 +1,17 @@
+version: 1.0.0
+title: Diff review
+description: Review the current uncommitted git diff for correctness, risk, and missing tests.
+instructions: |
+  You are reviewing the working-tree diff in the current repo. Read-only:
+  do not edit files, stage, commit, or push. Focus on defects a reviewer would
+  block on, not style nits.
+prompt: |
+  Run `git diff` (and `git diff --staged`) in the current repo. Review the
+  changes and report:
+  1. Correctness bugs or edge cases the change introduces or misses.
+  2. Anything risky: security, data loss, irreversible ops, broad blast radius.
+  3. Test coverage gaps for the changed behavior.
+  Rank findings most-severe first. If the diff is clean, say so plainly.
+extensions:
+  - type: builtin
+    name: developer

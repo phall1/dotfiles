@@ -1,0 +1,167 @@
+#!/usr/bin/env bash
+# dot-repo-preset — push repo policy from a JSON preset to GitHub repos.
+#
+# GitHub has no account-level rulesets; only orgs get "define once, target
+# many". This is the personal-account substitute: the policy lives in
+# $XDG_CONFIG_HOME/gh-repo-preset/default.json and gets pushed with `gh`.
+#
+# Idempotent. Drift is detected by deep containment — a repo is in spec when
+# every key the preset names matches, extra fields GitHub returns are ignored.
+#
+#   dot-repo-preset phux-cockpit          # one repo (owner defaults to you)
+#   dot-repo-preset phall1/foo bar        # several
+#   dot-repo-preset --all --dry-run       # what would change across all repos
+#
+# Exit codes: 0 nothing to do or all applied, 1 drift found (--dry-run), 2 error.
+
+set -uo pipefail
+
+RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'; DIM=$'\033[2m'; RST=$'\033[0m'
+
+PRESET="${XDG_CONFIG_HOME:-$HOME/.config}/gh-repo-preset/default.json"
+DRY=0
+ALL=0
+OWNER=""
+repos=()
+
+usage() {
+  sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
+  exit "${1:-0}"
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --all)          ALL=1; shift ;;
+    --dry-run|-n)   DRY=1; shift ;;
+    --preset)       PRESET="$2"; shift 2 ;;
+    --owner)        OWNER="$2"; shift 2 ;;
+    -h|--help)      usage 0 ;;
+    -*)             printf "${RED}unknown flag: %s${RST}\n" "$1" >&2; usage 2 ;;
+    *)              repos+=("$1"); shift ;;
+  esac
+done
+
+for bin in gh jq; do
+  command -v "$bin" >/dev/null 2>&1 || { printf "${RED}%s not found${RST}\n" "$bin" >&2; exit 2; }
+done
+[[ -f "$PRESET" ]] || { printf "${RED}preset not found: %s${RST}\n" "$PRESET" >&2; exit 2; }
+jq -e . "$PRESET" >/dev/null 2>&1 || { printf "${RED}preset is not valid JSON: %s${RST}\n" "$PRESET" >&2; exit 2; }
+
+[[ -n "$OWNER" ]] || OWNER=$(gh api user --jq .login 2>/dev/null) || {
+  printf "${RED}not authenticated — run: gh auth login${RST}\n" >&2; exit 2; }
+
+if [[ "$ALL" -eq 1 ]]; then
+  # --source excludes forks; archived repos reject writes, so drop them too.
+  while IFS= read -r line; do
+    [[ -n "$line" ]] && repos+=("$line")
+  done < <(gh repo list "$OWNER" --source --limit 500 \
+    --json nameWithOwner,isArchived \
+    --jq '.[] | select(.isArchived | not) | .nameWithOwner')
+fi
+
+[[ ${#repos[@]} -gt 0 ]] || { printf "${DIM}no repos given — pass names or --all${RST}\n"; usage 2; }
+
+settings=$(jq -c '.repo_settings // {}' "$PRESET")
+n_rulesets=$(jq '.rulesets // [] | length' "$PRESET")
+
+drift=0
+errors=0
+
+# in_spec <remote-json> <desired-json> — true when desired is deeply contained.
+in_spec() { jq -e --argjson want "$2" '. as $have | $have | contains($want)' >/dev/null 2>&1 <<<"$1"; }
+
+apply_settings() {
+  local repo="$1" current
+  current=$(gh api "repos/$repo" 2>/dev/null) || {
+    printf "  ${RED}✗${RST} repo not found or no access\n"; errors=$((errors+1)); return 1; }
+
+  if in_spec "$current" "$settings"; then
+    printf "  ${GRN}✓${RST} merge settings ${DIM}(in spec)${RST}\n"
+    return 0
+  fi
+
+  local diff
+  diff=$(jq -r --argjson want "$settings" --argjson have "$current" \
+    -n '$want | to_entries[] | select($have[.key] != .value)
+        | "      \(.key): \($have[.key] | tojson) -> \(.value | tojson)"')
+
+  if [[ "$DRY" -eq 1 ]]; then
+    printf "  ${YLW}⚠${RST} merge settings ${DIM}(would change)${RST}\n%s\n" "$diff"
+    drift=$((drift+1))
+    return 0
+  fi
+
+  if gh api --method PATCH "repos/$repo" --input - >/dev/null 2>&1 <<<"$settings"; then
+    printf "  ${GRN}✓${RST} merge settings ${DIM}(updated)${RST}\n%s\n" "$diff"
+  else
+    printf "  ${RED}✗${RST} merge settings — PATCH failed\n"
+    errors=$((errors+1))
+  fi
+}
+
+apply_ruleset() {
+  local repo="$1" want="$2" name id remote
+  name=$(jq -r .name <<<"$want")
+
+  local existing
+  existing=$(gh api "repos/$repo/rulesets" 2>/dev/null) || existing="[]"
+  id=$(jq -r --arg n "$name" '.[] | select(.name == $n) | .id' <<<"$existing" | head -1)
+
+  if [[ -n "$id" ]]; then
+    # The list endpoint omits rules/bypass_actors; fetch the full object.
+    remote=$(gh api "repos/$repo/rulesets/$id" 2>/dev/null) || remote="{}"
+    if in_spec "$remote" "$want"; then
+      printf "  ${GRN}✓${RST} ruleset '%s' ${DIM}(in spec)${RST}\n" "$name"
+      return 0
+    fi
+    if [[ "$DRY" -eq 1 ]]; then
+      printf "  ${YLW}⚠${RST} ruleset '%s' ${DIM}(would update)${RST}\n" "$name"
+      drift=$((drift+1))
+      return 0
+    fi
+    if gh api --method PUT "repos/$repo/rulesets/$id" --input - >/dev/null 2>&1 <<<"$want"; then
+      printf "  ${GRN}✓${RST} ruleset '%s' ${DIM}(updated)${RST}\n" "$name"
+    else
+      printf "  ${RED}✗${RST} ruleset '%s' — PUT failed\n" "$name"
+      errors=$((errors+1))
+    fi
+    return 0
+  fi
+
+  if [[ "$DRY" -eq 1 ]]; then
+    printf "  ${YLW}⚠${RST} ruleset '%s' ${DIM}(would create)${RST}\n" "$name"
+    drift=$((drift+1))
+    return 0
+  fi
+  if gh api --method POST "repos/$repo/rulesets" --input - >/dev/null 2>&1 <<<"$want"; then
+    printf "  ${GRN}✓${RST} ruleset '%s' ${DIM}(created)${RST}\n" "$name"
+  else
+    printf "  ${RED}✗${RST} ruleset '%s' — POST failed\n" "$name"
+    errors=$((errors+1))
+  fi
+}
+
+[[ "$DRY" -eq 1 ]] && printf "${DIM}dry run — nothing will be written${RST}\n"
+
+for repo in "${repos[@]}"; do
+  [[ "$repo" == */* ]] || repo="$OWNER/$repo"
+  printf "\n${DIM}#${RST} %s\n" "$repo"
+
+  apply_settings "$repo" || continue
+
+  for ((i = 0; i < n_rulesets; i++)); do
+    apply_ruleset "$repo" "$(jq -c ".rulesets[$i]" "$PRESET")"
+  done
+done
+
+echo
+if [[ "$errors" -gt 0 ]]; then
+  printf "${RED}%d error(s)${RST}\n" "$errors"
+  exit 2
+fi
+if [[ "$drift" -gt 0 ]]; then
+  printf "${YLW}%d item(s) out of spec${RST} — rerun without --dry-run to apply\n" "$drift"
+  exit 1
+fi
+printf "${GRN}all in spec${RST}\n"
+exit 0

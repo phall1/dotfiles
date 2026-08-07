@@ -1,8 +1,10 @@
-# Auto-unlock the 1Password CLI session in interactive shells.
-# Guarded to interactive-only: `op signin` blocks on a password prompt, and
-# running it in non-interactive contexts (scripts, tool probes, git hooks
-# spawning zsh) would hang or corrupt their stdout. Skipped silently if `op`
-# isn't installed or a session is already live in this shell.
-if [[ -o interactive ]] && command -v op &>/dev/null && ! op whoami &>/dev/null; then
-  eval "$(op signin)"
+# Lazily unlock the 1Password CLI session: only on first actual `op` use in
+# a shell, not on every shell open. `op signin` blocks on a password prompt,
+# so an eager version (run unconditionally at shell startup) prompts even in
+# shells that never touch 1Password — that's needlessly disruptive.
+if command -v op &>/dev/null; then
+  op() {
+    command op whoami &>/dev/null || eval "$(command op signin)"
+    command op "$@"
+  }
 fi

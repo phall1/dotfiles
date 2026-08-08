@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# (Re)loads the phux-update-check LaunchAgent whenever its plist or script
+# changes. Hash comments below are the trigger. macOS only — no-op elsewhere.
+#
+# {{ include "Library/LaunchAgents/com.phux.update-check.plist.tmpl" | sha256sum }}
+# {{ include "dot_local/bin/executable_phux-update-check" | sha256sum }}
+
+set -euo pipefail
+
+if ! command -v launchctl >/dev/null 2>&1; then
+  printf "phux-update-check: launchctl not found — skipping (non-macOS host).\n" >&2
+  exit 0
+fi
+
+domain="gui/$(id -u)"
+plist="{{ .chezmoi.homeDir }}/Library/LaunchAgents/com.phux.update-check.plist"
+
+launchctl bootout "$domain/com.phux.update-check" >/dev/null 2>&1 || true
+launchctl bootstrap "$domain" "$plist"
+launchctl enable "$domain/com.phux.update-check"

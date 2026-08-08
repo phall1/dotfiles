@@ -1,0 +1,27 @@
+#!/bin/sh
+# Notify (macOS notification + log line) when a newer phux is available via
+# Homebrew. Never installs anything itself — see ADR-0074 in the phux repo
+# for why self-update stays a deliberate, manual step. macOS + Homebrew only;
+# a no-op elsewhere so this stays safe to sync to non-macOS dotfiles hosts.
+set -eu
+
+FORMULA="phall1/tap/phux"
+LOG="$HOME/.local/state/phux/update-check.log"
+
+command -v brew >/dev/null 2>&1 || exit 0
+command -v phux >/dev/null 2>&1 || exit 0
+command -v osascript >/dev/null 2>&1 || exit 0
+
+mkdir -p "$(dirname "$LOG")"
+
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_NO_INSTALL_CLEANUP=1
+
+OUTDATED="$(brew outdated --quiet "$FORMULA" 2>/dev/null || true)"
+
+if [ -n "$OUTDATED" ]; then
+  CURRENT="$(phux --version 2>/dev/null | awk '{print $2}')"
+  MSG="phux $CURRENT is outdated. Run: brew upgrade $FORMULA && phux upgrade"
+  printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$MSG" >> "$LOG"
+  osascript -e "display notification \"brew upgrade $FORMULA && phux upgrade\" with title \"phux update available\" subtitle \"currently $CURRENT\" sound name \"Glass\""
+fi

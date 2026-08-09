@@ -11,7 +11,6 @@ covers the universal substrate. This file is the Claude-flavored supplement.
 |---|---|---|
 | `/discover` skill | `dot_claude/skills/discover/SKILL.md` + `dot_local/bin/executable_claude-discover` | Run when the user asks about enabled hooks, MCP servers, experimental flags, or "what's new." Snapshots the current Claude Code surface and diffs against the last snapshot at `$XDG_STATE_HOME/dotfiles/claude/known-features.json`. |
 | `repo-onboarding` skill | `dot_claude/skills/repo-onboarding/SKILL.md` | Read yourself in at session start. Detects stack, conventions, in-flight work. Read-only. |
-| `linear-release` skill | `dot_claude/skills/linear-release/SKILL.md` | Wire a repo into a Linear Release Pipeline, or report a release into one. The tool it drives lives in [`phall1/.github`](https://github.com/phall1/.github/tree/main/actions/linear-release), not here — it is shared with CI. |
 | Custom agents | `dot_claude/agents/*.md` | `terminal-executor` is the only one currently tracked. Add more here, not as untracked files in `~/.claude/agents/`. |
 | User settings | `dot_claude/settings.json` | Plugin enables, `effortLevel`, dangerous-mode setting. Tracked. |
 | Project-local permissions | `.claude/settings.local.json` (gitignored) | Per-machine, never tracked. The global `~/.config/git/ignore` enforces. |
@@ -45,7 +44,7 @@ listed with `uv tool list`, and their source lives in whichever repo owns them:
 
 ```sh
 uv tool list                          # what is installed
-uv tool upgrade linear-release        # source: phall1/.github
+uv tool upgrade <name>                # or `uv tool upgrade --all`
 ```
 
 **Python is always run through `uv`** — never bare `python3`, `pip`, `venv`, or

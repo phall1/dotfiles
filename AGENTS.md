@@ -259,6 +259,15 @@ no behavior change. `chore:` housekeeping. `docs:` docs only.
 `-euo pipefail` for one-shot scripts). zsh: prefer `[[ ]]` over `[ ]`. Comments
 explain why, not what. No emojis unless decorating ASCII output.
 
+**Python is always `uv`** — no bare `python3 foo.py`, no `pip install`, no
+hand-rolled venv, no `pipx`. A single-file script carries PEP 723 inline
+metadata and a `#!/usr/bin/env -S uv run --script` shebang. Anything with a CLI
+entry point is a package installed with `uv tool install`, not a loose file
+dropped in `dot_local/bin/`. In GitHub Actions, install uv with
+`astral-sh/setup-uv` (SHA-pinned) and invoke through `uv run`. This applies
+when editing existing scripts and docs too: a `python3` or `pip` reference you
+touch gets converted as part of the change.
+
 ---
 
 ## Reading more

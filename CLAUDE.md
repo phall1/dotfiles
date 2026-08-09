@@ -11,6 +11,7 @@ covers the universal substrate. This file is the Claude-flavored supplement.
 |---|---|---|
 | `/discover` skill | `dot_claude/skills/discover/SKILL.md` + `dot_local/bin/executable_claude-discover` | Run when the user asks about enabled hooks, MCP servers, experimental flags, or "what's new." Snapshots the current Claude Code surface and diffs against the last snapshot at `$XDG_STATE_HOME/dotfiles/claude/known-features.json`. |
 | `repo-onboarding` skill | `dot_claude/skills/repo-onboarding/SKILL.md` | Read yourself in at session start. Detects stack, conventions, in-flight work. Read-only. |
+| `linear-release` skill | `dot_claude/skills/linear-release/SKILL.md` | Wire a repo into a Linear Release Pipeline, or report a release into one. The tool it drives lives in [`phall1/.github`](https://github.com/phall1/.github/tree/main/actions/linear-release), not here — it is shared with CI. |
 | Custom agents | `dot_claude/agents/*.md` | `terminal-executor` is the only one currently tracked. Add more here, not as untracked files in `~/.claude/agents/`. |
 | User settings | `dot_claude/settings.json` | Plugin enables, `effortLevel`, dangerous-mode setting. Tracked. |
 | Project-local permissions | `.claude/settings.local.json` (gitignored) | Per-machine, never tracked. The global `~/.config/git/ignore` enforces. |
@@ -38,6 +39,20 @@ If the user asks "is my setup healthy" — run `dot-doctor` and report.
 If "is anything slow" — run `dot-bench`.
 If "what's new in Claude Code" — invoke the `discover` skill (or run
 `claude-discover` directly if the skill isn't picking up).
+
+Not everything on PATH is tracked here. `uv`-installed tools are managed by uv,
+listed with `uv tool list`, and their source lives in whichever repo owns them:
+
+```sh
+uv tool list                          # what is installed
+uv tool upgrade linear-release        # source: phall1/.github
+```
+
+**Python is always run through `uv`** — never bare `python3`, `pip`, `venv`, or
+`pipx`, in scripts, docs, or workflows. A one-off script gets PEP 723 inline
+metadata plus a `#!/usr/bin/env -S uv run --script` shebang; anything with a CLI
+entry point becomes a package installed with `uv tool install`. When you touch a
+file that still says `python3` or `pip`, convert it as part of the change.
 
 ---
 

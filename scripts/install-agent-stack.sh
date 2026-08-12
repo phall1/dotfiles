@@ -4,7 +4,7 @@ set -euo pipefail
 
 PI_VERSION=0.84.1
 WEB_VERSION=2.1.11
-BLACKBIRD_VERSION=0.2.0
+BLACKBIRD_VERSION=0.3.0
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 
 if ! command -v npm >/dev/null 2>&1; then
@@ -19,6 +19,7 @@ npm install --global --ignore-scripts --prefix "$NPM_PREFIX" \
 
 pi_bin="$NPM_PREFIX/bin/pi"
 for package in \
+  npm:blackbird-pi@0.1.0 \
   npm:pi-subagents@0.47.1 \
   npm:@juicesharp/rpiv-ask-user-question@2.4.0 \
   npm:@narumitw/pi-goal@0.51.0 \
@@ -46,8 +47,6 @@ install_blackbird_linux_release() (
   (cd "$tmp" && sha256sum -c "$archive.sha256")
   tar -xzf "$tmp/$archive" -C "$tmp"
   install -m 0755 "$(find "$tmp" -type f -name blackbird -print -quit)" "$HOME/.local/bin/blackbird"
-  install -m 0755 "$(find "$tmp" -type f -name blackbird-claude -print -quit)" "$HOME/.local/bin/blackbird-claude"
-  install -m 0755 "$(find "$tmp" -type f -name blackbird-pi -print -quit)" "$HOME/.local/bin/blackbird-pi"
 )
 
 case "$(uname -s)" in

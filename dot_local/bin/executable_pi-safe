@@ -1,5 +1,4 @@
-#!/bin/sh
-# Read-only Pi session: explicitly allow only built-in inspection tools.
-set -eu
-
-exec pi --tools read,grep,find,ls "$@"
+#!/usr/bin/env bash
+# Compatibility alias. Spartan is inspect-only but still agentic.
+set -euo pipefail
+exec pi-inspect "$@"

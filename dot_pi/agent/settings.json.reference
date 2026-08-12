@@ -1,115 +1,18 @@
-// ╔══════════════════════════════════════════════════════════════════╗
-// ║  Pi Settings Reference                                           ║
-// ║  Copy values you want into settings.json (remove comments!)      ║
-// ║  Docs: https://pi.dev/docs/latest/settings                       ║
-// ║  Or run /settings inside pi.                                     ║
-// ╚══════════════════════════════════════════════════════════════════╝
-{
-  // ── Model & Thinking ────────────────────────────────────────────────
-  "defaultProvider": "anthropic",                  // anthropic|openai|google|azure|bedrock|mistral|groq|cerebras|xai|huggingface|kimi|minimax|openrouter|ollama|...
-  "defaultModel": "claude-sonnet-4-20250514",
-  "defaultThinkingLevel": "medium",                // off|minimal|low|medium|high|xhigh
-  "hideThinkingBlock": false,
-  "thinkingBudgets": {
-    "minimal": 1024,
-    "low": 4096,
-    "medium": 10240,
-    "high": 32768
-  },
+# Pi settings ownership reference
 
-  // ── Model Cycling (Ctrl+P) ──────────────────────────────────────────
-  "enabledModels": ["claude-*", "gpt-4o", "gemini-2*"],
+`~/.pi/agent/settings.json` is reconciled by `modify_settings.json`, not copied.
 
-  // ── UI & Display ────────────────────────────────────────────────────
-  "theme": "dark",                                 // dark|light|<custom theme name>
-  "quietStartup": false,
-  "collapseChangelog": false,
-  "doubleEscapeAction": "tree",                    // tree|fork|none
-  "treeFilterMode": "default",                     // default|no-tools|user-only|labeled-only|all
-  "editorPaddingX": 0,                             // 0-3
-  "autocompleteMaxVisible": 5,                     // 3-20
-  "showHardwareCursor": false,
+Chezmoi manages:
+- `theme: blackwater-rust`
+- `defaultProjectTrust: always`
+- install telemetry disabled
+- reviewed package pins
+- model-neutral builtin subagent tool overrides
 
-  // ── Telemetry / Updates ─────────────────────────────────────────────
-  // anonymous install/update ping only — does NOT control update checks.
-  // disable update checks: PI_SKIP_VERSION_CHECK=1
-  // disable all startup network ops: --offline or PI_OFFLINE=1
-  "enableInstallTelemetry": true,
+Pi/runtime owns everything else, including provider, model, thinking level,
+changelog state, authentication, trust records, sessions, caches, and unknown
+future keys. The merge preserves those keys.
 
-  // ── Warnings ────────────────────────────────────────────────────────
-  "warnings": {
-    "anthropicExtraUsage": true                    // warn on Anthropic subscription paid extra usage
-  },
-
-  // ── Compaction ──────────────────────────────────────────────────────
-  "compaction": {
-    "enabled": true,
-    "reserveTokens": 16384,
-    "keepRecentTokens": 20000
-  },
-
-  // ── Branch Summary ──────────────────────────────────────────────────
-  "branchSummary": {
-    "reserveTokens": 16384,
-    "skipPrompt": false                            // skip "Summarize branch?" prompt on /tree navigation
-  },
-
-  // ── Retry ───────────────────────────────────────────────────────────
-  "retry": {
-    "enabled": true,
-    "maxRetries": 3,
-    "baseDelayMs": 2000,
-    "provider": {
-      "timeoutMs": 3600000,
-      "maxRetries": 0,
-      "maxRetryDelayMs": 60000                     // cap on server-requested delay (set 0 to disable)
-    }
-  },
-
-  // ── Message Delivery ────────────────────────────────────────────────
-  "steeringMode": "one-at-a-time",                 // one-at-a-time|all
-  "followUpMode": "one-at-a-time",                 // one-at-a-time|all
-  "transport": "sse",                              // sse|websocket|auto
-
-  // ── Terminal & Images ───────────────────────────────────────────────
-  "terminal": {
-    "showImages": true,
-    "imageWidthCells": 60,
-    "clearOnShrink": false
-  },
-  "images": {
-    "autoResize": true,
-    "blockImages": false
-  },
-
-  // ── Shell ───────────────────────────────────────────────────────────
-  "shellPath": "/bin/zsh",
-  "shellCommandPrefix": "",                        // e.g. "shopt -s expand_aliases"
-  // "npmCommand": ["mise", "exec", "node@20", "--", "npm"],
-
-  // ── Sessions ────────────────────────────────────────────────────────
-  // "sessionDir": ".pi/sessions",                 // override session storage location
-
-  // ── Markdown ────────────────────────────────────────────────────────
-  "markdown": {
-    "codeBlockIndent": "  "
-  },
-
-  // ── Resources ───────────────────────────────────────────────────────
-  // Paths in ~/.pi/agent/settings.json resolve relative to ~/.pi/agent.
-  // Arrays support globs + exclusions: "!pattern", "+path", "-path".
-  "extensions": [],
-  "skills": [],
-  "prompts": [],
-  "themes": [],
-
-  // ── Skills ──────────────────────────────────────────────────────────
-  "enableSkillCommands": true,                     // register skills as /skill:name commands
-
-  // ── Packages (npm / git) ────────────────────────────────────────────
-  // String form loads everything; object form filters resources.
-  // Examples:
-  //   "packages": ["pi-skills", "@org/my-extension"]
-  //   "packages": [{ "source": "pi-skills", "skills": ["brave-search"], "extensions": [] }]
-  "packages": []
-}
+Package pins are declared in `modify_settings.json`. The optional local Phux
+package is retained and added only when `$HOME/workspace/phux/integrations/pi`
+exists; it is not a portable dependency.

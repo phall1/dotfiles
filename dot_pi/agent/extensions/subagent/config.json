@@ -1,0 +1,39 @@
+{
+  "artifactDir": "session",
+  "toolDescriptionMode": "compact",
+  "asyncByDefault": true,
+  "fleetView": true,
+  "asyncWidget": true,
+  "waitTool": { "enabled": true },
+  "globalConcurrencyLimit": 32,
+  "maxSubagentSpawnsPerSession": 0,
+  "maxSubagentDepth": 4,
+  "parallel": {
+    "maxTasks": 24,
+    "concurrency": 8
+  },
+  "worktreeBaseDir": "~/.local/share/pi-subagents/worktrees",
+  "missions": {
+    "enabled": true,
+    "directory": "~/.local/share/pi-subagents/missions",
+    "globalIndex": true,
+    "retainTerminal": 200
+  },
+  "scheduledRuns": {
+    "enabled": true,
+    "maxPending": 20,
+    "storeRoot": "~/.local/share/pi-subagents/schedules"
+  },
+  "intercomBridge": {
+    "mode": "always",
+    "resultDelivery": false
+  },
+  "authorityPolicy": {
+    "discardWorktree": "auto",
+    "destructiveCleanup": "auto",
+    "spawnBudgetGrant": "auto",
+    "scheduleCreate": "auto",
+    "stopRun": "auto",
+    "steerRun": "auto"
+  }
+}

@@ -55,6 +55,15 @@ for pkg in "${nix_packages[@]}"; do
     || echo "  (nix install failed for $pkg — install manually if needed)"
 done
 
+# Ensure an LTS Node/npm exists before provisioning the shared agent stack.
+eval "$(fnm env --shell bash)"
+if ! command -v npm >/dev/null 2>&1; then
+  fnm install --lts --use
+  fnm default "$(fnm current)"
+  eval "$(fnm env --shell bash)"
+fi
+"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/install-agent-stack.sh"
+
 # Rust (Pi binaries: prefer rustup direct over apt's old rustc).
 if ! command -v rustup >/dev/null 2>&1; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y --default-toolchain stable

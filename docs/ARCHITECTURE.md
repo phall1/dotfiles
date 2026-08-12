@@ -5,6 +5,39 @@ If a choice here is wrong, propose changing it — don't quietly work around it.
 
 ---
 
+## Portable agent stack
+
+The global agent substrate is layered rather than harness-specific:
+
+1. Shared chezmoi templates define the autonomy boundary plus delegation and
+   coordination. Claude, Codex, OpenCode, and Pi render both agreements.
+2. `~/.agents/skills/` is the canonical harness-neutral skill home. Harnesses
+   that need adapters receive chezmoi symlinks rather than copied skills.
+3. `~/.config/mcp/mcp.json` is the secret-free shared MCP layer. Blackbird at
+   `127.0.0.1:8081` is the sole durable mail, reservation, and run authority.
+4. Thin launchers select Pi profiles: Commander is the productive default,
+   Spartan is read-only for local code/command execution with a monotonic
+   delegated ceiling, and YOLO explicitly widens delegation depth. Spartan may
+   still mutate explicit coordination state (mail, acknowledgements, and path
+   reservations). Profiles never pin a model or provider.
+
+Pi settings use a two-writer `modify_` merge. Chezmoi owns theme, project trust,
+telemetry, reviewed package pins, and role infrastructure. Pi owns auth, trust
+records, sessions, caches, provider/model/thinking choices, and unknown runtime
+keys. `scripts/install-agent-stack.sh` installs reviewed CLI versions. A
+portable `~/.pi/agent/node_modules -> npm/node_modules` bridge lets tracked Pi
+extensions import public package APIs without private paths or copied protocol.
+
+Blackbird v0.1.3 has an MCP schema conformance defect: composite output schemas
+omit a root `type: object`, which pi-mcp-adapter 2.23.0 correctly rejects. A
+minimal upstream fix adding that root type plus a tools/list regression test is
+proven locally; production remains on the released binary until a fixed release
+is published and approved for the portable installer.
+
+Tool allowlists are not operating-system sandboxes. For hostile code or strong
+containment use a disposable container/VM or Pi's documented sandbox extension;
+Commander and Spartan describe authority, not process isolation.
+
 ## Operating principles
 
 1. **The shell is a substrate.** Every layer is observable, measured, and

@@ -59,9 +59,9 @@
       "package": "blackbird-opencode@0.1.2",
       "options": {
         "baseUrl": "http://127.0.0.1:8080",
-        "projectKey": "~/workspace/blackmail",
+        "projectKey": "~/workspace/blackbird",
         "agentName": "OpenCodePush",
-        "routing": { "mode": "fixed", "sessionID": "ses_008d7ad8affeYe2c7HKuBEhGNn" }
+        "routing": { "mode": "conversation", "agent": "OpenCodePush" }
       }
     }
   ],

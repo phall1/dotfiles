@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Honest inspect posture: no top-level mutation; delegation inherits the same ceiling.
+set -euo pipefail
+export PI_AGENT_ROLE=spartan
+exec pi --append-system-prompt 'Spartan inspect role: inspect, research, and delegate; do not mutate files or execute shell commands.' "$@"

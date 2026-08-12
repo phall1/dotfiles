@@ -1,0 +1,67 @@
+#!/bin/sh
+# chezmoi modify_ script -> ~/.pi/agent/settings.json
+#
+# Pi and its packages own runtime/provider state in this file. Chezmoi owns only
+# portable UI, trust, telemetry, package pins, and model-neutral subagent tool
+# policy. Managed values win; all unknown keys and local model choices survive.
+
+set -eu
+
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1 || current='{}'
+
+managed_packages='[
+  "npm:pi-subagents@0.47.1",
+  "npm:@juicesharp/rpiv-ask-user-question@2.4.0",
+  "npm:@narumitw/pi-goal@0.51.0",
+  "npm:@ff-labs/pi-fff@0.10.3",
+  "npm:pi-mcp-adapter@2.23.0",
+  "npm:pi-web-access@0.22.0"
+]'
+
+# This developer checkout is deliberately a machine-local overlay, not a
+# portable dependency. Keep an existing entry, and add it only when resolvable.
+phux='../../workspace/phux/integrations/pi'
+add_phux=false
+[ -d "$HOME/workspace/phux/integrations/pi" ] && add_phux=true
+
+managed='{
+  "theme": "blackwater-rust",
+  "defaultProjectTrust": "always",
+  "enableInstallTelemetry": false,
+  "subagents": {
+    "agentOverrides": {
+      "scout": {"tools": ["read", "grep", "find", "ls", "bash", "write", "intercom", "subagent"]},
+      "researcher": {"tools": ["read", "write", "web_search", "fetch_content", "get_search_content", "intercom", "subagent"]},
+      "worker": {"tools": ["read", "grep", "find", "ls", "bash", "edit", "write", "contact_supervisor", "subagent"]},
+      "reviewer": {"tools": ["read", "grep", "find", "ls", "intercom", "subagent"]},
+      "oracle": {"tools": ["read", "grep", "find", "ls", "bash", "intercom", "subagent"]},
+      "delegate": {"tools": ["read", "grep", "find", "ls", "bash", "edit", "write", "contact_supervisor", "subagent"]}
+    }
+  }
+}'
+
+result=$(printf '%s' "$current" | jq \
+  --argjson managed "$managed" \
+  --argjson pins "$managed_packages" \
+  --arg phux "$phux" \
+  --argjson addPhux "$add_phux" '
+    def managed_name:
+      (if type == "object" then (.source // null) else . end) as $value
+      | if ($value | type) != "string" then null
+        else ($value | sub("^npm:"; "")) as $s
+        | if $s | startswith("@")
+          then ($s | capture("^(?<n>@[^/]+/[^@]+)").n)
+          else ($s | split("@")[0])
+          end
+        end;
+    ($pins | map(managed_name)) as $names
+    | [(.packages // [])[] | select((managed_name as $n | ($n == null or ($names | index($n) | not))))] as $unmanaged
+    | ($unmanaged + $pins) as $packages
+    | ($packages | if ($addPhux and (index($phux) | not)) then . + [$phux] else . end) as $packages
+    | . * $managed
+    | .packages = $packages
+  ')
+
+[ -n "$result" ] && printf '%s\n' "$result"

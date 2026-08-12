@@ -2,6 +2,12 @@
 
 Two hosts, one source-of-truth: Mac (darwin/arm64) and Raspberry Pi (linux/arm64).
 
+Both bootstrap scripts install the pinned agent stack after an LTS Node is
+available. To refresh it independently, run `scripts/install-agent-stack.sh`,
+then `chezmoi apply` and `dot-doctor`. Authenticate Pi providers and optional
+web providers per machine; credentials and Blackbird state are never tracked.
+Use `pi-commander`, `pi-inspect` (also `pi-safe`), or explicit `pi-yolo`.
+
 ## Fresh Mac
 
 ```bash

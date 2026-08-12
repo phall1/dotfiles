@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# Productive default: broad local autonomy and delegation.
+set -euo pipefail
+export PI_AGENT_ROLE=commander
+exec pi "$@"

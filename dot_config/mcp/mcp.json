@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "blackbird": {
+      "url": "http://127.0.0.1:8081",
+      "lifecycle": "lazy-keep-alive",
+      "toolPrefix": "none",
+      "directTools": true
+    }
+  }
+}

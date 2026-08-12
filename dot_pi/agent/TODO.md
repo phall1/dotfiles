@@ -1,33 +1,23 @@
-# Pi Config TODO
+# Pi agent stack
 
-## Themes
-- [x] Activate `blackwater-rust.json` theme
-- [x] Align agent theme colors with Ghostty/nvim setup
-- [ ] Try built-in `dark` / `light` to compare
+The portable global stack is managed here and installed with
+`scripts/install-agent-stack.sh`.
 
-## Extensions to Explore
-- [ ] Vim-mode editor (`modal-editor.ts` example)
-- [ ] Custom footer (git branch, token stats, model info)
-- [ ] Status line / widgets
-- [ ] Plan mode (`plan-mode/` example)
-- [ ] Summarize extension (`summarize.ts` example)
-- [ ] Auto-commit on exit (`auto-commit-on-exit.ts` example)
+Runtime-only follow-ups are intentionally not tracked:
 
-## Skills
-- [ ] Set up Brave Search API key (needed by pi-skills + pi-amplike web search)
-- [ ] Set up browser-tools (Chrome DevTools automation)
-- [ ] Try Google Calendar/Drive/Gmail CLIs (gccli, gdcli, gmcli)
-- [ ] YouTube transcript skill
+- authenticate model providers with Pi on each machine;
+- configure optional web provider keys in `~/.pi/web-search.json`;
+- keep Blackbird registration tokens, cursors, sessions, and database state local;
+- use an OS/container sandbox when isolation is required (Pi tool allowlists are capability controls, not process sandboxes).
 
-## Settings to Tune
-- [ ] Default model / provider
-- [ ] Thinking level defaults
-- [ ] Compaction settings
-- [ ] Model cycling list (Ctrl+P)
-- [ ] Keybindings (emacs/vim style?)
+Run `dot-doctor` after `chezmoi apply`; use `pi list` and the `subagent` doctor action for deeper package diagnostics.
 
-## Ideas
-- [ ] Custom compaction strategy
-- [ ] Sub-agent workflows
-- [ ] SSH/sandbox execution extension
-- [ ] LSP-like diagnostics via extension (run tsc/eslint, feed results to LLM)
+## Release blocker
+
+Blackbird v0.1.3 omits the root `type: object` on composite MCP output schemas,
+so pi-mcp-adapter 2.23.0 rejects its tools/list response. The minimal upstream
+fix (`semanticOutputSchema.Type = "object"`) and a tools/list regression
+assertion were tested against the v0.1.3 source: focused Go tests pass and Pi
+directly called `blackbird_agent_register` against an isolated patched server. Keep the
+portable v0.1.3 pin until a fixed Blackbird release is published and approved;
+do not add a protocol proxy or patch npm internals.

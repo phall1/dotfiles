@@ -68,6 +68,15 @@ for formula in "${brew_formulae[@]}"; do
     install_formula "$formula"
 done
 
+# Ensure an LTS Node/npm exists before provisioning the shared agent stack.
+eval "$(fnm env --shell bash)"
+if ! command -v npm >/dev/null 2>&1; then
+    fnm install --lts --use
+    fnm default "$(fnm current)"
+    eval "$(fnm env --shell bash)"
+fi
+"$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/install-agent-stack.sh"
+
 # herdr owns its own agent-state hooks in ~/.claude/settings.json (and the
 # opencode plugin). We deliberately do NOT track those hooks in chezmoi — they
 # are versioned by herdr and regenerated here. The chezmoi modify_ script for

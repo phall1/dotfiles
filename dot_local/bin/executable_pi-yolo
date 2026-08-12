@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Explicit high-autonomy posture. The shared upstream boundary still applies.
+set -euo pipefail
+export PI_AGENT_ROLE=yolo
+export PI_SUBAGENT_MAX_DEPTH="${PI_SUBAGENT_MAX_DEPTH:-8}"
+exec pi --append-system-prompt 'YOLO role: use broad local autonomy and deep delegation where useful; continue to obey the shared upstream and third-party autonomy boundary.' "$@"

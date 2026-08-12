@@ -4,7 +4,7 @@ set -euo pipefail
 
 PI_VERSION=0.84.1
 WEB_VERSION=2.1.11
-BLACKBIRD_VERSION=0.1.8
+BLACKBIRD_VERSION=0.2.0
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 
 if ! command -v npm >/dev/null 2>&1; then
@@ -47,6 +47,7 @@ install_blackbird_linux_release() (
   tar -xzf "$tmp/$archive" -C "$tmp"
   install -m 0755 "$(find "$tmp" -type f -name blackbird -print -quit)" "$HOME/.local/bin/blackbird"
   install -m 0755 "$(find "$tmp" -type f -name blackbird-claude -print -quit)" "$HOME/.local/bin/blackbird-claude"
+  install -m 0755 "$(find "$tmp" -type f -name blackbird-pi -print -quit)" "$HOME/.local/bin/blackbird-pi"
 )
 
 case "$(uname -s)" in

@@ -58,8 +58,9 @@ done
 
 if command -v blackbird >/dev/null 2>&1; then
   bb_version="$(blackbird --version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
-  [[ "$bb_version" == "0.1.8" ]] && ok "Blackbird version pinned ($bb_version)" || warn "Blackbird version is ${bb_version:-unknown}; expected 0.1.8"
+  [[ "$bb_version" == "0.2.0" ]] && ok "Blackbird version pinned ($bb_version)" || warn "Blackbird version is ${bb_version:-unknown}; expected 0.2.0"
   command -v blackbird-claude >/dev/null 2>&1 && ok "Blackbird Claude companion installed" || fail "blackbird-claude missing"
+  command -v blackbird-pi >/dev/null 2>&1 && ok "Blackbird Pi companion installed" || fail "blackbird-pi missing"
   blackbird status >/dev/null 2>&1 && ok "Blackbird service reachable" || warn "Blackbird service not reachable — run scripts/install-agent-stack.sh"
 fi
 

@@ -10,6 +10,7 @@ src
 # purpose. Worse, it made `chezmoi status` list a dozen repo files as drifted
 # targets, burying the drift that actually matters.
 # These source-root names do not collide with nested managed config paths.
+.github
 AGENTS.md
 CLAUDE.md
 LICENSE
@@ -19,4 +20,5 @@ checks
 docs
 plugins.bin
 plugins.lock
+renovate.json
 scripts

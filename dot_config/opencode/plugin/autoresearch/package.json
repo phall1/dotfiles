@@ -8,6 +8,6 @@
     "test": "node --test"
   },
   "dependencies": {
-    "@opencode-ai/plugin": "*"
+    "@opencode-ai/plugin": "1.4.7"
   }
 }

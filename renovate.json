@@ -1,0 +1,83 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "America/Los_Angeles",
+  "schedule": ["every weekend"],
+  "prConcurrentLimit": 1,
+  "prHourlyLimit": 0,
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "groupName": "dotfiles dependencies",
+      "matchManagers": ["cargo", "npm", "custom.regex"]
+    },
+    {
+      "matchManagers": ["cargo", "npm", "custom.regex"],
+      "automerge": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Pinned Pi extension packages shared by installation, chezmoi reconciliation, and doctor checks",
+      "fileMatch": ["^(scripts/install-agent-stack\\.sh|dot_pi/agent/modify_settings\\.json|checks/pi\\.sh)$"],
+      "matchStrings": ["(?<depName>(?:@[\\w-]+/)?[\\w-]+)@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned Pi CLI version and its doctor assertion",
+      "fileMatch": ["^(scripts/install-agent-stack\\.sh|checks/pi\\.sh)$"],
+      "matchStrings": ["PI_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)", "\\[\\[ \\\"\\$version\\\" == \\\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\\""],
+      "depNameTemplate": "@earendil-works/pi-coding-agent",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned Open WebSearch CLI version",
+      "fileMatch": ["^scripts/install-agent-stack\\.sh$"],
+      "matchStrings": ["WEB_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
+      "depNameTemplate": "open-websearch",
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned Blackbird release and its doctor assertion",
+      "fileMatch": ["^(scripts/install-agent-stack\\.sh|checks/pi\\.sh)$"],
+      "matchStrings": ["BLACKBIRD_VERSION=(?<currentValue>\\d+\\.\\d+\\.\\d+)", "\\[\\[ \\\"\\$bb_version\\\" == \\\"(?<currentValue>\\d+\\.\\d+\\.\\d+)\\\""],
+      "depNameTemplate": "phall1/blackbird",
+      "datasourceTemplate": "github-releases"
+    },
+    {
+      "customType": "regex",
+      "description": "OpenCode's embedded npm plugin pin",
+      "fileMatch": ["^dot_config/opencode/opencode\\.jsonc$"],
+      "matchStrings": ["\"package\": \"(?<depName>[\\w-]+)@(?<currentValue>\\d+\\.\\d+\\.\\d+)\""],
+      "datasourceTemplate": "npm",
+      "versioningTemplate": "npm"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned OpenCode worktree revision",
+      "fileMatch": ["^run_onchange_install-opencode-worktree\\.sh\\.tmpl$"],
+      "matchStrings": ["repo=https://github.com/(?<packageName>[\\w.-]+/[\\w.-]+)\\.git\\nrev=(?<currentDigest>[a-f0-9]{40})"],
+      "currentValueTemplate": "{{currentDigest}}",
+      "datasourceTemplate": "git-refs",
+      "registryUrlTemplate": "https://github.com/{{packageName}}.git",
+      "versioningTemplate": "git"
+    },
+    {
+      "customType": "regex",
+      "description": "Pinned zsh plugin revisions",
+      "fileMatch": ["^plugins\\.lock$"],
+      "matchStrings": ["^\\S+\\s+(?<packageName>[\\w.-]+/[\\w.-]+)\\s+(?<currentDigest>[a-f0-9]{40})$"],
+      "currentValueTemplate": "{{currentDigest}}",
+      "datasourceTemplate": "git-refs",
+      "registryUrlTemplate": "https://github.com/{{packageName}}.git",
+      "versioningTemplate": "git"
+    }
+  ]
+}

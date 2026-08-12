@@ -18,6 +18,10 @@
         "type": "remote",
         "url": "https://mcp.linear.app/mcp"
       },
+      "blackbird": {
+        "type": "remote",
+        "url": "http://127.0.0.1:8081"
+      },
       "notion": {
         "type": "remote",
         "url": "https://mcp.notion.com/mcp",
@@ -50,6 +54,17 @@
   "watcher": {
     "ignore": ["**/.git/**", "**/node_modules/**"]
   },
+  "plugins": [
+    {
+      "package": "blackbird-opencode@0.1.2",
+      "options": {
+        "baseUrl": "http://127.0.0.1:8080",
+        "projectKey": "~/workspace/blackmail",
+        "agentName": "OpenCodePush",
+        "routing": { "mode": "fixed", "sessionID": "ses_008d7ad8affeYe2c7HKuBEhGNn" }
+      }
+    }
+  ],
   "references": {
     "conventions": {
       "path": "~/dotfiles/docs",

@@ -6,14 +6,14 @@
   "prConcurrentLimit": 1,
   "prHourlyLimit": 0,
   "labels": ["dependencies"],
+  "automerge": true,
+  "automergeType": "pr",
+  "platformAutomerge": true,
+  "requiredStatusChecks": ["dependency-validation"],
   "packageRules": [
     {
       "groupName": "dotfiles dependencies",
       "matchManagers": ["cargo", "npm", "custom.regex"]
-    },
-    {
-      "matchManagers": ["cargo", "npm", "custom.regex"],
-      "automerge": false
     }
   ],
   "customManagers": [

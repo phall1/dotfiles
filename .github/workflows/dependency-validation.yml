@@ -29,7 +29,9 @@ jobs:
         run: npx --yes --package renovate@44.26.0 renovate-config-validator renovate.json
       - name: Test OpenCode autoresearch plugin
         working-directory: dot_config/opencode/plugin/autoresearch
-        run: node --test
+        run: |
+          npm ci --ignore-scripts
+          npm test
       - name: Test lstags
         working-directory: src/lstags
         run: cargo test --locked

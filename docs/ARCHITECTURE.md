@@ -28,11 +28,12 @@ keys. `scripts/install-agent-stack.sh` installs reviewed CLI versions. A
 portable `~/.pi/agent/node_modules -> npm/node_modules` bridge lets tracked Pi
 extensions import public package APIs without private paths or copied protocol.
 
-Blackbird v0.1.3 has an MCP schema conformance defect: composite output schemas
-omit a root `type: object`, which pi-mcp-adapter 2.23.0 correctly rejects. A
-minimal upstream fix adding that root type plus a tools/list regression test is
-proven locally; production remains on the released binary until a fixed release
-is published and approved for the portable installer.
+Blackbird v0.1.3 exposed an MCP schema conformance defect: composite output
+schemas omitted a root `type: object`, which pi-mcp-adapter 2.23.0 correctly
+rejected. Blackbird v0.1.4 shipped the tested root-type fix and regression test;
+the portable stack now pins v0.2.0, which also adds the first-class Pi
+companion. Keep MCP conformance in Blackbird itself—never add a local protocol
+proxy or patch adapter internals.
 
 Tool allowlists are not operating-system sandboxes. For hostile code or strong
 containment use a disposable container/VM or Pi's documented sandbox extension;

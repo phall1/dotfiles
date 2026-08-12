@@ -12,12 +12,9 @@ Runtime-only follow-ups are intentionally not tracked:
 
 Run `dot-doctor` after `chezmoi apply`; use `pi list` and the `subagent` doctor action for deeper package diagnostics.
 
-## Release blocker
+## Resolved compatibility note
 
-Blackbird v0.1.3 omits the root `type: object` on composite MCP output schemas,
-so pi-mcp-adapter 2.23.0 rejects its tools/list response. The minimal upstream
-fix (`semanticOutputSchema.Type = "object"`) and a tools/list regression
-assertion were tested against the v0.1.3 source: focused Go tests pass and Pi
-directly called `blackbird_agent_register` against an isolated patched server. Keep the
-portable v0.1.3 pin until a fixed Blackbird release is published and approved;
-do not add a protocol proxy or patch npm internals.
+Blackbird v0.1.4 fixed the composite MCP output-schema root type and added the
+regression assertion proven during the original integration. The portable stack
+now pins v0.2.0, including the first-class Pi companion. No local proxy or npm
+adapter patch is required.

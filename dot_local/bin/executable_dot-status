@@ -17,7 +17,11 @@ latest=$(ls -1t "$BENCH_DIR"/*.json 2>/dev/null | head -1)
 if [[ -z "$latest" ]]; then
   printf "  ${DIM}no benchmark runs yet — run \`dot-bench\`${RST}\n"
 else
-  age_s=$(( $(date +%s) - $(stat -f %m "$latest" 2>/dev/null || stat -c %Y "$latest") ))
+  case "$(uname -s)" in
+    Darwin) modified=$(/usr/bin/stat -f %m "$latest") ;;
+    *) modified=$(stat -c %Y "$latest") ;;
+  esac
+  age_s=$(( $(date +%s) - modified ))
   age_h=$((age_s / 3600))
   if command -v jq >/dev/null 2>&1; then
     jq -r '.results | to_entries[] | "  \(.key): \(.value)ms"' "$latest"

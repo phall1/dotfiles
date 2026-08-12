@@ -4,7 +4,7 @@ set -euo pipefail
 
 PI_VERSION=0.84.1
 WEB_VERSION=2.1.11
-BLACKBIRD_VERSION=0.1.7
+BLACKBIRD_VERSION=0.1.8
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 
 if ! command -v npm >/dev/null 2>&1; then

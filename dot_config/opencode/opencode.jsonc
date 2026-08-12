@@ -1,35 +1,59 @@
 {
-    "$schema": "https://opencode.ai/config.json",
-    "permission": "allow",
-    "plugin": [
-        "opencode-claude-auth@latest"
-    ],
-    "mcp": {
-        "notion": {
-            "type": "remote",
-            "url": "https://mcp.notion.com/mcp",
-            "enabled": false
-        },
-        "kit-dev-mcp": {
-            "type": "local",
-            "command": [
-                "uvx",
-                "--from",
-                "cased-kit",
-                "kit-dev-mcp"
-            ],
-            "environment": {},
-            "enabled": false
-        },
-        "linear": {
-            "type": "local",
-            "command": [
-                "npx",
-                "-y",
-                "mcp-remote",
-                "https://mcp.linear.app/mcp"
-            ],
-            "enabled": false
-        }
+  "$schema": "https://opencode.ai/config.json",
+  "model": "anthropic/claude-sonnet-4-6",
+  "default_agent": "build",
+  "shell": "/bin/zsh",
+  "permissions": [
+    { "action": "shell", "resource": "*", "effect": "allow" },
+    { "action": "shell", "resource": "git push *", "effect": "ask" }
+  ],
+  "mcp": {
+    "timeout": {
+      "startup": 45000,
+      "catalog": 30000,
+      "execution": 600000
+    },
+    "servers": {
+      "linear": {
+        "type": "remote",
+        "url": "https://mcp.linear.app/mcp"
+      },
+      "notion": {
+        "type": "remote",
+        "url": "https://mcp.notion.com/mcp",
+        "disabled": true
+      },
+      "kit": {
+        "type": "local",
+        "command": ["uvx", "--from", "cased-kit", "kit-dev-mcp"],
+        "disabled": true
+      }
     }
+  },
+  "compaction": {
+    "auto": true,
+    "keep": { "tokens": 15000 },
+    "buffer": 20000
+  },
+  "tool_output": {
+    "max_lines": 2000,
+    "max_bytes": 51200
+  },
+  "media": {
+    "image": {
+      "auto_resize": true,
+      "max_width": 2000,
+      "max_height": 2000,
+      "max_base64_bytes": 5242880
+    }
+  },
+  "watcher": {
+    "ignore": ["**/.git/**", "**/node_modules/**"]
+  },
+  "references": {
+    "conventions": {
+      "path": "~/dotfiles/docs",
+      "description": "Dotfiles substrate conventions, workflow playbooks, architecture and perf docs; consult for git workflow, zsh, and tooling questions"
+    }
+  }
 }

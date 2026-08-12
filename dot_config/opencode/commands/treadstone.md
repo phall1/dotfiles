@@ -1,7 +1,6 @@
 ---
 description: Strategic planning — brainstorm, plan, break down, sync to Linear
 agent: treadstone
-subtask: true
 ---
 
 Run the Treadstone planning workflow. $ARGUMENTS

@@ -20,7 +20,7 @@ vim_mode = true
 [model_providers.chatgpt]
 base_url = "https://chatgpt.com/backend-api/codex"
 api_backend = "responses"
-context_window = 400000
+context_window = 272000
 
 [model_providers.chatgpt.auth]
 command = "grok-codex-token"
@@ -30,6 +30,41 @@ timeout_secs = 10
 model = "gpt-5.6-sol"
 name = "GPT-5.6 Sol (ChatGPT)"
 description = "OpenAI Codex model using the existing ChatGPT subscription login"
+model_provider = "chatgpt"
+responses_system_role_developer = true
+
+[model."chatgpt-gpt-5.6-terra"]
+model = "gpt-5.6-terra"
+name = "GPT-5.6 Terra (ChatGPT)"
+description = "Balanced agentic coding model for everyday work"
+model_provider = "chatgpt"
+responses_system_role_developer = true
+
+[model."chatgpt-gpt-5.6-luna"]
+model = "gpt-5.6-luna"
+name = "GPT-5.6 Luna (ChatGPT)"
+description = "Fast and affordable agentic coding model"
+model_provider = "chatgpt"
+responses_system_role_developer = true
+
+[model."chatgpt-gpt-5.5"]
+model = "gpt-5.5"
+name = "GPT-5.5 (ChatGPT)"
+description = "Frontier model for complex coding and research"
+model_provider = "chatgpt"
+responses_system_role_developer = true
+
+[model."chatgpt-gpt-5.4"]
+model = "gpt-5.4"
+name = "GPT-5.4 (ChatGPT)"
+description = "Strong model for everyday coding"
+model_provider = "chatgpt"
+responses_system_role_developer = true
+
+[model."chatgpt-gpt-5.4-mini"]
+model = "gpt-5.4-mini"
+name = "GPT-5.4 Mini (ChatGPT)"
+description = "Small, fast model for simpler coding tasks"
 model_provider = "chatgpt"
 responses_system_role_developer = true
 
@@ -45,3 +80,33 @@ name = "GPT-5.6 Sol (OpenAI API)"
 description = "OpenAI API model using OPENAI_API_KEY"
 model_provider = "openai"
 max_completion_tokens = 128000
+
+[model."openai-gpt-5.6-terra"]
+model = "gpt-5.6-terra"
+name = "GPT-5.6 Terra (OpenAI API)"
+description = "OpenAI API model using OPENAI_API_KEY"
+model_provider = "openai"
+
+[model."openai-gpt-5.6-luna"]
+model = "gpt-5.6-luna"
+name = "GPT-5.6 Luna (OpenAI API)"
+description = "OpenAI API model using OPENAI_API_KEY"
+model_provider = "openai"
+
+[model."openai-gpt-5.5"]
+model = "gpt-5.5"
+name = "GPT-5.5 (OpenAI API)"
+description = "OpenAI API model using OPENAI_API_KEY"
+model_provider = "openai"
+
+[model."openai-gpt-5.4"]
+model = "gpt-5.4"
+name = "GPT-5.4 (OpenAI API)"
+description = "OpenAI API model using OPENAI_API_KEY"
+model_provider = "openai"
+
+[model."openai-gpt-5.4-mini"]
+model = "gpt-5.4-mini"
+name = "GPT-5.4 Mini (OpenAI API)"
+description = "OpenAI API model using OPENAI_API_KEY"
+model_provider = "openai"

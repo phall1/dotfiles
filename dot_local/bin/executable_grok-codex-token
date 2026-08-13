@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+auth_file=${CODEX_HOME:-"$HOME/.codex"}/auth.json
+
+if [ ! -r "$auth_file" ]; then
+  printf 'Codex credentials not found; run codex login first\n' >&2
+  exit 1
+fi
+
+token=$(jq -r '.tokens.access_token // empty' "$auth_file")
+if [ -z "$token" ]; then
+  printf 'Codex access token not found; run codex login again\n' >&2
+  exit 1
+fi
+
+printf '%s' "$token"

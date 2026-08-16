@@ -57,11 +57,25 @@ for skill in blackbird web-research; do
 done
 
 if command -v blackbird >/dev/null 2>&1; then
+  # The expected version is read from the installer rather than repeated here;
+  # the two drifted apart once already.
   bb_version="$(blackbird --version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
-  [[ "$bb_version" == "0.2.0" ]] && ok "Blackbird version pinned ($bb_version)" || warn "Blackbird version is ${bb_version:-unknown}; expected 0.2.0"
-  command -v blackbird-claude >/dev/null 2>&1 && ok "Blackbird Claude companion installed" || fail "blackbird-claude missing"
-  command -v blackbird-pi >/dev/null 2>&1 && ok "Blackbird Pi companion installed" || fail "blackbird-pi missing"
-  blackbird status >/dev/null 2>&1 && ok "Blackbird service reachable" || warn "Blackbird service not reachable — run scripts/install-agent-stack.sh"
+  bb_pin="$(sed -n 's/^BLACKBIRD_VERSION=//p' "$DOTFILES/scripts/install-agent-stack.sh" | head -1)"
+  if [[ -n "$bb_pin" && "$bb_version" == "$bb_pin" ]]; then
+    ok "Blackbird matches the installer pin ($bb_version)"
+  else
+    warn "Blackbird is ${bb_version:-unknown}; scripts/install-agent-stack.sh pins ${bb_pin:-unknown}"
+  fi
+  # blackbird doctor supersedes the per-binary probes: the Go companions stopped
+  # shipping in v0.3.0, and doctor checks the service definition, a real daemon
+  # handshake, and the database. It exits 5 when a check fails and 0 otherwise,
+  # so warnings stay advisory unless --strict is passed.
+  bb_rc=0; blackbird doctor >/dev/null 2>&1 || bb_rc=$?
+  if (( bb_rc == 0 )); then
+    ok "Blackbird doctor reports no failures"
+  else
+    fail "Blackbird doctor reports failures — run: blackbird doctor"
+  fi
 fi
 
 if [[ -d "$HOME/.pi/agent/npm/node_modules" ]]; then

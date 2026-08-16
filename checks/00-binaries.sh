@@ -24,8 +24,6 @@ want_bin sesh           "tmux session picker"
 want_bin claude         "Claude Code CLI"
 want_bin pi             "Pi coding agent"
 want_bin blackbird      "durable agent coordination"
-want_bin blackbird-claude "durable Claude Code delivery"
-want_bin blackbird-pi   "durable Pi delivery"
 want_bin open-websearch "harness-neutral web research"
 want_bin lstags         "ls + Finder tags (cargo install via run_onchange)"
 

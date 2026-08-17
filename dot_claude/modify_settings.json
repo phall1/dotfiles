@@ -28,7 +28,7 @@ managed='{
   "effortLevel": "high",
   "skipDangerousModePermissionPrompt": true,
   "permissions": {
-    "defaultMode": "bypassPermissions"
+    "defaultMode": "auto"
   },
   "alwaysThinkingEnabled": true,
   "showThinkingSummaries": true,

@@ -3,7 +3,7 @@
 hdr "pi agent stack"
 
 pi_settings="$HOME/.pi/agent/settings.json"
-pi_modify="$DOTFILES/dot_pi/agent/modify_settings.json"
+pi_modify="$DOTFILES/dot_pi/private_agent/modify_settings.json"
 subagent_config="$HOME/.pi/agent/extensions/subagent/config.json"
 module_bridge="$HOME/.pi/agent/node_modules"
 mcp_config="$HOME/.config/mcp/mcp.json"

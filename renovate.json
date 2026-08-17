@@ -19,7 +19,7 @@
     {
       "customType": "regex",
       "description": "Pinned Pi extension packages shared by installation, chezmoi reconciliation, and doctor checks",
-      "managerFilePatterns": ["/^(scripts/install-agent-stack\\.sh|dot_pi/agent/modify_settings\\.json|checks/pi\\.sh)$/"],
+      "managerFilePatterns": ["/^(scripts/install-agent-stack\\.sh|dot_pi/private_agent/modify_settings\\.json|checks/pi\\.sh)$/"],
       "matchStrings": ["(?<depName>(?:@[\\w-]+/)?[\\w-]+)@(?<currentValue>\\d+\\.\\d+\\.\\d+)"],
       "datasourceTemplate": "npm",
       "versioningTemplate": "npm"

@@ -56,10 +56,18 @@ if [[ -d "$ZSH_PLUGIN_DIR/powerlevel10k" ]]; then
   else
     warn "p10k instant-prompt cache missing — first shell after install is slow until generated"
   fi
+  # p10k spawns gitstatusd lazily, on the first prompt render. dot-doctor runs
+  # non-interactively, so absence here carries no signal: it means no prompt has
+  # rendered in this context, not that anything is wrong. Counting zsh processes
+  # does not help either — every tool-spawned subshell is one. Only report the
+  # daemon when it is present, and only warn when it cannot possibly start.
+  gitstatusd_bin="$(find "${XDG_CACHE_HOME:-$HOME/.cache}/gitstatus" -maxdepth 1 -name 'gitstatusd-*' -perm -u+x 2>/dev/null | head -1)"
   if pgrep -x gitstatusd >/dev/null 2>&1; then
     ok "gitstatusd daemon alive"
+  elif [[ -n "$gitstatusd_bin" ]]; then
+    ok "gitstatusd binary present (spawns on first interactive prompt)"
   else
-    warn "gitstatusd not running (interactive shell hasn't started yet?)"
+    warn "gitstatusd binary missing — p10k falls back to slow git status"
   fi
 fi
 

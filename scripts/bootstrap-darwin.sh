@@ -53,8 +53,8 @@ brew_formulae=(
     # AI agent multiplexer (self-manages its Claude/opencode hooks via
     # `herdr integration install` — see the integration step below).
     herdr
-    # Editor + git workflow
-    neovim gh git tig gitui lazygit
+    # Editor + git and local CI workflow
+    neovim gh git tig gitui lazygit act
     # Misc
     direnv coreutils
 )

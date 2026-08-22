@@ -402,3 +402,64 @@ When you add a recipe, follow the structure:
 
 Don't add a playbook for a task that's already covered by an existing one.
 Compose — don't fork.
+
+---
+
+## P13. Running a GitHub Actions job locally
+
+Use `gha-local` for trusted Linux workflow jobs that do not need exact hosted
+runner fidelity. It wraps `act`, disables automatic loading of repository
+`.env`, `.input`, `.secrets`, and `.vars` files, disables bind mode, and keeps
+act's artifact server off unless explicitly requested. It also prevents act's
+unconditional actrc discovery: `act` runs from a private empty directory with
+`HOME` and `XDG_CONFIG_HOME` set to private empty directories, so repository,
+user-global, and XDG actrc files are not read. `--directory` still points at the
+trusted checkout, and default or relative `--workflows` paths are made absolute
+to that checkout.
+
+```sh
+cd ~/src/example
+
+gha-local list -W .github/workflows/ci.yml
+gha-local check -W .github/workflows/ci.yml
+gha-local run test pull_request -W .github/workflows/ci.yml
+```
+
+Pass additional `act` options after `--` only when the checkout and inputs are
+trusted. For example, opt into a deliberately prepared secrets file:
+
+```sh
+gha-local run deploy workflow_dispatch -- \
+  -W .github/workflows/deploy.yml \
+  --secret-file "$HOME/.config/gha-local/example.secrets"
+```
+
+**Boundaries:**
+
+- `gha-local` saves GitHub-hosted minutes; it does not reproduce OIDC,
+  environment approvals, concurrency, hosted image contents, or every service.
+- On Apple Silicon it defaults containers to `linux/amd64` for action-image
+  compatibility. Set `GHA_LOCAL_CONTAINER_ARCH=linux/arm64` for an ARM-native
+  workflow.
+- Do not use `act` as proof for a release or deployment. Run the repository's
+  canonical local gate as the acceptance check.
+- Native macOS/Xcode jobs should use the repository's own local recipe. They
+  do not become faithful macOS jobs merely by mapping a label in `act`.
+- A GitHub self-hosted runner is a separate, persistent remote-code-execution
+  boundary. Adopt one only for a private, single-writer repository with a
+  documented host threat model; `gha-local` is the safe default for arbitrary
+  owned repositories.
+
+After changing the wrapper:
+
+```sh
+bash -n ~/dotfiles/dot_local/bin/executable_gha-local \
+  ~/dotfiles/tests/gha-local-smoke.sh
+shellcheck ~/dotfiles/dot_local/bin/executable_gha-local \
+  ~/dotfiles/tests/gha-local-smoke.sh
+bash ~/dotfiles/tests/gha-local-smoke.sh
+chezmoi diff
+chezmoi apply
+dot-doctor
+dot-bench
+```

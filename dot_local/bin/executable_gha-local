@@ -1,0 +1,170 @@
+#!/usr/bin/env bash
+# Run trusted GitHub Actions jobs locally without consuming hosted minutes.
+
+set -euo pipefail
+
+usage() {
+    cat <<'EOF'
+Usage:
+  gha-local list [act options]
+  gha-local check [act options]
+  gha-local run JOB [EVENT] [-- act options]
+
+Examples:
+  gha-local list -W .github/workflows/ci.yml
+  gha-local check
+  gha-local run test pull_request -W .github/workflows/ci.yml
+
+Repository .actrc, .env, .input, .secrets, and .vars files are disabled by
+default, as are user-global actrc files. Pass an explicit act option after --
+when a trusted local run genuinely needs one.
+EOF
+}
+
+die() {
+    printf 'gha-local: %s\n' "$*" >&2
+    exit 1
+}
+
+subcommand="${1:-}"
+[[ -n "$subcommand" ]] || { usage; exit 64; }
+shift
+if [[ "$subcommand" == "-h" || "$subcommand" == "--help" || "$subcommand" == "help" ]]; then
+    usage
+    exit 0
+fi
+
+command -v git >/dev/null 2>&1 || die "git is required"
+command -v act >/dev/null 2>&1 || die "act is required (macOS: brew install act)"
+
+root="$(git rev-parse --show-toplevel 2>/dev/null)" \
+    || die "run this inside a Git repository"
+root="$(cd "$root" && pwd -P)"
+
+# act automatically reads actrc files from XDG_CONFIG_HOME, HOME, and its
+# invocation directory, with no option to disable that behavior. Invoke it from
+# an empty private environment while pointing --directory at the trusted
+# checkout. The wrapper stays alive so its EXIT trap can remove the runtime.
+umask 077
+runtime_dir="$(mktemp -d "${TMPDIR:-/tmp}/gha-local.XXXXXXXX")" \
+    || die "could not create a private runtime directory"
+runtime_dir="$(cd "$runtime_dir" && pwd -P)"
+private_home="$runtime_dir/home"
+private_xdg="$runtime_dir/xdg"
+invocation_dir="$runtime_dir/run"
+mkdir -p "$private_home" "$private_xdg" "$invocation_dir"
+cleanup() {
+    rm -rf -- "$runtime_dir"
+}
+trap cleanup EXIT
+
+# act otherwise auto-loads these conventional files. Local workflow emulation
+# must not silently hand repository credentials to arbitrary action code.
+# Explicit trailing options remain able to opt into trusted files or override
+# these defaults for a deliberate run.
+safe_inputs=(
+    --env-file /dev/null
+    --input-file /dev/null
+    --secret-file /dev/null
+    --var-file /dev/null
+    --artifact-server-addr 127.0.0.1
+    --artifact-server-path ""
+    --bind=false
+)
+
+arch_args=()
+if [[ -n "${GHA_LOCAL_CONTAINER_ARCH:-}" ]]; then
+    arch_args=(--container-architecture "$GHA_LOCAL_CONTAINER_ARCH")
+elif [[ "$(uname -s)" == "Darwin" && "$(uname -m)" == "arm64" ]]; then
+    # Most published action images still assume amd64. Docker Desktop and
+    # OrbStack emulate it on Apple Silicon more reliably than act's host-arch
+    # default, at the cost of speed.
+    arch_args=(--container-architecture linux/amd64)
+fi
+
+# Workflow paths would otherwise be resolved from the private invocation
+# directory. Keep the default and explicit relative paths anchored to the
+# trusted checkout while preserving all other arguments verbatim.
+act_args=()
+normalize_act_args() {
+    local workflow_seen=false option path
+
+    while (( $# > 0 )); do
+        option="$1"
+        shift
+        case "$option" in
+            -W|--workflows)
+                (( $# > 0 )) || die "$option requires a workflow path"
+                path="$1"
+                shift
+                [[ "$path" == /* ]] || path="$root/$path"
+                act_args+=("$option" "$path")
+                workflow_seen=true
+                ;;
+            -W=*|--workflows=*)
+                path="${option#*=}"
+                [[ "$path" == /* ]] || path="$root/$path"
+                act_args+=("${option%%=*}=$path")
+                workflow_seen=true
+                ;;
+            *)
+                act_args+=("$option")
+                ;;
+        esac
+    done
+
+    if [[ "$workflow_seen" == false ]]; then
+        act_args=(--workflows "$root/.github/workflows" "${act_args[@]}")
+    fi
+}
+
+run_act() {
+    (
+        cd "$invocation_dir"
+        export HOME="$private_home"
+        export XDG_CONFIG_HOME="$private_xdg"
+        act --directory "$root" "$@"
+    )
+}
+
+case "$subcommand" in
+    list)
+        normalize_act_args "$@"
+        run_act --list "${safe_inputs[@]}" "${act_args[@]}"
+        ;;
+    check)
+        normalize_act_args "$@"
+        run_act --validate --dryrun "${safe_inputs[@]}" "${act_args[@]}"
+        ;;
+    run)
+        [[ $# -gt 0 ]] || { usage >&2; exit 64; }
+        job="$1"
+        shift
+        event="${GHA_LOCAL_EVENT:-workflow_dispatch}"
+        if [[ $# -gt 0 && "$1" != "--" && "$1" != -* ]]; then
+            event="$1"
+            shift
+        fi
+        [[ "${1:-}" == "--" ]] && shift
+        normalize_act_args "$@"
+
+        command -v docker >/dev/null 2>&1 \
+            || die "docker is required to execute jobs (check/list do not need it)"
+        docker info >/dev/null 2>&1 \
+            || die "Docker is not reachable; start Docker Desktop or OrbStack"
+
+        printf 'gha-local: trusted checkout %s\n' "$root" >&2
+        printf 'gha-local: event=%s job=%s (GitHub secrets disabled)\n' "$event" "$job" >&2
+        run_act "$event" -j "$job" \
+            "${safe_inputs[@]}" \
+            "${arch_args[@]}" \
+            "${act_args[@]}"
+        ;;
+    -h|--help|help)
+        usage
+        ;;
+    *)
+        usage >&2
+        exit 64
+        ;;
+esac

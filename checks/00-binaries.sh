@@ -28,6 +28,9 @@ want_bin open-websearch "harness-neutral web research"
 want_bin lstags         "ls + Finder tags (cargo install via run_onchange)"
 
 case "$(uname -s)" in
-  Darwin) want_bin ghostty "Mac terminal" ;;
+  Darwin)
+    want_bin ghostty "Mac terminal"
+    want_bin act     "local GitHub Actions runner"
+    ;;
   Linux)  want_bin wezterm "Pi terminal (optional)" ;;
 esac

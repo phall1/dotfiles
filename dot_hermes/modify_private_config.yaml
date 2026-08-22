@@ -1,0 +1,45 @@
+#!/bin/sh
+# chezmoi modify_ script -> ~/.hermes/config.yaml
+#
+# Hermes owns its selected model, OAuth state, and the rest of this file.
+# Chezmoi adds only named, secret-free Ox endpoints that Hermes does not
+# already provide natively. API keys remain environment/runtime state.
+
+set -eu
+
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+if ! current_json="$(printf '%s' "$current" | yq -o=json '.' 2>/dev/null)"; then
+  # Preserve malformed runtime state for explicit repair instead of erasing it.
+  printf '%s\n' "$current"
+  exit 0
+fi
+
+managed='[
+  {
+    "name": "ox-command",
+    "base_url": "https://api.commandcode.ai/provider/v1",
+    "key_env": "COMMAND_CODE_API_KEY",
+    "api_mode": "chat_completions",
+    "model": "stealth/ox-alpha",
+    "models": {
+      "stealth/ox-alpha": {"context_length": 1048576, "max_output_tokens": 131072}
+    }
+  },
+  {
+    "name": "ox-venice",
+    "base_url": "https://api.venice.ai/api/v1",
+    "key_env": "VENICE_API_KEY",
+    "api_mode": "chat_completions",
+    "model": "stealth-ox-alpha",
+    "models": {
+      "stealth-ox-alpha": {"context_length": 1048576, "max_output_tokens": 131072}
+    }
+  }
+]'
+
+printf '%s' "$current_json" | jq --argjson managed "$managed" '
+  ($managed | map(.name)) as $names
+  | [(.custom_providers // [])[] | select(.name as $name | $names | index($name) | not)] as $unmanaged
+  | .custom_providers = ($unmanaged + $managed)
+' | yq -p=json -o=yaml -P '.'

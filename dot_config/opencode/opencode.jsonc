@@ -3,35 +3,33 @@
   "model": "anthropic/claude-sonnet-4-6",
   "default_agent": "build",
   "shell": "/bin/zsh",
-  "permissions": [
-    { "action": "shell", "resource": "*", "effect": "allow" },
-    { "action": "shell", "resource": "git push *", "effect": "ask" }
-  ],
+  "permission": {
+    "bash": {
+      "*": "allow",
+      "git push *": "ask"
+    }
+  },
   "mcp": {
-    "timeout": {
-      "startup": 45000,
-      "catalog": 30000,
-      "execution": 600000
+    "linear": {
+      "type": "remote",
+      "url": "https://mcp.linear.app/mcp",
+      "timeout": 600000
     },
-    "servers": {
-      "linear": {
-        "type": "remote",
-        "url": "https://mcp.linear.app/mcp"
-      },
-      "blackbird": {
-        "type": "remote",
-        "url": "http://127.0.0.1:8081"
-      },
-      "notion": {
-        "type": "remote",
-        "url": "https://mcp.notion.com/mcp",
-        "disabled": true
-      },
-      "kit": {
-        "type": "local",
-        "command": ["uvx", "--from", "cased-kit", "kit-dev-mcp"],
-        "disabled": true
-      }
+    "blackbird": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8081",
+      "timeout": 600000
+    },
+    "notion": {
+      "type": "remote",
+      "url": "https://mcp.notion.com/mcp",
+      "enabled": false
+    },
+    "kit": {
+      "type": "local",
+      "command": ["uvx", "--from", "cased-kit", "kit-dev-mcp"],
+      "enabled": false,
+      "timeout": 600000
     }
   },
   "compaction": {
@@ -43,7 +41,7 @@
     "max_lines": 2000,
     "max_bytes": 51200
   },
-  "media": {
+  "attachment": {
     "image": {
       "auto_resize": true,
       "max_width": 2000,
@@ -54,16 +52,96 @@
   "watcher": {
     "ignore": ["**/.git/**", "**/node_modules/**"]
   },
-  "plugins": [
-    {
-      "package": "blackbird-opencode@0.1.3",
+  "provider": {
+    "opencode": {
+      "models": {
+        "x-preview-f-free": {
+          "name": "Ox Alpha Free (ZDR)",
+          "reasoning": true,
+          "tool_call": true,
+          "limit": { "context": 1048576, "output": 131072 },
+          "modalities": { "input": ["text", "image", "video"], "output": ["text"] },
+          "status": "beta"
+        }
+      }
+    },
+    "openrouter": {
+      "models": {
+        "stealth/ox-alpha": {
+          "name": "Ox Alpha (retained upstream)",
+          "reasoning": true,
+          "tool_call": true,
+          "limit": { "context": 1048576, "output": 131072 },
+          "modalities": { "input": ["text", "image", "video"], "output": ["text"] },
+          "status": "beta"
+        }
+      }
+    },
+    "ox-command": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Command Code — Ox Alpha",
       "options": {
+        "baseURL": "https://api.commandcode.ai/provider/v1",
+        "apiKey": "{env:COMMAND_CODE_API_KEY}"
+      },
+      "models": {
+        "stealth/ox-alpha": {
+          "name": "Ox Alpha (not ZDR)",
+          "reasoning": true,
+          "tool_call": true,
+          "limit": { "context": 1048576, "output": 131072 },
+          "modalities": { "input": ["text", "image", "video"], "output": ["text"] },
+          "status": "beta"
+        }
+      }
+    },
+    "ox-nous": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Nous Portal — Ox Alpha",
+      "options": {
+        "baseURL": "http://127.0.0.1:8645/v1",
+        "apiKey": "{env:NOUS_API_KEY}"
+      },
+      "models": {
+        "stealth/ox-alpha": {
+          "name": "Ox Alpha (enable Privacy Mode)",
+          "reasoning": true,
+          "tool_call": true,
+          "limit": { "context": 1048576, "output": 131072 },
+          "modalities": { "input": ["text", "image", "video"], "output": ["text"] },
+          "status": "beta"
+        }
+      }
+    },
+    "ox-venice": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "Venice — Ox Alpha",
+      "options": {
+        "baseURL": "https://api.venice.ai/api/v1",
+        "apiKey": "{env:VENICE_API_KEY}"
+      },
+      "models": {
+        "stealth-ox-alpha": {
+          "name": "Ox Alpha (anonymized)",
+          "reasoning": true,
+          "tool_call": true,
+          "limit": { "context": 1048576, "output": 131072 },
+          "modalities": { "input": ["text", "image", "video"], "output": ["text"] },
+          "status": "beta"
+        }
+      }
+    }
+  },
+  "plugin": [
+    [
+      "blackbird-opencode@0.1.3",
+      {
         "baseUrl": "http://127.0.0.1:8080",
         "projectKey": "~/workspace/blackbird",
         "agentName": "OpenCode",
         "routing": { "mode": "conversation", "agent": "build" }
       }
-    }
+    ]
   ],
   "references": {
     "conventions": {

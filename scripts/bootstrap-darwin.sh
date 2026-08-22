@@ -45,7 +45,7 @@ brew_formulae=(
     # Core tools
     chezmoi age stow
     # Shell substrate
-    atuin fzf fd eza git-delta zoxide bat ripgrep jq
+    atuin fzf fd eza git-delta zoxide bat ripgrep jq yq
     # Language toolchains
     uv fnm rustup-init
     # Terminal stack

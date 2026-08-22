@@ -45,7 +45,7 @@ fi
 
 # Via Nix — version controlled, reproducible.
 nix_packages=(
-  chezmoi atuin fzf eza delta zoxide
+  chezmoi atuin fzf eza delta zoxide yq-go
   uv fnm gh
   sesh tig gitui lazygit
 )

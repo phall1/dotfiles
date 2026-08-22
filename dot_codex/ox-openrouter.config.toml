@@ -1,0 +1,4 @@
+# Ox Alpha through OpenRouter's beta Responses API.
+model = "stealth/ox-alpha"
+model_provider = "ox-openrouter"
+model_reasoning_effort = "high"

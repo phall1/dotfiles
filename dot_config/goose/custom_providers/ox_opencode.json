@@ -1,0 +1,20 @@
+{
+  "name": "ox_opencode",
+  "engine": "openai",
+  "display_name": "Ox Alpha — OpenCode Zen (ZDR)",
+  "description": "Limited-time free Ox Alpha via OpenCode Zen",
+  "api_key_env": "OPENCODE_ZEN_API_KEY",
+  "base_url": "https://opencode.ai/zen/v1/chat/completions",
+  "models": [
+    {
+      "name": "x-preview-f-free",
+      "context_limit": 1048576,
+      "input_token_cost": 0,
+      "output_token_cost": 0,
+      "reasoning": true
+    }
+  ],
+  "supports_streaming": true,
+  "requires_auth": true,
+  "preserves_thinking": true
+}

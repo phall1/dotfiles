@@ -1,0 +1,4 @@
+# Ox Alpha through Venice's alpha Responses API.
+model = "stealth-ox-alpha"
+model_provider = "ox-venice"
+model_reasoning_effort = "high"

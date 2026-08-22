@@ -6,6 +6,7 @@ require_bin git
 require_bin atuin       "history substrate"
 require_bin fzf
 require_bin rg          "ripgrep"
+require_bin yq          "structured config merge"
 require_bin fd
 require_bin bat
 require_bin eza

@@ -1,0 +1,122 @@
+#!/bin/sh
+# chezmoi modify_ script -> ~/.pi/agent/models.json
+#
+# Keep Ox Alpha's secret-free provider catalog portable while preserving every
+# runtime-owned provider. Credentials stay in environment variables or local
+# auth stores and are never written by chezmoi.
+
+set -eu
+
+current="$(cat)"
+if [ -z "$current" ]; then
+  current='{}'
+elif ! printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1; then
+  # A malformed runtime file needs repair, not silent replacement.
+  printf '%s\n' "$current"
+  exit 0
+fi
+
+managed='{
+  "ox-opencode": {
+    "baseUrl": "https://opencode.ai/zen/v1",
+    "api": "openai-completions",
+    "apiKey": "$OPENCODE_ZEN_API_KEY",
+    "compat": {
+      "supportsDeveloperRole": false,
+      "supportsReasoningEffort": false,
+      "maxTokensField": "max_tokens"
+    },
+    "models": [{
+      "id": "x-preview-f-free",
+      "name": "Ox Alpha (OpenCode Zen; ZDR)",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 1048576,
+      "maxTokens": 131072,
+      "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    }]
+  },
+  "ox-openrouter": {
+    "baseUrl": "https://openrouter.ai/api/v1",
+    "api": "openai-completions",
+    "apiKey": "$OPENROUTER_API_KEY",
+    "compat": {
+      "supportsDeveloperRole": false,
+      "supportsReasoningEffort": false,
+      "maxTokensField": "max_tokens",
+      "thinkingFormat": "openrouter",
+      "sessionAffinityFormat": "openrouter"
+    },
+    "models": [{
+      "id": "stealth/ox-alpha",
+      "name": "Ox Alpha (OpenRouter; retained)",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 1048576,
+      "maxTokens": 131072,
+      "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    }]
+  },
+  "ox-command": {
+    "baseUrl": "https://api.commandcode.ai/provider/v1",
+    "api": "openai-completions",
+    "apiKey": "$COMMAND_CODE_API_KEY",
+    "compat": {
+      "supportsDeveloperRole": false,
+      "supportsReasoningEffort": false,
+      "maxTokensField": "max_tokens"
+    },
+    "models": [{
+      "id": "stealth/ox-alpha",
+      "name": "Ox Alpha (Command Code; retained)",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 1048576,
+      "maxTokens": 131072,
+      "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    }]
+  },
+  "ox-nous": {
+    "baseUrl": "http://127.0.0.1:8645/v1",
+    "api": "openai-completions",
+    "apiKey": "$NOUS_API_KEY",
+    "compat": {
+      "supportsDeveloperRole": false,
+      "supportsReasoningEffort": false,
+      "maxTokensField": "max_tokens",
+      "thinkingFormat": "openrouter"
+    },
+    "models": [{
+      "id": "stealth/ox-alpha",
+      "name": "Ox Alpha (Nous Portal)",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 1048576,
+      "maxTokens": 131072,
+      "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    }]
+  },
+  "ox-venice": {
+    "baseUrl": "https://api.venice.ai/api/v1",
+    "api": "openai-completions",
+    "apiKey": "$VENICE_API_KEY",
+    "compat": {
+      "supportsDeveloperRole": false,
+      "supportsReasoningEffort": true,
+      "maxTokensField": "max_tokens"
+    },
+    "models": [{
+      "id": "stealth-ox-alpha",
+      "name": "Ox Alpha (Venice; anonymized)",
+      "reasoning": true,
+      "input": ["text", "image"],
+      "contextWindow": 1048576,
+      "maxTokens": 131072,
+      "cost": {"input": 0, "output": 0, "cacheRead": 0, "cacheWrite": 0}
+    }]
+  }
+}'
+
+printf '%s' "$current" | jq --argjson managed "$managed" '
+  .providers = ((.providers // {}) * $managed)
+'

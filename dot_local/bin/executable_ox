@@ -1,0 +1,498 @@
+#!/usr/bin/env bash
+# Run the free Ox Alpha preview consistently across installed agent harnesses.
+set -euo pipefail
+umask 077
+
+providers=(opencode openrouter nous venice command)
+
+usage() {
+  cat <<'EOF'
+Usage:
+  ox status [--live]
+  ox auth [provider]
+  ox enable PROVIDER
+  ox disable PROVIDER [REASON...]
+  ox run [--provider NAME] [--harness NAME] [--dir DIR] [--prompt-file FILE] [PROMPT...]
+  ox ask [--provider NAME] [--dir DIR] [--prompt-file FILE] [PROMPT...]
+  ox each [--dir DIR] [--prompt-file FILE] [PROMPT...]
+
+Providers: auto, opencode, openrouter, command, nous, venice
+Harnesses: pi (default), opencode, hermes, goose, grok, codex
+
+`run` is a normal mutation-capable agent run. `ask` is one read-only Pi run.
+`each` fans the prompt out read-only to every authenticated provider and saves
+results under ${XDG_STATE_HOME:-~/.local/state}/ox/runs/.
+EOF
+}
+
+env_name() {
+  case "$1" in
+    opencode) printf '%s\n' OPENCODE_ZEN_API_KEY ;;
+    openrouter) printf '%s\n' OPENROUTER_API_KEY ;;
+    command) printf '%s\n' COMMAND_CODE_API_KEY ;;
+    nous) printf '%s\n' NOUS_API_KEY ;;
+    venice) printf '%s\n' VENICE_API_KEY ;;
+    *) return 1 ;;
+  esac
+}
+
+opencode_auth_id() {
+  case "$1" in
+    opencode) printf '%s\n' opencode ;;
+    openrouter) printf '%s\n' openrouter ;;
+    command) printf '%s\n' ox-command ;;
+    nous) printf '%s\n' ox-nous ;;
+    venice) printf '%s\n' ox-venice ;;
+    *) return 1 ;;
+  esac
+}
+
+pi_auth_id() {
+  printf 'ox-%s\n' "$1"
+}
+
+credential() {
+  local provider=$1 variable auth_file auth_id value
+  if [[ "$provider" == nous ]]; then
+    if command -v hermes >/dev/null 2>&1 && hermes auth status nous 2>/dev/null | grep -q 'logged in'; then
+      printf '%s' ox-local-proxy
+      return 0
+    fi
+    return 1
+  fi
+  variable=$(env_name "$provider") || return 1
+  value=${!variable:-}
+  if [[ -n "$value" ]]; then
+    printf '%s' "$value"
+    return 0
+  fi
+
+  if [[ -r "$HOME/.zsh_secrets" ]] && command -v zsh >/dev/null 2>&1; then
+    value=$(zsh -dfc 'source "$HOME/.zsh_secrets"; print -rn -- "${(P)1}"' ox-key "$variable" 2>/dev/null || true)
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  fi
+
+  auth_file=${XDG_DATA_HOME:-"$HOME/.local/share"}/opencode/auth.json
+  auth_id=$(opencode_auth_id "$provider")
+  if [[ -f "$auth_file" ]]; then
+    value=$(jq -er --arg id "$auth_id" '.[$id] | select(.type == "api") | .key' "$auth_file" 2>/dev/null || true)
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  fi
+
+  auth_file=$HOME/.pi/agent/auth.json
+  auth_id=$(pi_auth_id "$provider")
+  if [[ -f "$auth_file" ]]; then
+    value=$(jq -er --arg id "$auth_id" '.[$id] | select(.type == "api_key" or .type == "api") | (.key // .apiKey)' "$auth_file" 2>/dev/null || true)
+    if [[ -n "$value" ]]; then
+      printf '%s' "$value"
+      return 0
+    fi
+  fi
+  return 1
+}
+
+credential_source() {
+  local provider=$1 variable auth_file auth_id
+  if [[ "$provider" == nous ]]; then
+    if command -v hermes >/dev/null 2>&1 && hermes auth status nous 2>/dev/null | grep -q 'logged in'; then
+      printf 'Hermes OAuth proxy'
+      return 0
+    fi
+    printf 'missing:Hermes-OAuth'
+    return 1
+  fi
+  variable=$(env_name "$provider") || return 1
+  if [[ -n ${!variable:-} ]]; then
+    printf 'env:%s' "$variable"
+    return 0
+  fi
+  if [[ -r "$HOME/.zsh_secrets" ]] && command -v zsh >/dev/null 2>&1 && zsh -dfc 'source "$HOME/.zsh_secrets"; [[ -n "${(P)1}" ]]' ox-key "$variable" 2>/dev/null; then
+    printf 'file:~/.zsh_secrets'
+    return 0
+  fi
+  auth_file=${XDG_DATA_HOME:-"$HOME/.local/share"}/opencode/auth.json
+  auth_id=$(opencode_auth_id "$provider")
+  if [[ -f "$auth_file" ]] && jq -e --arg id "$auth_id" '.[$id] | .type == "api" and ((.key // "") | length > 0)' "$auth_file" >/dev/null 2>&1; then
+    printf 'OpenCode auth:%s' "$auth_id"
+    return 0
+  fi
+  auth_file=$HOME/.pi/agent/auth.json
+  auth_id=$(pi_auth_id "$provider")
+  if [[ -f "$auth_file" ]] && jq -e --arg id "$auth_id" '.[$id] | (.type == "api_key" or .type == "api")' "$auth_file" >/dev/null 2>&1; then
+    printf 'Pi auth:%s' "$auth_id"
+    return 0
+  fi
+  printf 'missing:%s' "$variable"
+  return 1
+}
+
+model_id() {
+  case "$1" in
+    opencode) printf '%s\n' x-preview-f-free ;;
+    venice) printf '%s\n' stealth-ox-alpha ;;
+    openrouter|command|nous) printf '%s\n' stealth/ox-alpha ;;
+    *) return 1 ;;
+  esac
+}
+
+catalog_url() {
+  case "$1" in
+    opencode) printf '%s\n' https://opencode.ai/zen/v1/models ;;
+    openrouter) printf '%s\n' https://openrouter.ai/api/v1/models ;;
+    command) printf '%s\n' https://api.commandcode.ai/provider/v1/models ;;
+    nous) printf '%s\n' https://inference-api.nousresearch.com/v1/models ;;
+    venice) printf '%s\n' https://api.venice.ai/api/v1/models ;;
+    *) return 1 ;;
+  esac
+}
+
+privacy_label() {
+  case "$1" in
+    opencode) printf '%s' 'ZDR / no training' ;;
+    venice) printf '%s' 'anonymized upstream' ;;
+    nous) printf '%s' 'enable Portal Privacy Mode' ;;
+    openrouter|command) printf '%s' 'retained / no training' ;;
+  esac
+}
+
+disabled_file() {
+  printf '%s/ox/disabled/%s\n' "${XDG_STATE_HOME:-$HOME/.local/state}" "$1"
+}
+
+disabled_reason() {
+  local file
+  file=$(disabled_file "$1")
+  [[ -f "$file" ]] || return 1
+  head -1 "$file"
+}
+
+set_disabled() {
+  local provider=$1 reason=${2:-manually-disabled} file
+  model_id "$provider" >/dev/null || { printf 'ox: unknown provider: %s\n' "$provider" >&2; return 2; }
+  file=$(disabled_file "$provider")
+  mkdir -p "${file%/*}"
+  printf '%s\n' "$reason" > "$file"
+  printf 'ox: disabled %s (%s)\n' "$provider" "$reason"
+}
+
+set_enabled() {
+  local provider=$1 file
+  model_id "$provider" >/dev/null || { printf 'ox: unknown provider: %s\n' "$provider" >&2; return 2; }
+  file=$(disabled_file "$provider")
+  rm -f "$file"
+  printf 'ox: enabled %s\n' "$provider"
+}
+
+supports_route() {
+  local harness=$1 provider=$2
+  case "$harness" in
+    claude) return 1 ;;
+    codex) [[ "$provider" == openrouter || "$provider" == venice ]] ;;
+    pi|opencode|hermes|goose|grok) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
+has_route_credential() {
+  local provider=$1 harness=$2
+  credential "$provider" >/dev/null 2>&1
+}
+
+nous_proxy_ready() {
+  curl -fsS --max-time 1 http://127.0.0.1:8645/v1/models -H 'Authorization: Bearer ox-local-proxy' 2>/dev/null \
+    | jq -e '[.data[]? | select(.id == "stealth/ox-alpha")] | length > 0' >/dev/null 2>&1
+}
+
+ensure_nous_proxy() {
+  local state_dir pid_file log_file
+  nous_proxy_ready && return 0
+  command -v hermes >/dev/null 2>&1 || { printf '%s\n' 'ox: Hermes is required for the Nous OAuth proxy' >&2; return 1; }
+  hermes auth status nous 2>/dev/null | grep -q 'logged in' || { printf '%s\n' 'ox: run `hermes portal` before using Nous' >&2; return 1; }
+  state_dir=${XDG_STATE_HOME:-"$HOME/.local/state"}/ox
+  pid_file=$state_dir/nous-proxy.pid
+  log_file=$state_dir/nous-proxy.log
+  mkdir -p "$state_dir"
+  (PYTHONUNBUFFERED=1 nohup hermes proxy start --provider nous --host 127.0.0.1 --port 8645 >"$log_file" 2>&1 & echo $! > "$pid_file")
+  for _ in {1..20}; do
+    nous_proxy_ready && return 0
+    sleep 0.25
+  done
+  printf 'ox: Nous proxy failed to start; see %s\n' "$log_file" >&2
+  return 1
+}
+
+select_provider() {
+  local requested=$1 harness=$2 provider reason
+  if [[ "$requested" != auto ]]; then
+    if reason=$(disabled_reason "$requested" 2>/dev/null); then
+      printf 'ox: %s is disabled (%s); run `ox enable %s` to retry\n' "$requested" "$reason" "$requested" >&2
+      return 1
+    fi
+    supports_route "$harness" "$requested" || {
+      printf 'ox: %s does not directly support %s (protocol mismatch)\n' "$harness" "$requested" >&2
+      return 1
+    }
+    has_route_credential "$requested" "$harness" || {
+      printf 'ox: no credential for %s; run `ox auth %s`\n' "$requested" "$requested" >&2
+      return 1
+    }
+    printf '%s\n' "$requested"
+    return 0
+  fi
+  for provider in "${providers[@]}"; do
+    disabled_reason "$provider" >/dev/null 2>&1 && continue
+    supports_route "$harness" "$provider" || continue
+    if has_route_credential "$provider" "$harness"; then
+      printf '%s\n' "$provider"
+      return 0
+    fi
+  done
+  printf 'ox: no authenticated Ox provider supports %s; run `ox auth`\n' "$harness" >&2
+  return 1
+}
+
+inject_credential() {
+  local provider=$1 variable key
+  variable=$(env_name "$provider")
+  key=$(credential "$provider")
+  export "$variable=$key"
+}
+
+run_harness() {
+  local harness=$1 provider=$2 prompt=$3 model pi_provider oc_model hermes_provider goose_provider
+  model=$(model_id "$provider")
+  if [[ "$provider" == nous && "$harness" != hermes ]]; then
+    ensure_nous_proxy
+  fi
+  if [[ "$harness" != hermes || "$provider" != nous ]]; then
+    inject_credential "$provider"
+  fi
+  case "$harness" in
+    pi)
+      pi_provider=ox-$provider
+      if command -v pi-commander >/dev/null 2>&1; then
+        pi-commander -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
+      else
+        pi -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
+      fi
+      ;;
+    opencode)
+      case "$provider" in
+        opencode) oc_model=opencode/$model ;;
+        openrouter) oc_model=openrouter/$model ;;
+        *) oc_model=ox-$provider/$model ;;
+      esac
+      opencode run --model "$oc_model" "$prompt"
+      ;;
+    hermes)
+      case "$provider" in
+        opencode) hermes_provider=opencode-zen ;;
+        openrouter|nous) hermes_provider=$provider ;;
+        *) hermes_provider=custom:ox-$provider ;;
+      esac
+      hermes --provider "$hermes_provider" --model "$model" --oneshot "$prompt"
+      ;;
+    goose)
+      goose_provider=ox_$provider
+      goose run --no-session --provider "$goose_provider" --model "$model" --text "$prompt"
+      ;;
+    grok)
+      grok --single "$prompt" --model "ox-$provider"
+      ;;
+    codex)
+      codex exec --profile "ox-$provider" "$prompt"
+      ;;
+    claude)
+      printf '%s\n' 'ox: Claude Code requires Anthropic Messages and does not support Ox directly.' >&2
+      return 2
+      ;;
+    *)
+      printf 'ox: unknown harness: %s\n' "$harness" >&2
+      return 2
+      ;;
+  esac
+}
+
+status() {
+  local live=${1:-false} provider source state model url body reason
+  printf '%-12s %-28s %-28s %s\n' PROVIDER AUTH PRIVACY MODEL
+  for provider in "${providers[@]}"; do
+    if reason=$(disabled_reason "$provider" 2>/dev/null); then
+      state="disabled:$reason"
+    elif source=$(credential_source "$provider" 2>/dev/null); then
+      state=ready
+    else
+      state=$source
+    fi
+    model=$(model_id "$provider")
+    printf '%-12s %-28s %-28s %s\n' "$provider" "$state" "$(privacy_label "$provider")" "$model"
+  done
+  if [[ "$live" == true ]]; then
+    printf '\nLive catalog:\n'
+    for provider in "${providers[@]}"; do
+      model=$(model_id "$provider")
+      url=$(catalog_url "$provider")
+      body=$(curl -LfsS --max-time 12 "$url" 2>/dev/null || true)
+      if jq -e --arg id "$model" '[.data[]? | select(.id == $id)] | length > 0' <<<"$body" >/dev/null 2>&1; then
+        printf '  %-10s present (re-check provider pricing/terms)\n' "$provider"
+      else
+        printf '  %-10s unavailable-or-catalog-changed\n' "$provider"
+      fi
+    done
+  fi
+}
+
+auth_help() {
+  local provider=${1:-all}
+  case "$provider" in
+    all)
+      cat <<'EOF'
+Authenticate only the routes you want; keys remain local:
+  opencode   https://opencode.ai/auth             OPENCODE_ZEN_API_KEY
+  openrouter https://openrouter.ai/keys            OPENROUTER_API_KEY
+  command    https://commandcode.ai/studio/api-keys COMMAND_CODE_API_KEY
+  nous       `hermes portal`                       NOUS_API_KEY or Hermes OAuth
+  venice     https://venice.ai/settings/api        VENICE_API_KEY
+
+For OpenCode-backed reuse, run `opencode providers login`, select the matching
+configured provider, and paste the key. `ox` can reuse those local API entries.
+EOF
+      ;;
+    opencode) printf '%s\n' 'Create/copy a key at https://opencode.ai/auth, then run `opencode providers login` and select OpenCode Zen.' ;;
+    openrouter) printf '%s\n' 'Create a key at https://openrouter.ai/keys, then export OPENROUTER_API_KEY or log in through OpenCode.' ;;
+    command) printf '%s\n' 'Create a key at https://commandcode.ai/studio/api-keys, then export COMMAND_CODE_API_KEY or log in to ox-command through OpenCode.' ;;
+    nous) printf '%s\n' 'Run `hermes portal`; ox reuses Hermes OAuth through a loopback-only proxy. Enable Portal Privacy Mode separately.' ;;
+    venice) printf '%s\n' 'Create a key at https://venice.ai/settings/api, then export VENICE_API_KEY or log in to ox-venice through OpenCode.' ;;
+    *) printf 'ox: unknown provider: %s\n' "$provider" >&2; return 2 ;;
+  esac
+}
+
+fanout() {
+  local prompt=$1 run_root run_dir provider key variable model pid rc any=false
+  run_root=${XDG_STATE_HOME:-"$HOME/.local/state"}/ox/runs
+  mkdir -p "$run_root"
+  run_dir=$(mktemp -d "$run_root/$(date -u +%Y%m%dT%H%M%SZ)-XXXXXX")
+  printf '%s\n' "$prompt" > "$run_dir/prompt.txt"
+  declare -a pids=()
+  for provider in "${providers[@]}"; do
+    disabled_reason "$provider" >/dev/null 2>&1 && continue
+    if ! key=$(credential "$provider" 2>/dev/null); then continue; fi
+    if [[ "$provider" == nous ]]; then ensure_nous_proxy || continue; fi
+    any=true
+    variable=$(env_name "$provider")
+    model=$(model_id "$provider")
+    (
+      export "$variable=$key"
+      if command -v pi-inspect >/dev/null 2>&1; then
+        pi-inspect -p --provider "ox-$provider" --model "$model" --thinking high "$prompt"
+      else
+        pi -p --provider "ox-$provider" --model "$model" --thinking high --no-tools "$prompt"
+      fi
+    ) >"$run_dir/$provider.out" 2>"$run_dir/$provider.err" &
+    pids+=("$!:$provider")
+  done
+  if [[ "$any" != true ]]; then
+    printf '%s\n' 'ox: no authenticated providers; run `ox auth`' >&2
+    return 1
+  fi
+  for pid in "${pids[@]}"; do
+    provider=${pid#*:}; pid=${pid%%:*}; rc=0
+    wait "$pid" || rc=$?
+    printf '%s\n' "$rc" > "$run_dir/$provider.rc"
+  done
+  printf 'Ox read-only fanout: %s\n' "$run_dir"
+  for provider in "${providers[@]}"; do
+    [[ -f "$run_dir/$provider.rc" ]] || continue
+    printf '\n===== %s (exit %s) =====\n' "$provider" "$(cat "$run_dir/$provider.rc")"
+    cat "$run_dir/$provider.out"
+    if [[ -s "$run_dir/$provider.err" ]]; then
+      printf '\n[stderr saved: %s]\n' "$run_dir/$provider.err"
+    fi
+  done
+}
+
+mode=run
+if (($#)); then
+  case "$1" in
+    status|auth|enable|disable|run|ask|each|help|-h|--help) mode=$1; shift ;;
+  esac
+fi
+case "$mode" in
+  help|-h|--help) usage; exit 0 ;;
+  status)
+    live=false
+    [[ ${1:-} == --live ]] && live=true
+    status "$live"
+    exit 0
+    ;;
+  auth)
+    auth_help "${1:-all}"
+    exit 0
+    ;;
+  enable)
+    [[ -n ${1:-} ]] || { printf '%s\n' 'ox: provider required' >&2; exit 2; }
+    set_enabled "$1"
+    exit 0
+    ;;
+  disable)
+    [[ -n ${1:-} ]] || { printf '%s\n' 'ox: provider required' >&2; exit 2; }
+    disabled_provider=$1
+    shift
+    set_disabled "$disabled_provider" "${*:-manually-disabled}"
+    exit 0
+    ;;
+esac
+
+provider=auto
+harness=pi
+workdir=$PWD
+prompt_file=
+while (($#)); do
+  case "$1" in
+    --provider) provider=${2:?missing provider}; shift 2 ;;
+    --harness) harness=${2:?missing harness}; shift 2 ;;
+    --dir) workdir=${2:?missing directory}; shift 2 ;;
+    --prompt-file) prompt_file=${2:?missing prompt file}; shift 2 ;;
+    --) shift; break ;;
+    -h|--help) usage; exit 0 ;;
+    -*) printf 'ox: unknown option: %s\n' "$1" >&2; exit 2 ;;
+    *) break ;;
+  esac
+done
+
+if [[ -n "$prompt_file" ]]; then
+  prompt=$(<"$prompt_file")
+else
+  prompt="$*"
+fi
+[[ -n "$prompt" ]] || { printf '%s\n' 'ox: a prompt or --prompt-file is required' >&2; exit 2; }
+[[ -d "$workdir" ]] || { printf 'ox: directory not found: %s\n' "$workdir" >&2; exit 2; }
+cd "$workdir"
+
+case "$mode" in
+  each) fanout "$prompt" ;;
+  ask)
+    provider=$(select_provider "$provider" pi)
+    if [[ "$provider" == nous ]]; then ensure_nous_proxy; fi
+    key=$(credential "$provider")
+    variable=$(env_name "$provider")
+    export "$variable=$key"
+    model=$(model_id "$provider")
+    if command -v pi-inspect >/dev/null 2>&1; then
+      pi-inspect -p --provider "ox-$provider" --model "$model" --thinking high "$prompt"
+    else
+      pi -p --provider "ox-$provider" --model "$model" --thinking high --no-tools "$prompt"
+    fi
+    ;;
+  run)
+    provider=$(select_provider "$provider" "$harness")
+    run_harness "$harness" "$provider" "$prompt"
+    ;;
+  *) usage; exit 2 ;;
+esac

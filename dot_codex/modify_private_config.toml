@@ -24,6 +24,28 @@ approval_policy = "never"
 sandbox_mode = "danger-full-access"
 network_access = "enabled"
 
+# Ox Alpha uses the OpenAI Responses protocol only on these two gateways.
+# Credentials stay in environment variables and profiles select the route.
+[model_providers.ox-openrouter]
+name = "OpenRouter — Ox Alpha"
+base_url = "https://openrouter.ai/api/v1"
+wire_api = "responses"
+
+[model_providers.ox-openrouter.auth]
+command = "printenv"
+args = ["OPENROUTER_API_KEY"]
+timeout_ms = 5000
+
+[model_providers.ox-venice]
+name = "Venice — Ox Alpha"
+base_url = "https://api.venice.ai/api/v1"
+wire_api = "responses"
+
+[model_providers.ox-venice.auth]
+command = "printenv"
+args = ["VENICE_API_KEY"]
+timeout_ms = 5000
+
 [features]
 goals = true
 unified_exec = true
@@ -114,12 +136,21 @@ if [ -z "$result" ]; then
         /^approval_policy[[:space:]]*=/ { next }
         /^sandbox_mode[[:space:]]*=/ { next }
         /^network_access[[:space:]]*=/ { next }
+        /^\[model_providers\.ox-openrouter\]$/ { skip=1; next }
+        /^\[model_providers\.ox-openrouter\.auth\]$/ { skip=1; next }
+        /^\[model_providers\.ox-venice\]$/ { skip=1; next }
+        /^\[model_providers\.ox-venice\.auth\]$/ { skip=1; next }
         /^\[features\]$/ { skip=1; next }
         /^\[features\.multi_agent_v2\]$/ { skip=1; next }
         /^\[notice\]$/ { skip=1; next }
         /^\[plugins\."omo@sisyphuslabs"\]$/ { skip=1; next }
         /^\[plugins\."omo@sisyphuslabs"\.mcp_servers\.git_bash\]$/ { skip=1; next }
-        /^\[agents\./ { skip=1; next }
+        /^\[agents\.codex-ultrawork-reviewer\]$/ { skip=1; next }
+        /^\[agents\.explorer\]$/ { skip=1; next }
+        /^\[agents\.librarian\]$/ { skip=1; next }
+        /^\[agents\.metis\]$/ { skip=1; next }
+        /^\[agents\.momus\]$/ { skip=1; next }
+        /^\[agents\.plan\]$/ { skip=1; next }
         skip && /^\[/ { skip=0 }
         skip { next }
         { print }

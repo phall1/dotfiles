@@ -1,0 +1,20 @@
+{
+  "name": "ox_nous",
+  "engine": "openai",
+  "display_name": "Ox Alpha — Nous Portal",
+  "description": "Free-tier Ox Alpha through the local Hermes OAuth proxy",
+  "api_key_env": "NOUS_API_KEY",
+  "base_url": "http://127.0.0.1:8645/v1/chat/completions",
+  "models": [
+    {
+      "name": "stealth/ox-alpha",
+      "context_limit": 1048576,
+      "input_token_cost": 0,
+      "output_token_cost": 0,
+      "reasoning": true
+    }
+  ],
+  "supports_streaming": true,
+  "requires_auth": true,
+  "preserves_thinking": true
+}

@@ -2,13 +2,17 @@
 # Install the portable command-line agent stack. Runtime credentials/state stay local.
 set -euo pipefail
 
-PI_VERSION=0.84.1
+PI_VERSION=0.84.3
 WEB_VERSION=2.1.11
 BLACKBIRD_VERSION=0.4.1
 NPM_PREFIX="${NPM_CONFIG_PREFIX:-$HOME/.npm-global}"
 
 if ! command -v npm >/dev/null 2>&1; then
   echo "ERROR: npm is required. Install an LTS Node with fnm, then rerun." >&2
+  exit 1
+fi
+if ! node -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 22 || (major === 22 && minor >= 19) ? 0 : 1)'; then
+  echo "ERROR: Pi $PI_VERSION requires Node >=22.19.0; found $(node --version 2>/dev/null || printf unknown)." >&2
   exit 1
 fi
 
@@ -21,11 +25,11 @@ pi_bin="$NPM_PREFIX/bin/pi"
 for package in \
   npm:blackbird-pi@0.1.1 \
   npm:pi-subagents@0.47.1 \
-  npm:@juicesharp/rpiv-ask-user-question@2.4.0 \
   npm:@narumitw/pi-goal@0.51.0 \
   npm:@ff-labs/pi-fff@0.10.3 \
   npm:pi-mcp-adapter@2.23.0 \
-  npm:pi-web-access@0.22.0
+  npm:pi-web-access@0.22.0 \
+  npm:@osolmaz/pi-workflows@0.13.4
 do
   "$pi_bin" install "$package"
 done

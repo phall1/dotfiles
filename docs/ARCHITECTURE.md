@@ -13,6 +13,9 @@ The global agent substrate is layered rather than harness-specific:
    coordination. Claude, Codex, OpenCode, and Pi render both agreements.
 2. `~/.agents/skills/` is the canonical harness-neutral skill home. Harnesses
    that need adapters receive chezmoi symlinks rather than copied skills.
+   Third-party skills are vendored with an upstream commit and license; the
+   global working agreement makes cyclomatic-complexity review part of the
+   default code-quality posture in every rendered agent instruction file.
 3. `~/.config/mcp/mcp.json` is the secret-free shared MCP layer. Blackbird at
    `127.0.0.1:8081` is the sole durable mail, reservation, and run authority.
 4. Thin launchers select Pi profiles: Commander is the productive default,
@@ -22,11 +25,29 @@ The global agent substrate is layered rather than harness-specific:
    reservations). Profiles never pin a model or provider.
 
 Pi settings use a two-writer `modify_` merge. Chezmoi owns theme, project trust,
-telemetry, reviewed package pins, and role infrastructure. Pi owns auth, trust
-records, sessions, caches, provider/model/thinking choices, and unknown runtime
-keys. `scripts/install-agent-stack.sh` installs reviewed CLI versions. A
-portable `~/.pi/agent/node_modules -> npm/node_modules` bridge lets tracked Pi
-extensions import public package APIs without private paths or copied protocol.
+telemetry, reviewed package pins, explicit retired-package removal, and role
+infrastructure. The global package set includes Pi Workflows so its extension and
+bundled workflow skills are active in every Pi session; the compatible Pi core
+version is pinned alongside it. Workflow and controller modules are executable
+code, so the existing `defaultProjectTrust: always` policy deliberately treats
+every opened repository as trusted rather than sandboxed. Pi owns auth, trust
+records, sessions, caches,
+provider/model/thinking choices, and unknown runtime keys.
+`scripts/install-agent-stack.sh` installs reviewed CLI versions. A portable
+`~/.pi/agent/node_modules -> npm/node_modules` bridge lets tracked Pi extensions
+import public package APIs without private paths or copied protocol.
+
+Pi's default posture is an autonomous parent-led engineering team rather than a
+questionnaire. The role adapter defensively removes user-question tools while
+preserving child-to-parent coordination. The shared orchestration agreement
+requires evidence-gated end-to-end ownership, one writer per checkout, useful
+rather than performative recursion, and fresh independent review. Parent-session
+continuation uses pi-goal with a 100-response safety epoch and a three-run
+no-progress guard; delegated recovery uses missions; cross-session/project work
+uses Blackbird. A main-session watchdog reviews changed repo state and can drive
+at most two blocker fix attempts. Commander depth remains 4 and YOLO depth 8:
+more recursion is not inherently more capable, and these ceilings prevent
+accidental exponential fanout. The upstream publication boundary is unchanged.
 
 Blackbird v0.1.3 exposed an MCP schema conformance defect: composite output
 schemas omitted a root `type: object`, which pi-mcp-adapter 2.23.0 correctly

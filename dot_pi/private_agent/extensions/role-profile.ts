@@ -15,10 +15,15 @@ const BLACKBIRD_TOOLS = [
   "blackbird_reservation_release",
 ];
 
+const USER_ASK_TOOLS = new Set([
+  "ask_user_question", "ask_question", "interview", "questionnaire", "phux_ask",
+]);
+
 const SPARTAN_TOOLS = [
   "read", "grep", "find", "ls", "subagent", "subagent_wait",
-  "contact_supervisor", "subagent_supervisor", "intercom", "ask_user_question",
+  "contact_supervisor", "subagent_supervisor", "intercom",
   "web_search", "source_check", "fetch_content", "get_search_content",
+  "goal_complete", "goal_blocked", "goal_wait",
   ...BLACKBIRD_TOOLS,
 ];
 
@@ -27,17 +32,22 @@ export default function roleProfile(pi: ExtensionAPI) {
   const rawRole = (process.env.PI_AGENT_ROLE || "commander").toLowerCase();
   const role = ["commander", "spartan", "yolo"].includes(rawRole) ? rawRole : "commander";
 
-  const restrictActiveTools = () => {
-    if (role !== "spartan") return;
+  const applyToolPolicy = () => {
     const available = new Set(pi.getAllTools().map((tool) => tool.name));
-    pi.setActiveTools(SPARTAN_TOOLS.filter((name) => available.has(name)));
+    const desired = role === "spartan"
+      ? SPARTAN_TOOLS.filter((name) => available.has(name))
+      : pi.getActiveTools().filter((name) => !USER_ASK_TOOLS.has(name));
+    const active = pi.getActiveTools();
+    if (active.length !== desired.length || active.some((name, index) => name !== desired[index])) {
+      pi.setActiveTools(desired);
+    }
   };
 
   const apply = (ctx: ExtensionContext) => {
     restriction?.dispose();
     restriction = undefined;
+    applyToolPolicy();
     if (role === "spartan") {
-      restrictActiveTools();
       restriction = registerSubagentCapabilityCeiling({
         sessionId: ctx.sessionManager.getSessionId(),
         source: "role-profile:spartan",
@@ -48,6 +58,9 @@ export default function roleProfile(pi: ExtensionAPI) {
   };
 
   pi.on("tool_call", async (event) => {
+    if (USER_ASK_TOOLS.has(event.toolName)) {
+      return { block: true, reason: `Autonomous role policy denies user-question tool: ${event.toolName}` };
+    }
     if (role === "spartan" && !SPARTAN_TOOLS.includes(event.toolName)) {
       return { block: true, reason: `Spartan capability ceiling denies tool: ${event.toolName}` };
     }
@@ -56,8 +69,8 @@ export default function roleProfile(pi: ExtensionAPI) {
 
   pi.on("session_start", (_event, ctx) => apply(ctx));
   // Other extensions can register or reactivate tools during session startup.
-  // Reassert the visible Spartan surface immediately before every agent turn.
-  pi.on("before_agent_start", () => restrictActiveTools());
+  // Reassert the askless surface and any Spartan ceiling before every agent turn.
+  pi.on("before_agent_start", () => applyToolPolicy());
   pi.on("session_shutdown", (_event, ctx) => {
     restriction?.dispose();
     restriction = undefined;

@@ -24,8 +24,11 @@ Daily Pi roles are `pi-commander` (default autonomy), `pi-inspect`/`pi-safe`
 (local code/command read-only but delegation-capable), and explicit `pi-yolo`
 (deeper delegation). Spartan may still update explicit Blackbird coordination
 state such as mail, acknowledgements, and reservations. Put shared workflows in
-`dot_agents/skills/`, not a harness-specific copy. Never track provider auth,
-web API keys, Blackbird tokens/cursors, sessions, caches, or package trees.
+`dot_agents/skills/`, not a harness-specific copy. For a reviewed third-party
+skill, vendor the unchanged skill plus its license and a `SOURCE.md` commit pin,
+then add only the chezmoi symlink adapters required by harnesses that do not
+read `~/.agents/skills/` directly. Never track provider auth, web API keys,
+Blackbird tokens/cursors, sessions, caches, or package trees.
 
 For strong isolation, run Pi in a container/VM or a documented sandbox
 extension. `pi-inspect` is a capability ceiling, not a hostile-code sandbox.

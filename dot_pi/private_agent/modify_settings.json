@@ -17,7 +17,8 @@ managed_packages='[
   "npm:@ff-labs/pi-fff@0.10.3",
   "npm:pi-mcp-adapter@2.23.0",
   "npm:pi-web-access@0.22.0",
-  "npm:@osolmaz/pi-workflows@0.13.4"
+  "npm:@osolmaz/pi-workflows@0.13.4",
+  "https://github.com/ayghri/i-have-adhd"
 ]'
 
 # This developer checkout is deliberately a machine-local overlay, not a

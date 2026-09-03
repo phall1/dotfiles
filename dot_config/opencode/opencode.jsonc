@@ -132,16 +132,17 @@
       }
     }
   },
-  "plugin": [
-    [
-      "blackbird-opencode@0.1.3",
-      {
+  "plugins": [
+    {
+      "package": "blackbird-opencode@0.1.3",
+      "options": {
         "baseUrl": "http://127.0.0.1:8080",
         "projectKey": "~/workspace/blackbird",
         "agentName": "OpenCode",
         "routing": { "mode": "conversation", "agent": "build" }
       }
-    ]
+    },
+    "@prevalentware/opencode-goal-plugin@0.1.39"
   ],
   "references": {
     "conventions": {

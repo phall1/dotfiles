@@ -1,0 +1,15 @@
+{
+  "theme": {
+    "name": "system"
+  },
+  "diffs": {
+    "wrap": "word"
+  },
+  "session": {
+    "sidebar": "auto",
+    "scrollbar": false,
+    "thinking": "hide"
+  },
+  "animations": true,
+  "plugins": ["@prevalentware/opencode-goal-plugin@0.1.39"]
+}

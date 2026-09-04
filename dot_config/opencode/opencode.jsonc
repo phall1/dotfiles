@@ -142,7 +142,15 @@
         "routing": { "mode": "conversation", "agent": "build" }
       }
     },
-    "@prevalentware/opencode-goal-plugin@0.1.39"
+    {
+      "package": "github:phall1/opencode-goal-mode#b63c08c8b566cf9e4f77a4a9df3c49f4e78be764",
+      "options": {
+        "auto_continue": true,
+        "max_automatic_turns": 25,
+        "max_prompt_failures": 3,
+        "min_continue_interval_ms": 2000
+      }
+    }
   ],
   "references": {
     "conventions": {

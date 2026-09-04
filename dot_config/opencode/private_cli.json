@@ -10,6 +10,5 @@
     "scrollbar": false,
     "thinking": "hide"
   },
-  "animations": true,
-  "plugins": ["@prevalentware/opencode-goal-plugin@0.1.39"]
+  "animations": true
 }

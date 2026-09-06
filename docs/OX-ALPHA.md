@@ -18,7 +18,6 @@ ox run "implement the next scoped task and verify it"
 ox ask "review this diff for correctness"              # read-only Pi posture
 ox each "compare three designs for this API"           # read-only provider fanout
 ox run --provider venice --harness grok "fix the test"
-ox run --provider openrouter --harness codex "review HEAD"
 ox run --provider opencode --harness goose --dir ~/src/app "run the tests"
 ```
 
@@ -48,7 +47,7 @@ even for its $0 model, so it is locally disabled and `ox` skips it. Run
 `ox enable venice` after adding an eligible free balance or intentionally buying
 credits. No purchase or paid subscription was made.
 
-Run `opencode providers login` to store a key locally under the matching
+Run `opencode2 auth login` to store a key locally under the matching
 configured provider. `ox` can reuse API-key entries from OpenCode or Pi without
 copying the secret. `ox auth [provider]` prints the exact setup reminder.
 
@@ -83,14 +82,12 @@ Primary references:
 | Hermes | Zen/OpenRouter/Nous native; Command/Venice named custom providers |
 | Goose | all five declarative OpenAI-compatible providers |
 | Grok Build | all five tracked custom models |
-| Codex CLI | OpenRouter and Venice only, through Responses API profiles |
 | Claude Code | none directly |
 
 Claude Code requires Anthropic Messages semantics and Anthropic does not support
 non-Claude models behind gateways. A translating proxy would be an unsupported,
 extra dependency, so the `ox` launcher refuses that combination rather than
-pretending it is reliable. Codex similarly requires Responses API; only Venice
-documents this integration, while OpenRouter's Responses endpoint is beta.
+pretending it is reliable.
 
 Tracked provider catalogs are secret-free and preserve the normal default model
 in every harness. Pi and Hermes use `modify_` merges so runtime-owned providers,

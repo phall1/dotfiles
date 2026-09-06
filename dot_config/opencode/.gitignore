@@ -21,7 +21,6 @@ bun.lock
 # package.json
 # .gitignore
 # opencode.jsonc
-# oh-my-opencode.json
 # subtask2.jsonc
 # command/
 # plugin/

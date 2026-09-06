@@ -9,7 +9,6 @@ opencode_config="$HOME/.config/opencode/opencode.jsonc"
 hermes_config="$HOME/.hermes/config.yaml"
 goose_providers="$HOME/.config/goose/custom_providers"
 grok_config="$HOME/.grok/config.toml"
-codex_config="$HOME/.codex/config.toml"
 pi_models_modify="$DOTFILES/dot_pi/private_agent/modify_private_models.json"
 hermes_modify="$DOTFILES/dot_hermes/modify_private_config.yaml"
 
@@ -38,15 +37,15 @@ else
 fi
 
 if [[ -f "$opencode_config" ]] && jq -e '
-  .provider.opencode.models["x-preview-f-free"]
-  and .provider.openrouter.models["stealth/ox-alpha"]
-  and .provider["ox-command"].models["stealth/ox-alpha"]
-  and .provider["ox-nous"].models["stealth/ox-alpha"]
-  and .provider["ox-venice"].models["stealth-ox-alpha"]
+  .providers.opencode.models["x-preview-f-free"]
+  and .providers.openrouter.models["stealth/ox-alpha"]
+  and .providers["ox-command"].models["stealth/ox-alpha"]
+  and .providers["ox-nous"].models["stealth/ox-alpha"]
+  and .providers["ox-venice"].models["stealth-ox-alpha"]
 ' "$opencode_config" >/dev/null 2>&1; then
-  if ! command -v opencode >/dev/null 2>&1; then
+  if ! command -v opencode2 >/dev/null 2>&1; then
     warn "OpenCode Ox catalog present; runtime validation unavailable on this host"
-  elif opencode debug config >/dev/null 2>&1; then
+  elif opencode2 debug config >/dev/null 2>&1; then
     ok "OpenCode config parses with five Ox routes"
   else
     fail "OpenCode rejected its managed config"
@@ -86,12 +85,6 @@ else
   fail "Grok rejected its Ox model catalog"
 fi
 
-if [[ -f "$codex_config" ]] && grep -q '^\[model_providers\.ox-openrouter\]$' "$codex_config" && grep -q '^\[model_providers\.ox-venice\]$' "$codex_config" && [[ -f "$HOME/.codex/ox-openrouter.config.toml" && -f "$HOME/.codex/ox-venice.config.toml" ]]; then
-  ok "Codex Responses profiles for OpenRouter and Venice"
-else
-  fail "Codex Ox Responses profiles missing"
-fi
-
-for binary in pi opencode hermes goose grok codex; do
+for binary in pi opencode2 hermes goose grok; do
   command -v "$binary" >/dev/null 2>&1 || warn "$binary missing — Ox route configured but unavailable on this host"
 done

@@ -69,16 +69,6 @@
     },
     {
       "customType": "regex",
-      "description": "Pinned OpenCode worktree revision",
-      "managerFilePatterns": ["/^run_onchange_install-opencode-worktree\\.sh\\.tmpl$/"],
-      "matchStrings": ["repo=https://github.com/(?<packageName>[\\w.-]+/[\\w.-]+)\\.git\\nrev=(?<currentDigest>[a-f0-9]{40})"],
-      "currentValueTemplate": "{{currentDigest}}",
-      "datasourceTemplate": "git-refs",
-      "registryUrlTemplate": "https://github.com/{{packageName}}.git",
-      "versioningTemplate": "git"
-    },
-    {
-      "customType": "regex",
       "description": "Pinned zsh plugin revisions",
       "managerFilePatterns": ["/^plugins\\.lock$/"],
       "matchStrings": ["^\\S+\\s+(?<packageName>[\\w.-]+/[\\w.-]+)\\s+(?<currentDigest>[a-f0-9]{40})$"],

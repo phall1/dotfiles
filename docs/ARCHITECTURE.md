@@ -10,7 +10,7 @@ If a choice here is wrong, propose changing it — don't quietly work around it.
 The global agent substrate is layered rather than harness-specific:
 
 1. Shared chezmoi templates define the autonomy boundary plus delegation and
-   coordination. Claude, Codex, OpenCode, and Pi render both agreements.
+   coordination. Claude, OpenCode, and Pi render both agreements.
 2. `~/.agents/skills/` is the canonical harness-neutral skill home. Harnesses
    that need adapters receive chezmoi symlinks rather than copied skills.
    Third-party skills are vendored with an upstream commit and license; the

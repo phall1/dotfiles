@@ -2,7 +2,7 @@
 
 <!--
   Single source of truth. Materialized into every agent's global instruction
-  file by chezmoi (`dot_claude/CLAUDE.md.tmpl`, `dot_codex/AGENTS.md.tmpl`,
+  file by chezmoi (`dot_claude/CLAUDE.md.tmpl` and
   `dot_config/opencode/AGENTS.md.tmpl`). Edit HERE, then `chezmoi apply`.
   Editing the materialized copies is a no-op — they get overwritten.
 -->

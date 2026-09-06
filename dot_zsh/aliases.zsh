@@ -23,11 +23,6 @@ if [[ "$DOTFILES_OS" == "darwin" ]]; then
   # Quick look from terminal
   ql() { qlmanage -p "$@" &>/dev/null; }
   
-  # OpenCode - run built binary from dev branch (macOS ARM)
-  alias ocsrc='~/workspace/opencode/packages/opencode/dist/opencode-darwin-arm64/bin/opencode'
-  alias opencode-dev='bun run --cwd ~/workspace/opencode/packages/opencode --conditions=browser src/index.ts'
-  alias cdoc='cd ~/workspace/opencode'
-  
 elif [[ "$DOTFILES_OS" == "linux" ]]; then
   # Linux-specific
   alias ls='ls --color=auto'

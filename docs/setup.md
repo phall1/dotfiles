@@ -2,11 +2,10 @@
 
 Two hosts, one source-of-truth: Mac (darwin/arm64) and Raspberry Pi (linux/arm64).
 
-Both bootstrap scripts install the pinned agent stack after an LTS Node is
-available. To refresh it independently, run `scripts/install-agent-stack.sh`,
-then `chezmoi apply` and `dot-doctor`. Authenticate Pi providers and optional
-web providers per machine; credentials and Blackbird state are never tracked.
-Use `pi-commander`, `pi-inspect` (also `pi-safe`), or explicit `pi-yolo`.
+Mise is the provisioning entrypoint; chezmoi owns portable preferences. The
+complete inventory, profiles, service boundaries and disposable test commands
+live in [BOOTSTRAP.md](BOOTSTRAP.md). OpenCode V2 is the default harness; Pi,
+Claude, Hermes, Goose and Grok are optional machine selections.
 
 ## Fresh Mac
 
@@ -14,25 +13,15 @@ Use `pi-commander`, `pi-inspect` (also `pi-safe`), or explicit `pi-yolo`.
 # 1. Install Xcode CLT (for git, compilers).
 xcode-select --install
 
-# 2. Clone the dotfiles repo to ~/dotfiles.
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
+# 2. Clone and set identity before the first bootstrap.
+git clone https://github.com/phall1/dotfiles.git ~/dotfiles
+git config --global user.name 'Your Name'
+git config --global user.email 'you@example.com'
 
-# 3. Run the host bootstrap (installs brew + ~25 tools).
-~/dotfiles/scripts/bootstrap-darwin.sh
+# 3. Seed mise, install inventories, apply preferences, reconcile integrations.
+bash ~/dotfiles/scripts/bootstrap-darwin.sh --yes
 
-# 4. Set up chezmoi to use ~/dotfiles as its source.
-mkdir -p ~/.config/chezmoi
-cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
-sourceDir = "~/dotfiles"
-[data.git]
-    name = "Your Name"
-    email = "you@example.com"
-EOF
-
-# 5. Apply.
-chezmoi apply
-
-# 6. Verify.
+# 4. Verify.
 dot-doctor
 dot-bench
 ```
@@ -48,26 +37,16 @@ Restart your terminal or `exec zsh`.
 ```bash
 # 1. Clone.
 sudo apt-get update && sudo apt-get install -y git
-git clone https://github.com/YOUR_USERNAME/dotfiles.git ~/dotfiles
+git clone https://github.com/phall1/dotfiles.git ~/dotfiles
+git config --global user.name 'Your Name'
+git config --global user.email 'you@example.com'
 
-# 2. Run the host bootstrap (apt + nix-installed tools).
-~/dotfiles/scripts/bootstrap-linux.sh
+# 2. Seed mise; apt dependencies and pinned release tools replace the Nix fallback.
+bash ~/dotfiles/scripts/bootstrap-linux.sh --yes --update
 
-# 3. chezmoi config (same as Mac).
-mkdir -p ~/.config/chezmoi
-cat > ~/.config/chezmoi/chezmoi.toml <<'EOF'
-sourceDir = "~/dotfiles"
-[data.git]
-    name = "Your Name"
-    email = "you@example.com"
-EOF
-
-# 4. Apply.
-chezmoi apply
-
-# 5. Verify.
-dot-doctor    # some "wanted" tools may be missing on Pi (ghostty etc.) — acceptable
-dot-bench     # target on Pi: first_prompt_lag < 150ms
+# 3. Verify against the documented gates.
+dot-doctor
+dot-bench
 ```
 
 ## Per-machine identity & overrides

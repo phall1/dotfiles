@@ -85,6 +85,11 @@ not symlinks (chezmoi's default).
 
 ## The change loop (mandatory)
 
+Bootstrap changes must pass `mise run check` and the affected disposable
+`tests/bootstrap/container.sh` architecture/profile before live workstation
+apply. The default selected harness is OpenCode V2; see `docs/BOOTSTRAP.md` for
+optional harnesses and application-owned service/state boundaries.
+
 For any non-trivial change:
 
 ```sh
@@ -173,7 +178,8 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 | Add a doctor check | Drop a file in `checks/*.sh` (or `checks/<pkg>.sh` for per-tool) using `ok`/`warn`/`fail`/`require_bin`/`want_bin` helpers. See `checks/README.md`. |
 | Add a bench metric | Already plumbed — zsh-bench output is parsed by metric name. Add a `key: value_ms` pair in `PERF.md` between `BASELINE_START`/`END` markers. |
 | Add a new $HOME file | Create at `dot_<name>` (or under `dot_config/<subdir>/`) in source. `chezmoi apply`. |
-| Add a brew package | Edit `scripts/bootstrap-darwin.sh` `brew_packages` array. Note: `scripts/` are NOT chezmoi-applied. |
+| Add a brew package | Edit `provision/Brewfile` (host/tap tools) or `provision/Brewfile.desktop` (GUI apps). Mise invokes real Homebrew. |
+| Provision a workstation | `mise bootstrap`; inventories and the isolated test rig are documented in `docs/BOOTSTRAP.md`. |
 | Add a CLAUDE.md hook / MCP server / skill | Edit `dot_claude/settings.json` for hooks/MCP. Drop a `dot_claude/skills/<name>/SKILL.md` for a skill. Run `/discover` after to confirm pickup. |
 | Add a chezmoi template variable | Add to `~/.config/chezmoi/chezmoi.toml` under `[data]`. Reference as `{{ .key }}` in a `.tmpl` file. |
 | Add per-machine override | Three options in increasing specificity: chezmoi.toml per machine → hostname branch in `dot_gitconfig.tmpl` → `~/.gitconfig-work` via `includeIf`. See docs/setup.md. |
@@ -273,7 +279,7 @@ touch gets converted as part of the change.
 ## Reading more
 
 - **`docs/ARCHITECTURE.md`** — the WHY behind every choice (P10k over Starship,
-  chezmoi over stow, raw zsh over antidote, mise rejected, etc.).
+  chezmoi over stow, raw zsh over antidote, mise provisioning, etc.).
 - **`docs/PLAYBOOKS.md`** — full per-task recipes with exact commands.
 - **`docs/setup.md`** — fresh machine bootstrap, per-machine identity layers.
 - **`checks/README.md`** — doctor plugin architecture.

@@ -9,6 +9,9 @@ If a choice here is wrong, propose changing it — don't quietly work around it.
 
 The global agent substrate is layered rather than harness-specific:
 
+OpenCode V2 is installed by default. Other harnesses participate when selected
+in the machine's [bootstrap profile](BOOTSTRAP.md#profiles).
+
 1. Shared chezmoi templates define the autonomy boundary plus delegation and
    coordination. Claude, OpenCode, and Pi render both agreements.
 2. `~/.agents/skills/` is the canonical harness-neutral skill home. Harnesses
@@ -18,7 +21,7 @@ The global agent substrate is layered rather than harness-specific:
    default code-quality posture in every rendered agent instruction file.
 3. `~/.config/mcp/mcp.json` is the secret-free shared MCP layer. Blackbird at
    `127.0.0.1:8081` is the sole durable mail, reservation, and run authority.
-4. Thin launchers select Pi profiles: Commander is the productive default,
+4. When Pi is selected, thin launchers select Pi profiles: Commander is its productive default,
    Spartan is read-only for local code/command execution with a monotonic
    delegated ceiling, and YOLO explicitly widens delegation depth. Spartan may
    still mutate explicit coordination state (mail, acknowledgements, and path
@@ -33,7 +36,7 @@ code, so the existing `defaultProjectTrust: always` policy deliberately treats
 every opened repository as trusted rather than sandboxed. Pi owns auth, trust
 records, sessions, caches,
 provider/model/thinking choices, and unknown runtime keys.
-`scripts/install-agent-stack.sh` installs reviewed CLI versions. A portable
+Mise's optional Pi inventory installs the reviewed CLI version. A portable
 `~/.pi/agent/node_modules -> npm/node_modules` bridge lets tracked Pi extensions
 import public package APIs without private paths or copied protocol.
 
@@ -52,8 +55,8 @@ accidental exponential fanout. The upstream publication boundary is unchanged.
 Blackbird v0.1.3 exposed an MCP schema conformance defect: composite output
 schemas omitted a root `type: object`, which pi-mcp-adapter 2.23.0 correctly
 rejected. Blackbird v0.1.4 shipped the tested root-type fix and regression test;
-the portable stack now pins v0.2.0, which also adds the first-class Pi
-companion. Keep MCP conformance in Blackbird itself—never add a local protocol
+the current Linux inventory pins v0.5.0, with a separate npm Pi integration.
+Mac installations follow the native tap. Keep MCP conformance in Blackbird itself—never add a local protocol
 proxy or patch adapter internals.
 
 Tool allowlists are not operating-system sandboxes. For hostile code or strong
@@ -160,24 +163,31 @@ becomes edit-source → diff → apply, which is intentional, not accidental.
 
 ---
 
-## Why uv / fnm / rustup / GOTOOLCHAIN, not mise
+## Why mise bootstrap plus chezmoi
 
-**Decision: best-in-class native per language. No meta-manager.**
+**Decision (2026-09): mise owns provisioning and tool versions; chezmoi owns
+personal file reconciliation.** The previous no-mise decision predates its
+shipped machine bootstrap and our Node/Bun/Zig-based project workflows.
 
-`mise` tries to be everything: tool versions, env vars, task runner. Each
-piece is fine, but combined it's a leaky abstraction with more surface area
-than the union of:
+Mise replaces repeated install loops, fnm and the Nix fallback used only to
+obtain portable CLIs. Native uv remains the Python execution/package interface;
+rustup retains Rust's toolchain contract and Go retains `GOTOOLCHAIN=auto`.
 
-- **uv** (Astral, Rust): Python toolchain + venv + dependency resolver.
-  Orders of magnitude faster than pip+pyenv+poetry. No shims.
-- **fnm** (Schniz, Rust): Node version switcher. `--use-on-cd` reads
-  `.nvmrc` / `.node-version` transparently. Sub-10ms cold.
-- **rustup**: optimal already. No alternative.
-- **`GOTOOLCHAIN=auto`** (built-in since Go 1.21): per-`go.mod` toolchain
-  download. No manager needed.
+Mise's dotfile engine supports regular copies, templates, links and drift
+checks. Chezmoi earns its place through existing `modify_`, `create_`,
+`run_once_`, content-triggered scripts and shared Go-template contracts. Replacing
+that layer would reproduce the difficult app-owned-key merge policy elsewhere.
 
-Each tool is the best at its job. The combined startup cost is lower than
-mise alone. Project switching is automatic per-tool.
+Mise 2026.9.1's independent Homebrew-compatible installer cannot consume our
+Ruby-only tap. Real Homebrew remains the Mac package owner. Phux and Blackbird
+remain service/identity owners; a repeated bootstrap does not restart healthy
+services. Optional harnesses are selected per machine. See
+[BOOTSTRAP.md](BOOTSTRAP.md) for the complete ownership table.
+
+Literal mise shims support noninteractive shells; full environment hooks remain
+lazy in project trees. Bootstrap refreshes cached shell init when resolved tools
+change. Host `dot-bench` remains the performance gate: container timing cannot
+substitute for interactive workstation measurements.
 
 ---
 

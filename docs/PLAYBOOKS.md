@@ -223,9 +223,9 @@ cat ~/.config/foo/config         # confirm template rendered correctly
 ## P6. Adding a brew package (Mac)
 
 ```sh
-# 1. Add to scripts/bootstrap-darwin.sh.
-$EDITOR ~/dotfiles/scripts/bootstrap-darwin.sh
-# Add to the brew_packages array, grouped logically.
+# 1. Add to the native Homebrew inventory.
+$EDITOR ~/dotfiles/provision/Brewfile
+# GUI apps belong in provision/Brewfile.desktop.
 
 # 2. Install on this machine (so doctor sees it).
 brew install <pkg>
@@ -243,12 +243,13 @@ chezmoi apply
 dot-doctor                       # new binary should show green
 
 # 6. Commit.
-git add scripts/bootstrap-darwin.sh checks/00-binaries.sh dot_zshrc
+git add provision/Brewfile checks/00-binaries.sh dot_zshrc
 git commit -m "feat(toolchain): add <pkg> — <reason>"
 ```
 
-For Pi/Linux, edit `scripts/bootstrap-linux.sh` — apt first, fall back to
-nix if apt doesn't have it or has an outdated version.
+For Pi/Linux, edit `mise.linux.toml` for apt/native release tools. Portable
+cross-platform tools belong in `mise.toml`. Refresh lockfiles and run the
+[disposable bootstrap rig](BOOTSTRAP.md#disposable-test-rig) before live apply.
 
 ---
 

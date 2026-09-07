@@ -1,5 +1,6 @@
 # Pi agent-stack checks. Runtime-owned state is inspected, never reconciled here.
 
+harness_enabled pi || return 0
 hdr "pi agent stack"
 
 pi_settings="$HOME/.pi/agent/settings.json"
@@ -11,11 +12,11 @@ mcp_config="$HOME/.config/mcp/mcp.json"
 
 if command -v pi >/dev/null 2>&1; then
   version="$(pi --version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
-  pi_pin="$(sed -n 's/^PI_VERSION=//p' "$DOTFILES/scripts/install-agent-stack.sh" | head -1)"
+  pi_pin="$(yq -p=toml -o=json -r '.tools."npm:@earendil-works/pi-coding-agent"' "$DOTFILES/mise.pi.toml")"
   if [[ -n "$pi_pin" && "$version" == "$pi_pin" ]]; then
     ok "Pi matches the installer pin ($version)"
   else
-    warn "Pi is ${version:-unknown}; scripts/install-agent-stack.sh pins ${pi_pin:-unknown}"
+    warn "Pi is ${version:-unknown}; mise.pi.toml pins ${pi_pin:-unknown}"
   fi
 fi
 
@@ -91,34 +92,16 @@ for adapter in \
   "$HOME/.config/opencode/skill/cyclomatic-complexity/SKILL.md" \
   "$HOME/.hermes/skills/cyclomatic-complexity/SKILL.md"
 do
+  case "$adapter" in
+    "$HOME/.claude/"*) harness_enabled claude || continue ;;
+    "$HOME/.hermes/"*) harness_enabled hermes || continue ;;
+  esac
   if [[ -L "$adapter" && "$adapter" -ef "$complexity_skill" ]]; then
     ok "cyclomatic-complexity adapter: ${adapter#"$HOME"/}"
   else
     fail "cyclomatic-complexity adapter missing or stale: ${adapter#"$HOME"/}"
   fi
 done
-
-if command -v blackbird >/dev/null 2>&1; then
-  # The expected version is read from the installer rather than repeated here;
-  # the two drifted apart once already.
-  bb_version="$(blackbird --version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1 || true)"
-  bb_pin="$(sed -n 's/^BLACKBIRD_VERSION=//p' "$DOTFILES/scripts/install-agent-stack.sh" | head -1)"
-  if [[ -n "$bb_pin" && "$bb_version" == "$bb_pin" ]]; then
-    ok "Blackbird matches the installer pin ($bb_version)"
-  else
-    warn "Blackbird is ${bb_version:-unknown}; scripts/install-agent-stack.sh pins ${bb_pin:-unknown}"
-  fi
-  # blackbird doctor supersedes the per-binary probes: the Go companions stopped
-  # shipping in v0.3.0, and doctor checks the service definition, a real daemon
-  # handshake, and the database. It exits 5 when a check fails and 0 otherwise,
-  # so warnings stay advisory unless --strict is passed.
-  bb_rc=0; blackbird doctor >/dev/null 2>&1 || bb_rc=$?
-  if (( bb_rc == 0 )); then
-    ok "Blackbird doctor reports no failures"
-  else
-    fail "Blackbird doctor reports failures — run: blackbird doctor"
-  fi
-fi
 
 if [[ -d "$HOME/.pi/agent/npm/node_modules" ]]; then
   for spec in 'pi-subagents:0.47.1' '@narumitw/pi-goal:0.51.0' '@ff-labs/pi-fff:0.10.3' 'pi-mcp-adapter:2.23.0' 'pi-web-access:0.22.0' '@osolmaz/pi-workflows:0.13.4'; do

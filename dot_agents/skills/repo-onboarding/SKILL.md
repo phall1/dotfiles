@@ -87,7 +87,7 @@ Only run commands that print versions / status:
 # Examples — only run those relevant to the detected stack:
 cargo --version 2>/dev/null
 node --version 2>/dev/null
-python3 --version 2>/dev/null
+uv python find 2>/dev/null
 just --list 2>/dev/null         # safe; just enumerates recipes
 make -n help 2>/dev/null || true # do NOT run actual make targets
 ```

@@ -1,0 +1,13 @@
+#!/bin/sh
+# The TUI owns additional settings; these deliberately selected defaults win.
+set -eu
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+printf '%s' "$current" | jq '. * {
+  "$schema": "https://opencode.ai/v2/cli.json",
+  "diffs": {"wrap": "word"},
+  "session": {"sidebar": "auto", "scrollbar": false, "thinking": "hide", "grouping": "auto"},
+  "animations": true,
+  "tabs": {"layout": "horizontal", "enabled": true, "scope": "cwd"},
+  "debug": {"devtools": true}
+}'

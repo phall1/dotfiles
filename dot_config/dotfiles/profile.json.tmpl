@@ -1,0 +1,3 @@
+{{ $services := true }}
+{{ if hasKey . "services" }}{{ $services = .services }}{{ end }}
+{{ dict "harnesses" (get . "harnesses" | default (list "opencode")) "services" $services | toPrettyJson }}

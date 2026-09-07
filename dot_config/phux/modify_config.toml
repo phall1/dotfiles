@@ -1,0 +1,14 @@
+#!/usr/bin/env -S uv run --quiet --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["tomlkit==0.13.3"]
+# ///
+"""Append our layer without rewriting native registries or annotated defaults."""
+import sys
+import tomlkit
+
+config = tomlkit.parse(sys.stdin.read())
+layers = config.setdefault("extends", tomlkit.array())
+if "layers/dotfiles.toml" not in layers:
+    layers.append("layers/dotfiles.toml")
+sys.stdout.write(tomlkit.dumps(config))

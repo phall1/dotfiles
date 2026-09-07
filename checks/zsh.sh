@@ -50,7 +50,7 @@ fi
 # P10k state: instant-prompt cache + gitstatusd daemon.
 ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins}"
 if [[ -d "$ZSH_PLUGIN_DIR/powerlevel10k" ]]; then
-  cache="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh"
+  cache="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER:-$(id -un)}.zsh"
   if [[ -f "$cache" ]]; then
     ok "p10k instant-prompt cache present"
   else

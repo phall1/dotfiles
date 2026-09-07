@@ -22,3 +22,34 @@ plugins.bin
 plugins.lock
 renovate.json
 scripts
+tests
+provision
+mise*.toml
+mise*.lock
+.miserc.toml
+.dockerignore
+
+{{ $harnesses := get . "harnesses" | default (list "opencode") }}
+{{ if not (has "pi" $harnesses) }}
+.pi
+{{ end }}
+{{ if not (has "claude" $harnesses) }}
+.claude
+{{ end }}
+{{ if not (has "hermes" $harnesses) }}
+.hermes
+{{ end }}
+{{ if not (has "goose" $harnesses) }}
+.config/goose
+{{ end }}
+{{ if not (has "grok" $harnesses) }}
+.grok
+{{ end }}
+{{ if or (ne .chezmoi.os "darwin") (and (hasKey . "services") (not .services)) }}
+Library
+{{ end }}
+{{ if ne .chezmoi.os "darwin" }}
+.config/ghostty
+.config/phux-cockpit
+.config/token-tach
+{{ end }}

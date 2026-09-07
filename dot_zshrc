@@ -41,13 +41,12 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 [[ -d "$HOME/.npm-global/bin" ]] && export PATH="$HOME/.npm-global/bin:$PATH"
 [[ -d "$HOME/.kimi-code/bin" ]]  && export PATH="$HOME/.kimi-code/bin:$PATH"
 [[ -d "$HOME/.grok/bin" ]]       && export PATH="$HOME/.grok/bin:$PATH"
-# Keep managed launchers ahead of the vendor bins they wrap (notably
-# ~/.local/bin/opencode -> ~/.opencode/bin/opencode).
-[[ -d "$HOME/.local/bin" ]]      && export PATH="$HOME/.local/bin:$PATH"
+# Restore managed tool precedence after platform and legacy installer additions.
+path=("$HOME/.local/bin" "${MISE_DATA_DIR:-$XDG_DATA_HOME/mise}/shims" $path)
 
 # ============================================================================
 # Plugins — loaded from $XDG_DATA_HOME/zsh/plugins (see zsh/plugins.lock).
-# Plugins live OUTSIDE the dotfiles repo so the stow tree stays clean.
+# Plugins live OUTSIDE the dotfiles source tree.
 # Bootstrap: `dot-install-zsh-plugins`.
 # ============================================================================
 
@@ -79,10 +78,8 @@ export DOTFILES_OS="${DOTFILES_OS:-$(uname -s | tr '[:upper:]' '[:lower:]')}"
 # The emitted snippet only changes when the tool binary does, so cache it and
 # invalidate when the binary is newer than the cache — no version fork needed.
 #
-# NOT every tool init is cacheable. `fnm env` bakes a per-shell multishell path
-# (~/.local/state/fnm_multishells/<pid>_<ts>) into its output, so a cached copy
-# would point every future shell at one dead directory. Verified by diffing the
-# output across runs before caching anything; fnm is deliberately left forking.
+# Mise activation is environment-dependent and must not use this cache.
+# Bootstrap invalidates these snippets when their resolved tool paths change.
 _evalcache() {
   local name=$1; shift
   local bin=${commands[$1]}
@@ -105,12 +102,6 @@ _evalcache() {
 
 # Zoxide (smarter cd)
 command -v zoxide &>/dev/null && _evalcache zoxide zoxide init zsh
-
-# fnm (Node version manager — replaces nvm). --use-on-cd reads .nvmrc/.node-version.
-# --log-level error: the on-cd hook auto-runs `fnm use` in the shell's starting
-# dir, and at info level it prints "Using Node vX", which p10k flags as console
-# output during instant-prompt init. error level keeps real failures visible.
-command -v fnm &>/dev/null && eval "$(fnm env --use-on-cd --log-level error --shell zsh)"
 
 # direnv — LAZY. The normal `direnv hook zsh` forks `direnv export` on *every*
 # prompt, even in dirs with no .envrc — a per-command tax you pay everywhere.
@@ -163,7 +154,6 @@ if command -v mise &>/dev/null; then
         add-zsh-hook -d chpwd _mise_lazy_load
         unfunction _mise_lazy_load
         eval "$(mise activate zsh)"
-        _mise_hook   # apply the current dir's tool versions now
         return
       fi
       [[ "$d" == "/" ]] && break
@@ -341,6 +331,3 @@ setopt HIST_REDUCE_BLANKS   # tidy whitespace before saving
 # Google Cloud SDK
 [ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"
 [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
-
-# kimi-code
-export PATH="/Users/phall/.kimi-code/bin:$PATH"

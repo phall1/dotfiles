@@ -2,19 +2,14 @@
 
 hdr "Repo hygiene"
 
-# No personal username hardcodes in tracked configs.
-# Excludes: doctor's own check files (they mention the pattern as a search target),
-# raycast author attribution comments, and the .git dir.
-_hits=$(grep -rn "Patrick\.Hall" \
-    --include="*.zsh" --include="*.sh" --include="*.json" --include="*.jsonc" \
-    --include="*.toml" --include=".zshrc" --include=".zshenv" --include=".zprofile" \
-    --exclude-dir=".git" --exclude-dir="checks" --exclude="dot-checks.sh" \
-    "$DOTFILES" 2>/dev/null | grep -v "raycast.author" || true)
+# Chezmoi's extensionless and attribute-prefixed files are configurations too.
+_hits=$(git -C "$DOTFILES" grep -n -I -E '/(Users|home)/(phall|Patrick[.]Hall)(/|$)' \
+    -- 'dot_*' 'Library/**' '*.tmpl' 'scripts/**' 2>/dev/null || true)
 if [[ -n "$_hits" ]]; then
-  fail "hardcoded Patrick.Hall paths remain in tracked configs:"
+  fail "hardcoded user paths remain in tracked configs:"
   printf '      %s\n' "$_hits"
 else
-  ok "no hardcoded Patrick.Hall paths in tracked configs"
+  ok "no hardcoded user paths in tracked configs"
 fi
 unset _hits
 

@@ -1,0 +1,13 @@
+.git
+**/node_modules
+**/target
+**/__pycache__
+**/.DS_Store
+**/.env
+**/.env.*
+**/*.local
+**/*.local.toml
+**/*.secret
+**/secrets
+graphify-out
+artifacts

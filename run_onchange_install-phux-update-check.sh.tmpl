@@ -7,6 +7,10 @@
 
 set -euo pipefail
 
+{{ if and (hasKey . "services") (not .services) }}
+exit 0 # Explicit container/offline profile; never touch the host GUI domain.
+{{ end }}
+
 if ! command -v launchctl >/dev/null 2>&1; then
   printf "phux-update-check: launchctl not found — skipping (non-macOS host).\n" >&2
   exit 0

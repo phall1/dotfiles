@@ -1,0 +1,11 @@
+# Same platform artifacts as the repository; avoid re-resolving global tools.
+{{ $lock := include "mise.lock" | fromToml -}}
+{{ if eq .chezmoi.os "linux" -}}
+{{ $linux := include "mise.linux.lock" | fromToml -}}
+{{ $lock = mergeOverwrite $lock $linux -}}
+{{ end -}}
+{{ if has "pi" (get . "harnesses" | default (list "opencode")) -}}
+{{ $pi := include "mise.pi.lock" | fromToml -}}
+{{ $lock = mergeOverwrite $lock $pi -}}
+{{ end -}}
+{{ $lock | toToml }}

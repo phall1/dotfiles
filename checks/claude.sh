@@ -1,9 +1,10 @@
 # claude checks. chezmoi-aware: files are real copies, not symlinks.
 
+harness_enabled claude || return 0
 hdr "claude"
 
 if [[ -f "$HOME/.claude/settings.json" ]]; then
-  if python3 -c "import json,sys; json.load(open('$HOME/.claude/settings.json'))" 2>/dev/null; then
+  if jq empty "$HOME/.claude/settings.json" 2>/dev/null; then
     ok "settings.json parses"
   else
     fail "settings.json does not parse as JSON"

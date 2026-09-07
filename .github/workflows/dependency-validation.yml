@@ -22,16 +22,13 @@ jobs:
         run: |
           jq empty renovate.json \
             dot_config/opencode/create_package.json \
-            dot_config/opencode/plugin/autoresearch/package.json
-          zsh -n dot_zshrc dot_zshenv dot_zprofile
-          bash -n scripts/install-agent-stack.sh dot_local/bin/executable_dot-install-zsh-plugins
+            dot_config/opencode/opencode.jsonc
+          for file in dot_zshrc dot_zshenv dot_zprofile; do zsh -n "$file"; done
+          for file in scripts/install-agent-stack.sh dot_local/bin/executable_dot-install-zsh-plugins; do bash -n "$file"; done
       - name: Validate Renovate semantics
         run: npx --yes --package renovate@44.26.0 renovate-config-validator renovate.json
-      - name: Test OpenCode autoresearch plugin
-        working-directory: dot_config/opencode/plugin/autoresearch
-        run: |
-          npm ci --ignore-scripts
-          npm test
       - name: Test lstags
         working-directory: src/lstags
         run: cargo test --locked
+      - name: Test pinned V2 goal plugin against the managed SDK
+        run: bash tests/bootstrap/goal-plugin.sh

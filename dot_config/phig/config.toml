@@ -1,0 +1,8 @@
+version = 1
+
+[ui]
+glyphs = "auto"
+clipboard = "osc52"
+
+[theme]
+selection_bg = "reset"

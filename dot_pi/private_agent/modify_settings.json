@@ -9,9 +9,13 @@ set -eu
 
 current="$(cat)"
 [ -n "$current" ] || current='{}'
-printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1 || current='{}'
+if ! printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1; then
+  printf '%s\n' "$current"
+  exit 0
+fi
 
 managed_packages='[
+  "npm:blackbird-pi@0.1.1",
   "npm:pi-subagents@0.47.1",
   "npm:@narumitw/pi-goal@0.51.0",
   "npm:@ff-labs/pi-fff@0.10.3",

@@ -148,7 +148,8 @@
         "routing": { "mode": "conversation", "agent": "build" }
       }
     },
-    "~/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs"
+    "~/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs",
+    { "package": "github:phall1/opencode-goal-mode#b63c08c8b566cf9e4f77a4a9df3c49f4e78be764" }
   ],
   "references": {
     "conventions": {

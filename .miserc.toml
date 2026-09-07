@@ -1,0 +1,2 @@
+# Native mise platform environments select mise.macos.toml / mise.linux.toml.
+auto_env = true

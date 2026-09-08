@@ -119,7 +119,8 @@ class HistoryTests(unittest.TestCase):
         self.a.command("zsh", "-f", str(compiler))
         for source in sources:
             self.assertFalse(Path(str(source) + ".zwc").exists())
-        result = self.a.command("zsh", "-i", "-c", "exit")
+        result = self.a.command("zsh", "-i", "-c", "print -r -- fresh-shell-fixture")
+        self.assertIn("fresh-shell-fixture", result.stdout)
         self.assertNotIn("stale-bytecode-fixture", result.stdout)
 
     def wait_for_started(self, log, watcher):

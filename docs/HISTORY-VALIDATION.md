@@ -65,6 +65,7 @@ No performance baseline was repinned. The initial comparison shows no new
 |---|---:|---:|---:|---:|
 | Before history (`1788882278.json`) | 27.4 ms | 5.1 ms | 248.8 ms | 41.8 ms |
 | After history (`1788885195.json`) | 21.8 ms | 5.5 ms | 230.4 ms | 34.2 ms |
+| Final recovery validation (`1788886988.json`) | 22.1 ms | 5.1 ms | 247.0 ms | 33.4 ms |
 
 The first-command ceiling is 220 ms. Other metrics pass. Records are in
 `~/.local/state/dotfiles/bench/`. Follow-up isolated profiling found no verified

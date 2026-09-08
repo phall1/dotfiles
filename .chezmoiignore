@@ -29,6 +29,15 @@ mise*.lock
 .miserc.toml
 .dockerignore
 
+# The originals above are first-machine seeds. After native history enrollment,
+# live preferences (including deletions) belong exclusively to mise tracking.
+{{ if get . "history" | default false }}
+{{ $history := include "provision/dotfiles-history.json" | fromJson }}
+{{ range concat $history.shared $history.macos }}
+{{ . }}
+{{ end }}
+{{ end }}
+
 {{ $harnesses := get . "harnesses" | default (list "opencode") }}
 {{ if not (has "pi" $harnesses) }}
 .pi

@@ -50,6 +50,10 @@ esac
 if command -v mise >/dev/null 2>&1; then
   hdr "mise tool inventory"
   mise -C "$DOTFILES" ls --current --missing
+  if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/mise/conf.d/dotfiles-history.toml" ]]; then
+    hdr "live preference history and synchronization"
+    mise bootstrap dotfiles status
+  fi
 fi
 
 hdr "claude features delta"

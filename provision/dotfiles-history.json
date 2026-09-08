@@ -1,0 +1,43 @@
+{
+  "shared": [
+    ".agents/skills",
+    ".config/direnv/direnv.toml",
+    ".config/direnv/direnvrc",
+    ".config/gh-dash/config.yml",
+    ".config/gh-repo-preset/default.json",
+    ".config/gitui/key_bindings.ron",
+    ".config/gitui/theme.ron",
+    ".config/lazygit/config.yml",
+    ".config/mcp/mcp.json",
+    ".config/nvim",
+    ".config/opencode/agents",
+    ".config/opencode/commands",
+    ".config/opencode/opencode.jsonc",
+    ".config/opencode/skill/agent-forge/SKILL.md",
+    ".config/opencode/skill/linear-cli/SKILL.md",
+    ".config/opencode/skill/steve-jobs/SKILL.md",
+    ".config/phig/config.toml",
+    ".config/phux/layers/dotfiles.toml",
+    ".config/sesh/sesh.toml",
+    ".config/starship.toml",
+    ".config/zed/settings.json",
+    ".p10k.zsh",
+    ".tigrc",
+    ".tmux.conf",
+    ".tmux/scripts",
+    ".zprofile",
+    ".zsh/aliases.zsh",
+    ".zsh/functions.zsh",
+    ".zsh/work.zsh",
+    ".zshenv",
+    ".zshrc"
+  ],
+  "macos": [
+    ".config/ghostty/config",
+    ".config/ghostty/shaders",
+    ".config/ghostty/themes",
+    ".config/phux-cockpit/config",
+    ".config/token-tach/config"
+  ],
+  "exclude": ["**/*.zwc", "**/.DS_Store", "**/node_modules/**", "**/.git/**", "**/lazy-lock.json", "**/*.log"]
+}

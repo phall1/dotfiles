@@ -18,8 +18,9 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y zsh jq
       - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
         with:
-          version: 2026.9.1
+          version: 2026.9.3
       - run: bash tests/bootstrap/check.sh
+      - run: uv run --script tests/bootstrap/history_test.py
       - run: bash tests/gha-local-smoke.sh
   container:
     strategy:

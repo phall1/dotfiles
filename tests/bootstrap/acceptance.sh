@@ -9,6 +9,7 @@ git config --global user.email 'fixture@example.invalid'
 shell_before="$(getent passwd tester | cut -d: -f7)"
 git init --quiet "$HOME/fixture-repo"
 bash scripts/bootstrap-linux.sh --yes --update
+mise bootstrap dotfiles save
 mise ls --current --json > /home/tester/first-tools.json
 mise install --dry-run-code
 chezmoi verify --exclude scripts
@@ -23,9 +24,10 @@ done
 [[ ! -e "$HOME/.config/systemd/user/blackbird.service" ]]
 [[ ! -e "$HOME/.config/systemd/user/phux.service" ]]
 [[ "$(getent passwd tester | cut -d: -f7)" == "$shell_before" ]]
-bash scripts/bootstrap-linux.sh --yes
+bash scripts/bootstrap-linux.sh --yes --skip repos
 mise ls --current --json > /home/tester/second-tools.json
 cmp /home/tester/first-tools.json /home/tester/second-tools.json
 chezmoi verify --exclude scripts
 bash tests/bootstrap/check.sh
+uv run --script tests/bootstrap/history_test.py
 echo 'PASS: real Linux installation, shell access, app config, and second-run convergence'

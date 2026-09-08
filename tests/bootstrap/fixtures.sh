@@ -94,6 +94,24 @@ EOF
   cm apply --exclude scripts
   assert_runtime
   echo "PASS: $target preserves app state and converges twice"
+  # Native history owns these live paths after enrollment. Both subsequent
+  # applies must preserve edits and intentional deletions rather than reseeding.
+  sed '/^\[data\]$/a\
+history = true\
+' "$case_dir/config.toml" > "$case_dir/enrolled.toml"
+  mv "$case_dir/enrolled.toml" "$case_dir/config.toml"
+  printf '\n# live-owned fixture edit\n' >> "$home/.zshrc"
+  rm "$home/.config/lazygit/config.yml"
+  cm apply --exclude scripts
+  cm apply --exclude scripts
+  grep -qx '# live-owned fixture edit' "$home/.zshrc"
+  [[ ! -e "$home/.config/lazygit/config.yml" ]]
+  cm managed > "$case_dir/managed.txt"
+  if grep -Eq '^\.zshrc$|^\.config/nvim(/|$)|^\.agents/skills(/|$)' "$case_dir/managed.txt"; then
+    echo 'Native history and chezmoi own overlapping paths' >&2; exit 1
+  fi
+  cm verify --exclude scripts
+  echo "PASS: $target live edits and deletions survive repeated chezmoi apply"
 done
 
 # A core-only installation must not provision optional harnesses.

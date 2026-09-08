@@ -1,4 +1,4 @@
-min_version = "2026.9.1"
+min_version = "2026.9.3"
 
 # This is the portable tool inventory. Chezmoi renders the same declarations
 # into the user's global mise configuration; versions have one source.

@@ -1,6 +1,10 @@
 # dotfiles
 
-Personal workstation. Mise-provisioned, chezmoi-managed. Mac + Raspberry Pi.
+Personal workstation. Mise-provisioned, self-saving live preferences. Mac + Raspberry Pi.
+
+Edit your enrolled dotfiles where applications read them. Native mise history
+autosaves and synchronizes those edits through a private repository. Chezmoi
+retains machine-specific templates and explicit integration rules.
 
 The shell is a substrate — every layer is measured, checked, drift-detected.
 Pointing an agent at this repo with a task should produce elite work without
@@ -19,6 +23,7 @@ hand-holding. Start with **`AGENTS.md`** (universal) and **`CLAUDE.md`**
 | **[`docs/PLAYBOOKS.md`](./docs/PLAYBOOKS.md)** | Per-task recipes with exact commands. Adding a plugin, bumping a pin, investigating a regression. |
 | **[`docs/setup.md`](./docs/setup.md)** | Fresh-machine walkthrough + per-machine identity layers. |
 | **[`docs/BOOTSTRAP.md`](./docs/BOOTSTRAP.md)** | Mise inventories, profiles, installer ownership, disposable test rig and updates. |
+| **[`docs/SELF-SAVING-DOTFILES.md`](./docs/SELF-SAVING-DOTFILES.md)** | Live edits, automatic history/sync, another machine, rollback and conflict recovery. |
 | **[`PERF.md`](./PERF.md)** | Pinned bench baselines + how to investigate regressions. |
 | **[`checks/README.md`](./checks/README.md)** | doctor's plugin-check architecture. |
 | **[`docs/nix.md`](./docs/nix.md)** | Nix install + what is/isn't tracked. |
@@ -31,10 +36,10 @@ hand-holding. Start with **`AGENTS.md`** (universal) and **`CLAUDE.md`**
 
 | Layer | Pick | Source of authority |
 |---|---|---|
-| Shell | zsh + `dot_zshrc` / `dot_zshenv` / `dot_zprofile` | ARCHITECTURE.md §"substrate" |
+| Shell | zsh + live `.zshrc` / `.zshenv` / `.zprofile` | Native mise history; repository copies are seeds |
 | Prompt | Powerlevel10k + gitstatusd + instant-prompt | ARCHITECTURE.md §"Why P10k" |
 | Plugin load | Raw `source` + `zsh-defer`, SHA-pinned via `plugins.lock` | ARCHITECTURE.md §"Why raw" |
-| History | atuin | `dot_zshrc` |
+| Shell history | Native zsh + fzf search | Live `.zshrc` |
 | `cd` | zoxide | `dot_zshrc` |
 | Tab | fzf-tab | `plugins.lock` |
 | Bootstrap / tool versions | mise | `mise.toml`, platform/optional inventories and lockfiles |
@@ -44,11 +49,12 @@ hand-holding. Start with **`AGENTS.md`** (universal) and **`CLAUDE.md`**
 | Go | `GOTOOLCHAIN=auto` | built-in |
 | Per-dir env | direnv (`.envrc`) + chpwd hook (`.env`) | `dot_zshrc` |
 | Diff pager | delta | `dot_gitconfig.tmpl` |
-| Terminal (Mac) | Ghostty | `dot_config/ghostty/config` |
+| Terminal (Mac) | Ghostty | Live `~/.config/ghostty/config` |
 | Persistent terminals | Phux + Cockpit; tmux/sesh available | `dot_config/phux`, `dot_config/phux-cockpit` |
 | Agent runtime / coordination | OpenCode V2 + Blackbird | `dot_config/opencode/opencode.jsonc` |
 | Git / GitHub UI | Phig + Phui | `dot_config/phig`, `dot_config/phui` |
-| Dotfile manager | chezmoi | `~/.config/chezmoi/chezmoi.toml` |
+| Preference history and sync | Native mise watcher | Private `phall1/dotfiles-history` |
+| Generated files/integrations | chezmoi | Remaining `dot_*` sources and machine-local data |
 | Secrets | age (via chezmoi-age) | docs/setup.md §"Secrets" |
 
 ---
@@ -89,15 +95,17 @@ bash ~/dotfiles/scripts/bootstrap-darwin.sh --yes     # Mac (Xcode CLT required)
 exec zsh
 ```
 
-Apply auto-triggers `run_once_install-zsh-plugins.sh.tmpl` (clones plugins per
-`plugins.lock`) and `run_onchange_zcompile.sh.tmpl` (pre-compiles bytecode
-when shell sources change).
+First apply installs SHA-pinned shell plugins and compiles the initial shell.
+After enrollment, bootstrap and native restore hooks compile live preferences.
+For an existing shared setup, follow the private-history `mise bootstrap --adopt`
+instructions in [self-saving dotfiles](docs/SELF-SAVING-DOTFILES.md).
 
 Test before applying to a workstation:
 
 ```sh
 cd ~/dotfiles
 mise run check
+uv run --script tests/bootstrap/history_test.py
 bash tests/bootstrap/container.sh linux/arm64
 bash tests/bootstrap/container.sh linux/amd64
 ```
@@ -110,13 +118,16 @@ container isolation, Mac-specific validation and update policy.
 ## Daily flow
 
 ```sh
-$EDITOR ~/dotfiles/dot_zshrc           # source of truth lives in ~/dotfiles
-chezmoi diff                           # preview
-chezmoi apply                          # propagate to $HOME
-dot-doctor                             # verify
-dot-bench                              # verify perf
-git commit -m "feat(zsh): ..."         # conventional commits
+$EDITOR ~/.zshrc                       # live preferences autosave
+dot-zcompile                           # refresh shell bytecode after edits
+dot-doctor                             # validate live and generated files
+dot-bench                              # performance gate
+mise bootstrap dotfiles status         # history, watcher and sync state
+mise bootstrap dotfiles history --path ~/.zshrc
 ```
+
+Edit provisioning scripts and generated-file templates in this repository,
+preview with `chezmoi diff`, apply and commit those changes conventionally.
 
 ---
 

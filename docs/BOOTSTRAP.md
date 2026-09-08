@@ -2,7 +2,9 @@
 
 ## Ownership
 
-`mise bootstrap` is the entrypoint. Chezmoi reconciles personal files. Native
+`mise bootstrap` is the entrypoint. Native mise history owns enrolled live
+preferences and automatically saves/synchronizes edits. Chezmoi renders the
+remaining machine-specific files and reconciles explicit integration keys. Native
 applications own authentication, databases, sessions, pairing and their service
 definitions. Bootstrap never copies these between hosts.
 
@@ -16,10 +18,11 @@ definitions. Bootstrap never copies these between hosts.
 | OpenCode V2 | Official `@opencode-ai/cli` installer | Seed version in `integrations.sh`; then native auto-update |
 | Other selected harnesses | `scripts/bootstrap/harnesses.sh` | Native installer; existing installations are retained |
 | Rust | rustup | Native toolchains and project `rust-toolchain.toml` |
-| Personal files | chezmoi `dot_*` sources | Preview → apply → verify |
+| Editable preferences | Native mise tracking, initially selected by `provision/dotfiles-history.json` | Edit live → autosave → private two-way sync |
+| Templates and integrations | Remaining chezmoi `dot_*` sources | Preview → apply → verify |
 | Phux/Blackbird services | Native product installers | Healthy services are retained; Phux adoption preserves live panes |
 
-The minimum mise release is **2026.9.1**. Its `brew:` backend is an independent
+The minimum mise release is **2026.9.3**. Its `brew:` backend is an independent
 installer and cannot consume the personal tap's Ruby-only metadata. This is why
 Mac package installation deliberately calls real Homebrew. Rolling mise web docs
 describe some later features; this setup uses released commands.
@@ -50,7 +53,14 @@ Bootstrap's final task:
 2. Previews and applies the selected configuration.
 3. Installs the rendered global tool inventory and refreshes shell init caches.
 4. Installs missing native harnesses, builds lstags and reconciles services.
-5. Reconciles any installer-written config, verifies chezmoi state, and runs doctor.
+5. Reconciles installer-written config, then relinquishes ownership of enrolled
+   live preferences and reconciles the native history watcher.
+6. Compiles the live shell and verifies generated files, history health and doctor.
+
+Native bootstrap holds its history transaction until exit. Its watcher captures
+new enrollment after that transaction finishes. In a service-free container,
+follow initial enrollment with `mise bootstrap dotfiles save` explicitly.
+See [the self-saving workflow](SELF-SAVING-DOTFILES.md) for sharing and recovery.
 
 Provider logins remain per-machine: use OpenCode's `/connect`, `gh auth login`,
 and the selected applications' normal login commands. Bootstrap does not invent
@@ -102,6 +112,7 @@ bash tests/bootstrap/container.sh linux/arm64
 bash tests/bootstrap/container.sh linux/amd64
 bash tests/bootstrap/container.sh linux/arm64 container,pi
 bash tests/bootstrap/goal-plugin.sh
+uv run --script tests/bootstrap/history_test.py
 ```
 
 The Docker rig **copies** the checkout into an image, creates a non-root test
@@ -192,8 +203,9 @@ Mise bootstrap does not run package pruning or uninstall former package owners.
 Keep a persistent checkout at `~/dotfiles` on every host. Archive-based
 `mise bootstrap remote` uses temporary staging, so do not point chezmoi source or
 long-lived symlinks into that staging directory. For a Pi already reachable over
-SSH, clone/update its persistent checkout and invoke bootstrap there. The newer
-`--from-git` workflow on the rolling website is not part of mise 2026.9.1.
+SSH, clone/update its persistent checkout and invoke bootstrap there. For the
+shared history setup use `mise bootstrap --adopt phall1/dotfiles-history`.
+Mise 2026.9.3 calls this `--adopt`; the article's `--from-git` is a deprecated alias.
 
 Back up Blackbird's database, Phux host identity and application history through
 an operational backup system. They are recovery data, not portable preferences.

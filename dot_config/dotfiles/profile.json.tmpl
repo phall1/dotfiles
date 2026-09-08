@@ -1,3 +1,3 @@
 {{ $services := true }}
 {{ if hasKey . "services" }}{{ $services = .services }}{{ end }}
-{{ dict "harnesses" (get . "harnesses" | default (list "opencode")) "services" $services | toPrettyJson }}
+{{ dict "harnesses" (get . "harnesses" | default (list "opencode")) "services" $services "history" (get . "history" | default false) | toPrettyJson }}

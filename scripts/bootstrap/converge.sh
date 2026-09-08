@@ -17,4 +17,6 @@ bash "$root/scripts/bootstrap/integrations.sh"
 # preserving their runtime fields before the final drift gate.
 chezmoi diff --source "$root"
 chezmoi apply --source "$root"
+bash "$root/scripts/bootstrap/history.sh"
+"$HOME/.local/bin/dot-zcompile"
 bash "$root/scripts/bootstrap/verify.sh"

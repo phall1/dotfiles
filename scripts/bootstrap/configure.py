@@ -46,6 +46,10 @@ def configure(args: argparse.Namespace) -> None:
     config = tomlkit.parse(path.read_text()) if path.exists() else tomlkit.document()
     config["sourceDir"] = str(source)
     data = config.setdefault("data", tomlkit.table())
+    # Adoption restores native history configuration before the machine-local
+    # chezmoi data exists. Protect incoming live edits on that very first apply.
+    if (path.parent.parent / "mise/conf.d/dotfiles-history.toml").exists():
+        data["history"] = True
     identity = data.setdefault("git", tomlkit.table())
     identity.setdefault("name", git_identity("user.name"))
     identity.setdefault("email", git_identity("user.email"))

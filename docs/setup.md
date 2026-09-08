@@ -12,6 +12,22 @@ Claude, Hermes, Goose and Grok are optional machine selections.
 
 ## Fresh Mac
 
+For your laptop with the base tools and GitHub login already configured:
+
+```sh
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
+```
+
+The standalone script adopts your private preference history, installs the
+workstation inventory, configures native services, and runs doctor/bench. It
+checks the existing tools and identity before adoption. Open a new terminal when
+it finishes; sign into application providers on this machine as needed.
+
+The prerequisites are Homebrew, Git, authenticated `gh`, a configured Git name
+and email, and mise >=2026.9.3. The script uses these installations as-is.
+
+## First Mac installation from seeds
+
 ```bash
 # 1. Install Xcode CLT (for git, compilers).
 xcode-select --install

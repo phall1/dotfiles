@@ -347,34 +347,21 @@ git commit -m "perf: re-pin <metric> baseline (was N, now M) — <reason>"
 
 ## P10. Onboarding a new machine
 
+Assume the base tooling, Git identity and GitHub login exist. On macOS this
+includes Homebrew; mise must be >=2026.9.3.
+
 ```sh
-# 1. Install minimal prerequisites manually if needed.
-xcode-select --install                  # mac only
-# (Linux: nothing — bootstrap-linux.sh handles everything)
-
-# 2. Clone the repo to ~/dotfiles.
-git clone https://github.com/phall1/dotfiles.git ~/dotfiles
-
-# 3. Run host bootstrap.
-~/dotfiles/scripts/bootstrap-darwin.sh   # or bootstrap-linux.sh
-# Bootstrap finishes with a copy-paste next-steps block.
-
-# 4. Follow the printed steps:
-~/dotfiles/scripts/setup-chezmoi.sh      # interactive identity setup
-chezmoi apply                            # materialize $HOME
-~/.local/bin/dot-doctor                  # verify
-~/.local/bin/dot-bench                   # verify perf
-
-# 5. Sign in to per-machine services.
-gh auth login                            # GitHub
-# (other per-machine tokens: do as needed)
-
-# 6. Restart shell.
-exec zsh
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
 ```
 
-If any step fails, **don't paper over it**. Diagnose, fix the root cause,
-update the docs.
+The script handles native adoption, cache/state roots, provisioning,
+synchronization and health/performance checks. Open a new terminal afterward.
+From an existing checkout, run `bash ~/dotfiles/scripts/onboard.sh` instead.
+
+Re-running is supported and preserves live preferences. A failed check leaves
+the installed setup in place and returns nonzero with diagnostics. Resolve the
+reported issue before declaring the machine ready. Application logins remain
+per-machine. Details: [self-saving dotfiles](SELF-SAVING-DOTFILES.md).
 
 ---
 

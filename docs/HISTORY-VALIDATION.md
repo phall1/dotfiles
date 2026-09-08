@@ -70,3 +70,45 @@ No performance baseline was repinned. The initial comparison shows no new
 The first-command ceiling is 220 ms. Other metrics pass. Records are in
 `~/.local/state/dotfiles/bench/`. Follow-up isolated profiling found no verified
 whole-shell improvement; no speculative performance changes were applied.
+
+## Single-command onboarding follow-up
+
+`scripts/onboard.sh` is standalone and assumes existing Homebrew/Git/gh/mise,
+Git identity and GitHub authentication. The documented download-first command
+executes only after a complete successful transfer. The entrypoint establishes
+cache/state roots, invokes native adoption, checkpoints outside the bootstrap
+transaction, synchronizes and runs both doctor and bench. Final checks include
+newly installed mise shims and Cargo tools in PATH.
+
+Acceptance coverage:
+
+- Eight onboarding boundary tests cover prerequisites, directory overrides,
+  newly installed tool visibility, partial-download rejection in Bash and zsh,
+  the documented successful download command, native-operation failures and
+  health/performance exit-status handling.
+- The released mise integration suite exercises actual adoption through the new
+  entrypoint, then runs it again with a live edit and verifies preservation.
+- Five real benchmark tests execute through platform `/bin/bash`, including
+  stock macOS Bash 3.2. Valid measurements persist the existing JSON schema;
+  regressions, missing/invalid measurements and malformed baselines fail.
+- Independent review's PATH, download-failure and benchmark compatibility findings
+  are resolved. No remaining P1/P2 findings were reported.
+
+The benchmark now uses indexed arrays compatible with Bash 3.2, validates every
+declared baseline and requires every pinned measurement before certifying a pass.
+This fixes false-success paths without changing any `PERF.md` threshold.
+
+Manual shell cyclomatic complexity (Python fixture methods measured with Radon
+remain at most 4):
+
+| Function | Before | After |
+|---|---:|---:|
+| `measure` | 4 | 4 |
+| `measurement_error` | — | 1 |
+| `record_result` | — | 2 |
+| `validate_baseline` | — | 3 |
+| `require_pinned_results` | — | 5 |
+| `require_command` | — | 2 |
+| `check_git_identity` | — | 4 |
+| `check_prerequisites` | — | 5 |
+| `verify_setup` | — | 6 |

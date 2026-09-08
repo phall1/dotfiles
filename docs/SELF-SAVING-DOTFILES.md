@@ -65,18 +65,27 @@ Use private `https://github.com/phall1/dotfiles-history.git` for saved history.
 This is distinct from the public provisioning source. Native history stores all
 saved versions, including intermediate edits. Credentials are not enrolled.
 
-Git, mise >=2026.9.3 and authentication for the private repository must exist on
-the new machine. Configure its Git identity, then:
+On a laptop with Homebrew, Git, authenticated `gh`, a Git identity and mise
+>=2026.9.3 already set up, onboarding is one command:
 
 ```sh
-gh auth login
-gh auth setup-git
-# Before the outer adoption transaction starts, match the restored shell's roots.
-export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
-export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
-mise bootstrap --adopt phall1/dotfiles-history
-mise bootstrap dotfiles status
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
 ```
+
+The command downloads the entire script before running it; a failed or interrupted
+download never executes a partial script. `scripts/onboard.sh` is standalone: it
+needs no existing checkout. It checks the
+prerequisites, configures the GitHub credential helper, sets cache/state roots
+before the outer history transaction, and invokes native adoption. After bootstrap
+returns it checkpoints, synchronizes, displays status, and runs doctor plus bench.
+Failures stop the script or return a failed validation result; doctor warnings
+are displayed without hiding a separate benchmark failure.
+
+From a checkout, the same entrypoint is `bash ~/dotfiles/scripts/onboard.sh`.
+Re-running it preserves already-adopted live edits. Native conflict handling
+remains in charge; the script never chooses local or remote content for you.
+After success, open a new terminal and sign into this machine's application
+providers. Provider credentials and SSH keys stay machine-local.
 
 The shared global configuration declares the provisioning checkout at
 `~/dotfiles`. Native repo bootstrap obtains that checkout, then its more-local
@@ -98,9 +107,9 @@ The watcher declaration explicitly supplies the same mise config/data/state/cach
 directories used by the shell. This matters on macOS: launchd otherwise defaults
 to `~/Library/Caches` while this shell uses `~/.cache`. Mise 2026.9.3 places its
 history locks in the cache directory; mismatched roots split the locks even when
-the history store is shared. The exports in the adoption command are required
-on a fresh Mac before restored shell initialization exists; the ordinary bootstrap
-wrapper supplies them automatically. Both native status and actual autosave are verified.
+the history store is shared. Both onboarding and ordinary bootstrap establish
+these roots automatically, before restored shell initialization exists. Native
+status and actual autosave are verified.
 
 The Mac uses the official binary at `~/.local/bin/mise`; its shims were rebuilt
 against that binary. Homebrew only offered 2026.9.2 at cutover. Install or update

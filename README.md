@@ -73,7 +73,26 @@ All extensible — drop a `*.sh` in `checks/` to add a doctor check (see
 
 ---
 
-## Bootstrap on a fresh machine
+## Onboard your laptop
+
+With your existing Homebrew/Git tooling, Git identity, GitHub login and mise
+>=2026.9.3, run one command:
+
+```sh
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
+```
+
+It handles the directory environment and Git credential helper, adopts private
+`phall1/dotfiles-history`, provisions the machine, synchronizes preferences, and
+runs health/performance checks. Then open a new terminal. Re-running it preserves
+live edits. Any failed validation remains a nonzero exit with the failed check
+visible; it never reports a failing setup as complete.
+
+From an existing checkout: `bash ~/dotfiles/scripts/onboard.sh`.
+See [the onboarding guide](docs/SELF-SAVING-DOTFILES.md#shared-repository-and-another-machine)
+for the ownership and machine-local login details.
+
+## Bootstrap from first-install seeds
 
 ```sh
 # 1. Clone.

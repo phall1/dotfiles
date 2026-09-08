@@ -3,6 +3,7 @@
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 cd "$root"
+bash -n scripts/onboard.sh
 jq empty renovate.json dot_config/opencode/opencode.jsonc dot_config/opencode/create_package.json
 for file in mise*.toml mise*.lock .miserc.toml; do yq -p=toml -o=json '.' "$file" >/dev/null; done
 find scripts/bootstrap tests/bootstrap -type f -name '*.sh' -print0 |
@@ -12,4 +13,6 @@ bash tests/bootstrap/fixtures.sh
 bash tests/bootstrap/services.sh
 bash tests/bootstrap/retirement.sh
 uv run --script tests/bootstrap/configure_test.py
+uv run --script tests/bootstrap/onboard_test.py
+uv run --script tests/bootstrap/bench_test.py
 echo 'PASS: source syntax and isolated configuration contracts'

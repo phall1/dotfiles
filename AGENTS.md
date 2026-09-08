@@ -204,6 +204,7 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 | Add a bench metric | Already plumbed — zsh-bench output is parsed by metric name. Add a `key: value_ms` pair in `PERF.md` between `BASELINE_START`/`END` markers. |
 | Add a new $HOME file | Create at `dot_<name>` (or under `dot_config/<subdir>/`) in source. `chezmoi apply`. |
 | Add a brew package | Edit `provision/Brewfile` (host/tap tools) or `provision/Brewfile.desktop` (GUI apps). Mise invokes real Homebrew. |
+| Onboard another machine | `bash ~/dotfiles/scripts/onboard.sh` (standalone download also documented in `docs/SELF-SAVING-DOTFILES.md`); assumes base tools and GitHub login exist. |
 | Provision a workstation | `mise bootstrap`; inventories and the isolated test rig are documented in `docs/BOOTSTRAP.md`. |
 | Add a CLAUDE.md hook / MCP server / skill | Edit `dot_claude/settings.json` for hooks/MCP. Drop a `dot_claude/skills/<name>/SKILL.md` for a skill. Run `/discover` after to confirm pickup. |
 | Add a chezmoi template variable | Add to `~/.config/chezmoi/chezmoi.toml` under `[data]`. Reference as `{{ .key }}` in a `.tmpl` file. |

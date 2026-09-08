@@ -9,6 +9,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -175,6 +176,35 @@ class HistoryTests(unittest.TestCase):
         self.a.run("sync")
         self.a.run("pull", "--yes")
         self.assertFalse(target_a.exists())
+
+    def test_onboarding_entrypoint_adopts_and_repeats(self):
+        origin = self.root / "onboarding.git"
+        self.a.command("git", "init", "--bare", str(origin))
+        self.a.run("origin", "set", str(origin), "--sync", "manual", "--yes")
+        self.a.run("sync")
+        b = Machine(self.root / "laptop", MISE)
+        tools = b.home / ".local/bin"
+        tools.mkdir(parents=True)
+        # Only transport/auth and final host checks are replaced. The released
+        # mise binary performs the real adoption, checkpoint and synchronization.
+        shim = tools / "mise"
+        shim.write_text(f'''#!/bin/sh
+if [ "$2" = --adopt ]; then
+  exec {shlex.quote(MISE)} bootstrap --adopt {shlex.quote(str(origin))} --yes
+fi
+exec {shlex.quote(MISE)} "$@"
+''')
+        shim.chmod(0o755)
+        for name in ("gh", "brew", "dot-doctor", "dot-bench"):
+            tool = tools / name
+            tool.write_text("#!/bin/sh\nexit 0\n")
+            tool.chmod(0o755)
+        script = Path(__file__).resolve().parents[2] / "scripts/onboard.sh"
+        b.command("bash", str(script))
+        self.assertEqual((b.home / ".fixture").read_text(), "baseline\n")
+        (b.home / ".fixture").write_text("laptop edit\n")
+        b.command("bash", str(script))
+        self.assertEqual((b.home / ".fixture").read_text(), "laptop edit\n")
 
 
 if __name__ == "__main__":

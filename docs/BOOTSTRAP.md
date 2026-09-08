@@ -2,7 +2,16 @@
 
 ## Ownership
 
-`mise bootstrap` is the entrypoint. Native mise history owns enrolled live
+For another already-equipped machine, run the standalone onboarding entrypoint:
+
+```sh
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
+```
+
+It adopts the shared private setup and runs the final checks using existing
+tools and authentication. [Onboarding details](SELF-SAVING-DOTFILES.md#shared-repository-and-another-machine).
+
+`mise bootstrap` is the provisioning entrypoint. Native mise history owns enrolled live
 preferences and automatically saves/synchronizes edits. Chezmoi renders the
 remaining machine-specific files and reconciles explicit integration keys. Native
 applications own authentication, databases, sessions, pairing and their service

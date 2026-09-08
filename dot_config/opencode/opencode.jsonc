@@ -149,7 +149,15 @@
       }
     },
     "~/.config/opencode/vendor/i-have-adhd/.opencode/plugins/i-have-adhd.mjs",
-    { "package": "github:phall1/opencode-goal-mode#b63c08c8b566cf9e4f77a4a9df3c49f4e78be764" }
+    {
+      "package": "github:phall1/opencode-goal-mode#b63c08c8b566cf9e4f77a4a9df3c49f4e78be764",
+      "options": {
+        "auto_continue": true,
+        "max_automatic_turns": 25,
+        "max_prompt_failures": 3,
+        "min_continue_interval_ms": 2000
+      }
+    }
   ],
   "references": {
     "conventions": {

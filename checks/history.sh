@@ -18,10 +18,12 @@ if history_status="$(mise bootstrap dotfiles status --json 2>/dev/null)"; then
     fi
   fi
   if jq -e '.history.sync != null' <<< "$history_status" >/dev/null; then
-    if jq -e '.history.sync | (.conflicts | length) == 0 and .last_error == null and .application_failure == null and .validation_error == null' <<< "$history_status" >/dev/null; then
-      ok "private history origin has no reported synchronization conflicts or errors"
-    else
+    if jq -e '.history.sync | (.conflicts | length) > 0 or .application_failure != null or .validation_error != null' <<< "$history_status" >/dev/null; then
       fail "history synchronization is paused — mise bootstrap dotfiles status"
+    elif jq -e '.history.sync.last_error != null' <<< "$history_status" >/dev/null; then
+      warn "history synchronization retry pending — mise bootstrap dotfiles status"
+    else
+      ok "private history origin has no reported synchronization conflicts or errors"
     fi
   elif services_enabled; then
     warn "history is local-only until a private origin is connected"

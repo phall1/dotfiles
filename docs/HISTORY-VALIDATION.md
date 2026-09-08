@@ -22,6 +22,10 @@
 - The native launchd watcher autosaved a harmless test file's creation and
   deletion. It also automatically published creation/deletion of a separate
   probe to private `phall1/dotfiles-history`, without explicit save/sync calls.
+- A second isolated native client restored the real private history without
+  receiving host credentials. Its edit and deletion were relayed to the private
+  origin with parent-authenticated Git; the live watcher automatically applied
+  both. A temporary five-second local fetch interval was removed afterward.
 - Chezmoi verification passed after enrollment. Doctor checks native history,
   watcher status, reported sync errors and the ownership-set intersection.
 

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# Grok owns installer metadata, marketplaces and local provider state.
+set -euo pipefail
+current="$(cat)"
+yq eval-all -p=toml -o=toml 'select(fileIndex == 0) * select(fileIndex == 1)' \
+  <(printf '%s\n' "$current") <(cat <<'MANAGED'
+{{ include ".chezmoitemplates/grok.toml" }}
+MANAGED
+)

@@ -6,7 +6,7 @@
 # Baseline lives at $DOTFILES/PERF.md as `key: value_ms` pairs.
 # Regression > $REGRESSION_PCT (default 10%) exits nonzero.
 
-set -uo pipefail
+set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
 STATE_DIR="${XDG_STATE_HOME:-$HOME/.local/share}/dotfiles/bench"
@@ -20,12 +20,39 @@ RED=$'\033[31m'; GRN=$'\033[32m'; YLW=$'\033[33m'; DIM=$'\033[2m'; RST=$'\033[0m
 
 # --- measurement ------------------------------------------------------------
 
+measurement_error() {
+  printf 'Benchmark could not validate performance: %s\n' "$1" >&2
+  exit 2
+}
+
+record_result() {
+  [[ "$2" =~ ^(0|[1-9][0-9]*)([.][0-9]+)?$ ]] || measurement_error "invalid measurement for $1"
+  RESULT_NAMES+=("$1")
+  RESULT_VALUES+=("$2")
+}
+
+validate_baseline() {
+  [[ "$2" =~ ^[[:space:]]*[0-9]+([.][0-9]+)?[[:space:]]*$ ]] || measurement_error "invalid baseline for $1"
+  awk -v value="$2" 'BEGIN { exit !(value > 0) }' || measurement_error "baseline must be positive for $1"
+}
+
+require_pinned_results() {
+  local name baseline pinned=0
+  while IFS=: read -r name baseline; do
+    [[ "$name" =~ ^[a-z_]+_ms$ ]] || continue
+    validate_baseline "$name" "$baseline"
+    pinned=$((pinned + 1))
+    [[ " ${RESULT_NAMES[*]-} " == *" $name "* ]] || measurement_error "missing pinned metric $name"
+  done < "$PERF_FILE"
+  (( pinned > 0 )) || measurement_error "no pinned metrics in $PERF_FILE"
+}
+
 measure() {
   local name="$1" value="$2"
   printf "  %-28s ${DIM}%6.1f ms${RST}" "$name" "$value"
 
   local baseline
-  baseline=$(grep -E "^${name}:" "$PERF_FILE" 2>/dev/null | awk '{print $2}')
+  baseline=$(awk -F: -v name="$name" '$1 == name {gsub(/^[ \t]+|[ \t]+$/, "", $2); print $2}' "$PERF_FILE")
   if [[ -z "$baseline" ]]; then
     printf "  ${DIM}(no baseline)${RST}\n"
     return 0
@@ -46,7 +73,10 @@ measure() {
 }
 
 REGRESSED=0
-declare -A RESULTS
+# Indexed arrays work with stock macOS Bash 3.2 as well as newer Bash.
+RESULT_NAMES=()
+RESULT_VALUES=()
+[[ -r "$PERF_FILE" ]] || measurement_error "cannot read $PERF_FILE"
 
 if command -v zsh-bench >/dev/null 2>&1; then
   printf "${DIM}# Using romkatv/zsh-bench (%d iterations)${RST}\n" "$ITERATIONS"
@@ -54,9 +84,9 @@ if command -v zsh-bench >/dev/null 2>&1; then
 
   # zsh-bench prints lines like "first_prompt_lag_ms=42"
   while IFS='=' read -r k v; do
-    [[ "$k" =~ _ms$ ]] || continue
-    RESULTS[$k]=$v
-  done <<< "$(echo "$out" | grep -E '^[a-z_]+=')"
+    [[ "$k" =~ ^[a-z_]+_ms$ ]] || continue
+    record_result "$k" "$v"
+  done <<< "$out"
 else
   printf "${YLW}# zsh-bench not installed — using fallback (less accurate)${RST}\n"
   printf "${DIM}# install: git clone https://github.com/romkatv/zsh-bench ~/.zsh-bench && ln -s ~/.zsh-bench/zsh-bench ~/.local/bin/zsh-bench${RST}\n"
@@ -64,19 +94,21 @@ else
   total=0
   for i in $(seq 1 "$ITERATIONS"); do
     start=$(date +%s%N)
+    [[ "$start" =~ ^[0-9]+$ ]] || measurement_error 'fallback clock lacks nanoseconds; install zsh-bench'
     zsh -i -c exit 2>/dev/null
     end=$(date +%s%N)
     elapsed_ms=$(( (end - start) / 1000000 ))
     total=$((total + elapsed_ms))
   done
   avg=$((total / ITERATIONS))
-  RESULTS[interactive_startup_ms]=$avg
+  record_result interactive_startup_ms "$avg"
 fi
 
+require_pinned_results
 echo
 echo "Results:"
-for k in "${!RESULTS[@]}"; do
-  measure "$k" "${RESULTS[$k]}"
+for i in "${!RESULT_NAMES[@]}"; do
+  measure "${RESULT_NAMES[$i]}" "${RESULT_VALUES[$i]}"
 done
 
 # --- persist ----------------------------------------------------------------
@@ -93,9 +125,9 @@ out_file="$STATE_DIR/$ts.json"
   echo "  \"git_sha\": \"$(cd "$DOTFILES" && git rev-parse --short HEAD 2>/dev/null || echo unknown)\","
   echo "  \"results\": {"
   first=1
-  for k in "${!RESULTS[@]}"; do
+  for i in "${!RESULT_NAMES[@]}"; do
     [[ $first -eq 1 ]] && first=0 || echo ","
-    printf "    \"%s\": %s" "$k" "${RESULTS[$k]}"
+    printf "    \"%s\": %s" "${RESULT_NAMES[$i]}" "${RESULT_VALUES[$i]}"
   done
   echo
   echo "  }"

@@ -9,8 +9,11 @@ the doc — don't quietly work around it.
 ## What this repo is
 
 Personal dev substrate for one staff engineer, running on Mac (darwin/arm64)
-and Raspberry Pi (linux/arm64). **chezmoi**-managed source-of-truth lives at
-`~/dotfiles/`, materialized into `$HOME` via `chezmoi apply`. Everything is
+and Raspberry Pi (linux/arm64). **Mise history** owns enrolled live preferences:
+edit those in `$HOME` and its native watcher saves and synchronizes them. This
+repository supplies provisioning code and first-install preference seeds.
+**Chezmoi** retains machine-specific templates, executable tools and explicitly
+managed application integrations. Everything is
 **measured** (`dot-bench`), **checked** (`dot-doctor`), and **drift-detectable**
 (`dot-audit`). The shell is treated as a substrate — every layer is observable.
 
@@ -23,7 +26,7 @@ This is a living organism. Local-maxima fixes get rejected.
 1. **No hardcoded user paths in tracked files.** No `/Users/Patrick.Hall`, no
    `/Users/phall` (use `$HOME`, or chezmoi template `{{ .chezmoi.homeDir }}`).
    `dot-doctor` enforces this with a grep gate.
-2. **`dot_zshenv` stays ≤30 lines.** Every non-interactive zsh invocation pays
+2. **Live `.zshenv` and its `dot_zshenv` seed stay ≤30 lines.** Every non-interactive zsh invocation pays
    its cost. Heavy init goes in `dot_zprofile` (login) or `dot_zshrc`
    (interactive). Doctor enforces.
 3. **Plugins clone OUTSIDE the repo** to `$XDG_DATA_HOME/zsh/plugins/`.
@@ -52,6 +55,18 @@ This is a living organism. Local-maxima fixes get rejected.
 
 ## Mental model
 
+The initial editable preference set is in `provision/dotfiles-history.json`.
+Enrollment seeds `~/.config/mise/conf.d/dotfiles-history.toml`, then that native
+configuration is itself live-owned. The watcher saves into mise's bare Git
+history and synchronizes with private `phall1/dotfiles-history`. Never connect
+automatic history publication to this public provisioning repository.
+
+`[data] history = true` in machine-local chezmoi configuration removes these
+preferences from chezmoi ownership. Edits and intentional deletions survive
+later bootstrap runs. Their `dot_*` copies are first-install seeds.
+
+The remaining source-owned files follow this flow:
+
 ```
         edit
   ┌──────────────────┐
@@ -73,7 +88,10 @@ This is a living organism. Local-maxima fixes get rejected.
     /zsh/plugins/)
 ```
 
-**Source of truth:** `~/dotfiles/dot_*` files. Edit here.
+**Live preference source of truth:** the paths shown by `mise bootstrap dotfiles
+paths`. Edit these directly and inspect native history.
+**Generated/integration source of truth:** the remaining `~/dotfiles/dot_*`
+templates, modifiers and executable tools. Edit these in the repository.
 **Per-machine config:** `~/.config/chezmoi/chezmoi.toml`. Lives outside the
 repo. Drives templating (`{{ .git.name }}`, etc.).
 **Materialized state:** `$HOME` — populated by `chezmoi apply`. Real files,
@@ -85,6 +103,12 @@ not symlinks (chezmoi's default).
 
 ## The change loop (mandatory)
 
+Bootstrap changes must pass `mise run check`, `uv run --script
+tests/bootstrap/history_test.py`, and the affected disposable
+`tests/bootstrap/container.sh` architecture/profile before live workstation
+apply. The default selected harness is OpenCode V2; see `docs/BOOTSTRAP.md` for
+optional harnesses and application-owned service/state boundaries.
+
 For any non-trivial change:
 
 ```sh
@@ -92,28 +116,34 @@ For any non-trivial change:
 dot-doctor    # expect: 0 failures, ≤2 warnings
 dot-bench     # expect: all metrics under PERF.md baselines
 
-# 2. Make the edit in ~/dotfiles/dot_*.
-$EDITOR ~/dotfiles/dot_zshrc
+# 2. Edit live-owned preferences directly; native history autosaves them.
+$EDITOR ~/.zshrc
+dot-zcompile
+# For provisioning code/generated targets, edit their repository source instead.
 
 # 3. Preview.
 chezmoi diff
+mise bootstrap dotfiles status
 
 # 4. Apply.
 chezmoi apply
-# (run_onchange_zcompile.sh.tmpl auto-fires when dot_zshrc/dot_zshenv/
-#  dot_p10k.zsh content changes.)
+# This reconciles only source-owned files after native history enrollment.
 
 # 5. Verify.
 dot-doctor    # any new failure = revert
 dot-bench     # >10% regression on any pinned metric = revert OR re-pin
               # baseline with justification
 
-# 6. Commit.
+# 6. Native history autosaves preferences; force an immediate checkpoint if needed.
+mise bootstrap dotfiles save
+# Commit repository implementation changes separately.
 git add <specific files>
 git commit -m "feat(zsh): add fzf-tab group preview"
 ```
 
-**If you skip steps 1, 5, or 6, you are doing it wrong.**
+**Baseline and post-change checks remain mandatory.** Automatic history records
+edits; it does not certify correctness. Use `mise bootstrap dotfiles rollback
+<path>` and `undo` for preference recovery.
 
 ---
 
@@ -173,14 +203,16 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 | Add a doctor check | Drop a file in `checks/*.sh` (or `checks/<pkg>.sh` for per-tool) using `ok`/`warn`/`fail`/`require_bin`/`want_bin` helpers. See `checks/README.md`. |
 | Add a bench metric | Already plumbed — zsh-bench output is parsed by metric name. Add a `key: value_ms` pair in `PERF.md` between `BASELINE_START`/`END` markers. |
 | Add a new $HOME file | Create at `dot_<name>` (or under `dot_config/<subdir>/`) in source. `chezmoi apply`. |
-| Add a brew package | Edit `scripts/bootstrap-darwin.sh` `brew_packages` array. Note: `scripts/` are NOT chezmoi-applied. |
+| Add a brew package | Edit `provision/Brewfile` (host/tap tools) or `provision/Brewfile.desktop` (GUI apps). Mise invokes real Homebrew. |
+| Onboard another machine | `bash ~/dotfiles/scripts/onboard.sh` (standalone download also documented in `docs/SELF-SAVING-DOTFILES.md`); assumes base tools and GitHub login exist. |
+| Provision a workstation | `mise bootstrap`; inventories and the isolated test rig are documented in `docs/BOOTSTRAP.md`. |
 | Add a CLAUDE.md hook / MCP server / skill | Edit `dot_claude/settings.json` for hooks/MCP. Drop a `dot_claude/skills/<name>/SKILL.md` for a skill. Run `/discover` after to confirm pickup. |
 | Add a chezmoi template variable | Add to `~/.config/chezmoi/chezmoi.toml` under `[data]`. Reference as `{{ .key }}` in a `.tmpl` file. |
 | Add per-machine override | Three options in increasing specificity: chezmoi.toml per machine → hostname branch in `dot_gitconfig.tmpl` → `~/.gitconfig-work` via `includeIf`. See docs/setup.md. |
 | Set up the alt git identity on a new machine | `~/dotfiles/scripts/setup-alt-identity.sh` — interactive; writes `~/.gitconfig-alt`, generates `~/.ssh/id_ed25519_alt`, runs `gh auth login` into `~/.config/gh-alt/`. Untracked outputs are per-machine. |
 | Apply the alt identity to a repo | `git identity alt` (one-shot per repo: sets local `user.name`/`email` from `~/.gitconfig-alt`, rewrites origin to the `github.com-alt` SSH alias). `git identity` shows current; `git identity primary` reverts. |
 | Hit the alt GitHub API | `gh-alt ...` — same surface as `gh`, but `GH_CONFIG_DIR=~/.config/gh-alt` so it always operates on the alt account regardless of `gh auth switch` state. |
-| Change the shell prompt | Edit `dot_p10k.zsh` directly OR re-run `p10k configure` and commit the result. |
+| Change the shell prompt | Edit live `~/.p10k.zsh` or run `p10k configure`; native history autosaves it. Run `dot-zcompile` and `dot-bench`. |
 
 ---
 
@@ -196,8 +228,10 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 - **Reinventing the doctor's wheel** — the orchestrator (`dot-doctor`) is
   intentionally dumb. New concerns are NEW files in `checks/`, not edits to
   the orchestrator.
-- **Editing `~/.zshrc` directly** — you'll lose it on next `chezmoi apply`.
-  Always edit `~/dotfiles/dot_zshrc`.
+- **Editing an enrolled preference's seed expecting a live change** — live
+  preferences are authoritative. Edit `~/.zshrc`; its seed is for new installs.
+- **Giving native tracking and chezmoi the same target** — doctor checks this
+  ownership overlap. Generated/mixed-runtime outputs need explicit handling.
 - **Committing the rendered `~/.gitconfig`** — it's machine-specific output.
   Edit `dot_gitconfig.tmpl` or `~/.config/chezmoi/chezmoi.toml` instead.
 - **Adding "just for now" `set -x` / debug prints in tracked configs** — they
@@ -273,7 +307,7 @@ touch gets converted as part of the change.
 ## Reading more
 
 - **`docs/ARCHITECTURE.md`** — the WHY behind every choice (P10k over Starship,
-  chezmoi over stow, raw zsh over antidote, mise rejected, etc.).
+  chezmoi over stow, raw zsh over antidote, mise provisioning, etc.).
 - **`docs/PLAYBOOKS.md`** — full per-task recipes with exact commands.
 - **`docs/setup.md`** — fresh machine bootstrap, per-machine identity layers.
 - **`checks/README.md`** — doctor plugin architecture.

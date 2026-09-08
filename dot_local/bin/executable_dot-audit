@@ -33,19 +33,28 @@ else
   printf "${DIM}none${RST}\n"
 fi
 
-if command -v chezmoi >/dev/null 2>&1 && [[ -d "$HOME/.local/share/chezmoi" ]]; then
+if command -v chezmoi >/dev/null 2>&1; then
   hdr "chezmoi state"
-  chezmoi status 2>/dev/null | sed 's/^/  /' || printf "${DIM}clean${RST}\n"
+  chezmoi status --source "$DOTFILES" | sed 's/^/  /'
 fi
 
 case "$(uname -s)" in
   Darwin)
-    if command -v brew >/dev/null 2>&1 && [[ -f "$DOTFILES/Brewfile" ]]; then
+    if command -v brew >/dev/null 2>&1 && [[ -f "$DOTFILES/provision/Brewfile" ]]; then
       hdr "Brewfile drift"
-      brew bundle check --file="$DOTFILES/Brewfile" --no-upgrade 2>&1 | sed 's/^/  /' || true
+      brew bundle check --file="$DOTFILES/provision/Brewfile" --no-upgrade 2>&1 | sed 's/^/  /' || true
     fi
     ;;
 esac
+
+if command -v mise >/dev/null 2>&1; then
+  hdr "mise tool inventory"
+  mise -C "$DOTFILES" ls --current --missing
+  if [[ -f "${XDG_CONFIG_HOME:-$HOME/.config}/mise/conf.d/dotfiles-history.toml" ]]; then
+    hdr "live preference history and synchronization"
+    mise bootstrap dotfiles status
+  fi
+fi
 
 hdr "claude features delta"
 known="$HOME/.claude/state/known-features.json"

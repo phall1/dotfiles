@@ -4,15 +4,15 @@ hdr "zsh"
 
 # .zshenv should be lean — every non-interactive shell pays its cost.
 ZSHENV_MAX_LINES="${ZSHENV_MAX_LINES:-30}"
-if [[ -f "$DOTFILES/dot_zshenv" ]]; then
-  lines=$(wc -l < "$DOTFILES/dot_zshenv")
+if [[ -f "$HOME/.zshenv" ]]; then
+  lines=$(wc -l < "$HOME/.zshenv")
   if [[ "$lines" -gt "$ZSHENV_MAX_LINES" ]]; then
     warn ".zshenv has $lines lines (>$ZSHENV_MAX_LINES) — non-interactive shells pay this every invocation"
   else
     ok ".zshenv lean ($lines lines)"
   fi
 else
-  warn "dot_zshenv missing in source"
+  warn ".zshenv missing from HOME"
 fi
 
 # Completion cache freshness. Age is NOT the signal — dot_zshrc keys cache
@@ -50,7 +50,7 @@ fi
 # P10k state: instant-prompt cache + gitstatusd daemon.
 ZSH_PLUGIN_DIR="${ZSH_PLUGIN_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/zsh/plugins}"
 if [[ -d "$ZSH_PLUGIN_DIR/powerlevel10k" ]]; then
-  cache="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER}.zsh"
+  cache="${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${USER:-$(id -un)}.zsh"
   if [[ -f "$cache" ]]; then
     ok "p10k instant-prompt cache present"
   else
@@ -77,7 +77,7 @@ fi
 # ~/.zsh_early, sourced BEFORE the preamble. Enforce two things:
 #   (a) source-side ordering invariant — the hook exists and precedes the preamble.
 #   (b) runtime hygiene — late-sourced machine-local files don't echo at load time.
-zshrc_src="$DOTFILES/dot_zshrc"
+zshrc_src="$HOME/.zshrc"
 if [[ -f "$zshrc_src" ]]; then
   early_ln=$(grep -n '\.zsh_early' "$zshrc_src" | head -1 | cut -d: -f1)
   ip_ln=$(grep -n 'p10k-instant-prompt' "$zshrc_src" | head -1 | cut -d: -f1)
@@ -130,7 +130,7 @@ fi
 # so for chezmoi-applied files the bytecode lives at $HOME/.zshrc.zwc, not source.
 if [[ -f "$HOME/.zshrc.zwc" ]]; then
   if [[ "$HOME/.zshrc" -nt "$HOME/.zshrc.zwc" ]]; then
-    warn ".zshrc is newer than .zwc — chezmoi apply should re-run dot-zcompile"
+    warn ".zshrc is newer than .zwc — run dot-zcompile after editing live shell preferences"
   else
     ok ".zshrc bytecode fresh"
   fi

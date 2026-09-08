@@ -5,8 +5,10 @@ with a task, the relevant playbook below is the canonical execution path.
 **Skip the playbook only if the task explicitly demands deviation** — then
 note the deviation in the commit.
 
-Every playbook ends with the **change-loop tail**: `dot-doctor` + `dot-bench`
-+ commit. That's not optional.
+Every playbook ends with `dot-doctor` + `dot-bench`. Native history autosaves
+enrolled live preferences; commit repository implementation changes separately.
+Use `mise bootstrap dotfiles paths` to check ownership and
+[the self-saving playbook](SELF-SAVING-DOTFILES.md) for sync and recovery.
 
 ---
 
@@ -23,9 +25,12 @@ pi list
 Daily Pi roles are `pi-commander` (default autonomy), `pi-inspect`/`pi-safe`
 (local code/command read-only but delegation-capable), and explicit `pi-yolo`
 (deeper delegation). Spartan may still update explicit Blackbird coordination
-state such as mail, acknowledgements, and reservations. Put shared workflows in
-`dot_agents/skills/`, not a harness-specific copy. Never track provider auth,
-web API keys, Blackbird tokens/cursors, sessions, caches, or package trees.
+state such as mail, acknowledgements, and reservations. Edit shared workflows in
+live `~/.agents/skills/`; `dot_agents/skills/` supplies first-install seeds. For a reviewed third-party
+skill, vendor the unchanged skill plus its license and a `SOURCE.md` commit pin,
+then add only the chezmoi symlink adapters required by harnesses that do not
+read `~/.agents/skills/` directly. Never track provider auth, web API keys,
+Blackbird tokens/cursors, sessions, caches, or package trees.
 
 For strong isolation, run Pi in a container/VM or a documented sandbox
 extension. `pi-inspect` is a capability ceiling, not a hostile-code sandbox.
@@ -46,21 +51,20 @@ $EDITOR ~/dotfiles/plugins.lock
 dot-install-zsh-plugins
 # Verify the new plugin entry came back as ok=N+1 installed=1.
 
-# 4. Wire it into dot_zshrc.
+# 4. Wire it into live ~/.zshrc.
 #    - If eager-load: source it after compinit, BEFORE deferred plugins.
 #    - If deferred: zsh-defer source "$ZSH_PLUGIN_DIR/<name>/<file>"
 #    - If completion-fpath only: fpath=(...) BEFORE compinit.
-$EDITOR ~/dotfiles/dot_zshrc
+$EDITOR ~/.zshrc
 
-# 5. Apply + verify.
-chezmoi diff
-chezmoi apply
+# 5. Compile + verify the live preference.
+dot-zcompile
 zsh -i -c 'echo loaded'         # smoke-test the shell starts
 dot-doctor                       # zsh plugins section should show new plugin green
 dot-bench                        # baseline shouldn't regress >10%
 
 # 6. Commit.
-git add plugins.lock dot_zshrc
+git add plugins.lock
 git commit -m "feat(zsh): add <plugin> for <reason>"
 ```
 
@@ -174,6 +178,11 @@ For totally new metrics (zsh-bench doesn't measure it), you'd need to extend
 
 ## P5. Adding a new $HOME file (config for a new tool)
 
+For an editable portable preference, create the live file and enroll it with
+`mise bootstrap dotfiles track <path>`. Keep generated files and machine-specific
+templates under chezmoi using the recipe below. Before tracking an existing
+chezmoi target, release its chezmoi ownership; doctor rejects overlap.
+
 ```sh
 # 1. Figure out the target $HOME path. Examples:
 #    ~/.foorc                          → dot_foorc
@@ -220,32 +229,32 @@ cat ~/.config/foo/config         # confirm template rendered correctly
 ## P6. Adding a brew package (Mac)
 
 ```sh
-# 1. Add to scripts/bootstrap-darwin.sh.
-$EDITOR ~/dotfiles/scripts/bootstrap-darwin.sh
-# Add to the brew_packages array, grouped logically.
+# 1. Add to the native Homebrew inventory.
+$EDITOR ~/dotfiles/provision/Brewfile
+# GUI apps belong in provision/Brewfile.desktop.
 
 # 2. Install on this machine (so doctor sees it).
 brew install <pkg>
 
-# 3. If the tool needs shell-init (e.g. zoxide init zsh), wire into dot_zshrc.
+# 3. If the tool needs shell-init (e.g. zoxide init zsh), edit live ~/.zshrc.
 #    If it's a dependency of an existing tool, no shell change needed.
 
 # 4. Add a doctor check if it's load-bearing.
 #    - Required tool (substrate must have it)  → checks/00-binaries.sh: require_bin
 #    - Wanted tool (nice-to-have)               → checks/00-binaries.sh: want_bin
 
-# 5. Apply (only if shell init was changed) and verify.
-chezmoi diff
-chezmoi apply
+# 5. Compile if shell init changed, then verify.
+dot-zcompile
 dot-doctor                       # new binary should show green
 
 # 6. Commit.
-git add scripts/bootstrap-darwin.sh checks/00-binaries.sh dot_zshrc
+git add provision/Brewfile checks/00-binaries.sh
 git commit -m "feat(toolchain): add <pkg> — <reason>"
 ```
 
-For Pi/Linux, edit `scripts/bootstrap-linux.sh` — apt first, fall back to
-nix if apt doesn't have it or has an outdated version.
+For Pi/Linux, edit `mise.linux.toml` for apt/native release tools. Portable
+cross-platform tools belong in `mise.toml`. Refresh lockfiles and run the
+[disposable bootstrap rig](BOOTSTRAP.md#disposable-test-rig) before live apply.
 
 ---
 
@@ -262,7 +271,8 @@ See **CLAUDE.md** for the full picture. Cheat sheet:
 | Slash command | `dot_claude/commands/<name>.md` | `/<name>` in-session |
 
 ```sh
-# Always edit in the chezmoi source, then apply.
+# For source-owned Claude integrations, edit the source then apply.
+# Shared skills in ~/.agents/skills are live-owned and autosave instead.
 $EDITOR ~/dotfiles/dot_claude/skills/<name>/SKILL.md   # or settings.json, etc.
 chezmoi diff
 chezmoi apply
@@ -337,34 +347,21 @@ git commit -m "perf: re-pin <metric> baseline (was N, now M) — <reason>"
 
 ## P10. Onboarding a new machine
 
+Assume the base tooling, Git identity and GitHub login exist. On macOS this
+includes Homebrew; mise must be >=2026.9.3.
+
 ```sh
-# 1. Install minimal prerequisites manually if needed.
-xcode-select --install                  # mac only
-# (Linux: nothing — bootstrap-linux.sh handles everything)
-
-# 2. Clone the repo to ~/dotfiles.
-git clone https://github.com/phall1/dotfiles.git ~/dotfiles
-
-# 3. Run host bootstrap.
-~/dotfiles/scripts/bootstrap-darwin.sh   # or bootstrap-linux.sh
-# Bootstrap finishes with a copy-paste next-steps block.
-
-# 4. Follow the printed steps:
-~/dotfiles/scripts/setup-chezmoi.sh      # interactive identity setup
-chezmoi apply                            # materialize $HOME
-~/.local/bin/dot-doctor                  # verify
-~/.local/bin/dot-bench                   # verify perf
-
-# 5. Sign in to per-machine services.
-gh auth login                            # GitHub
-# (other per-machine tokens: do as needed)
-
-# 6. Restart shell.
-exec zsh
+onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
 ```
 
-If any step fails, **don't paper over it**. Diagnose, fix the root cause,
-update the docs.
+The script handles native adoption, cache/state roots, provisioning,
+synchronization and health/performance checks. Open a new terminal afterward.
+From an existing checkout, run `bash ~/dotfiles/scripts/onboard.sh` instead.
+
+Re-running is supported and preserves live preferences. A failed check leaves
+the installed setup in place and returns nonzero with diagnostics. Resolve the
+reported issue before declaring the machine ready. Application logins remain
+per-machine. Details: [self-saving dotfiles](SELF-SAVING-DOTFILES.md).
 
 ---
 

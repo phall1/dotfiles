@@ -1,0 +1,13 @@
+{
+  "toolVisibility": "always",
+  "experimental": {
+    "goals": true
+  },
+  "rpc": {
+    "enabled": false
+  },
+  "continuationLimits": {
+    "automaticTurns": 100,
+    "noProgressTurns": 3
+  }
+}

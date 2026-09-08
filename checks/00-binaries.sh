@@ -20,11 +20,14 @@ hdr "Wanted binaries"
 want_bin chezmoi        "dotfile manager (task #7)"
 want_bin age            "secret encryption"
 want_bin uv             "Python toolchain"
-want_bin fnm            "Node toolchain"
+want_bin mise           "workstation bootstrap and tool versions"
 want_bin sesh           "tmux session picker"
-want_bin claude         "Claude Code CLI"
-want_bin pi             "Pi coding agent"
+want_bin opencode2      "OpenCode V2 CLI"
 want_bin blackbird      "durable agent coordination"
+want_bin phux           "persistent terminal server"
+want_bin phux-mcp       "terminal MCP integration"
+want_bin phig           "Git history browser"
+want_bin phui           "GitHub workflow UI"
 want_bin open-websearch "harness-neutral web research"
 want_bin lstags         "ls + Finder tags (cargo install via run_onchange)"
 
@@ -33,5 +36,5 @@ case "$(uname -s)" in
     want_bin ghostty "Mac terminal"
     want_bin act     "local GitHub Actions runner"
     ;;
-  Linux)  want_bin wezterm "Pi terminal (optional)" ;;
+  Linux) ;;
 esac

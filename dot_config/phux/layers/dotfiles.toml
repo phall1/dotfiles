@@ -1,0 +1,6 @@
+# Portable interaction preferences. Host enrollment and distro plugins live in
+# the local root config, which extends this layer after its existing layers.
+[keybindings]
+prefix = "C-a"
+which-key = true
+which-key-delay-ms = 400

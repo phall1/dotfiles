@@ -1,0 +1,18 @@
+# Real Homebrew owns host packages and the personal tap. Mise 2026.9.1's
+# built-in brew installer cannot consume this tap's Ruby-only metadata.
+tap "phall1/tap"
+brew "git"
+brew "jq"
+brew "age"
+brew "tmux"
+brew "neovim"
+brew "tig"
+brew "direnv"
+brew "coreutils"
+brew "eza"
+brew "rustup-init"
+brew "act"
+brew "phall1/tap/blackbird"
+brew "phall1/tap/phux"
+brew "phall1/tap/phig"
+brew "phall1/tap/phui"

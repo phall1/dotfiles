@@ -9,7 +9,8 @@
 set -euo pipefail
 
 DOTFILES="${DOTFILES:-$HOME/dotfiles}"
-AGENT_DIR="$DOTFILES/opencode/.config/opencode"
+# Enumerate applied adapters so shared skill symlinks resolve normally.
+AGENT_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/opencode"
 
 case "${1:-}" in
   --list|-l)
@@ -21,14 +22,14 @@ case "${1:-}" in
     done
     echo ""
     echo "=== Agents ==="
-    for f in "$AGENT_DIR"/agent/*.md; do
+    for f in "$AGENT_DIR"/agents/*.md; do
       [ -f "$f" ] || continue
       name=$(basename "$f" .md)
       printf "  %s\n" "$name"
     done
     echo ""
     echo "=== Commands ==="
-    for f in "$AGENT_DIR"/command/*.md; do
+    for f in "$AGENT_DIR"/commands/*.md; do
       [ -f "$f" ] || continue
       name=$(basename "$f" .md)
       desc=$(sed -n 's/^description: *//p' "$f" | head -1)
@@ -42,7 +43,8 @@ case "${1:-}" in
       exit 1
     fi
     prompt="Load the agent-forge skill. I want to iterate on my existing agent named '${2}'. Read its current definition, then ask me what needs changing."
-    oc run --dir "$DOTFILES" "$prompt"
+    cd "$DOTFILES"
+    opencode2 run "$prompt"
     exit 0
     ;;
   --help|-h)
@@ -58,13 +60,14 @@ case "${1:-}" in
     ;;
   "")
     # No args — open TUI pointed at dotfiles
-    oc --dir "$DOTFILES"
+    opencode2 "$DOTFILES"
     exit 0
     ;;
   *)
     # Positional arg(s) = the agent idea description
     prompt="Load the agent-forge skill. Here is my agent idea: $*"
-    oc run --dir "$DOTFILES" "$prompt"
+    cd "$DOTFILES"
+    opencode2 run "$prompt"
     exit 0
     ;;
 esac

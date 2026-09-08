@@ -1,1 +1,1 @@
-../../../../.claude/skills/repo-onboarding/SKILL.md
+../../../../.agents/skills/repo-onboarding/SKILL.md

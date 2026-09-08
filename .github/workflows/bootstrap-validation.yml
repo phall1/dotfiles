@@ -1,0 +1,39 @@
+name: Bootstrap acceptance
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  config:
+    strategy:
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y zsh jq
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2
+        with:
+          version: 2026.9.3
+      - run: bash tests/bootstrap/check.sh
+      - run: uv run --script tests/bootstrap/history_test.py
+      - run: bash tests/gha-local-smoke.sh
+  container:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            platform: linux/amd64
+            profile: container
+          - os: ubuntu-24.04-arm
+            platform: linux/arm64
+            profile: container,pi
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - run: bash tests/bootstrap/container.sh '${{ matrix.platform }}' '${{ matrix.profile }}'

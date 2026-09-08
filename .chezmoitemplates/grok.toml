@@ -1,0 +1,76 @@
+[ui]
+max_thoughts_width = 120
+fork_secondary_model = "grok-4.6"
+yolo = false
+compact_mode = false
+permission_mode = "always-approve"
+vim_mode = true
+
+# Ox Alpha provider catalog. Keys remain machine-local environment state.
+[model_providers.ox-opencode]
+base_url = "https://opencode.ai/zen/v1"
+api_backend = "chat_completions"
+env_key = "OPENCODE_ZEN_API_KEY"
+context_window = 1048576
+
+[model_providers.ox-openrouter]
+base_url = "https://openrouter.ai/api/v1"
+api_backend = "chat_completions"
+env_key = "OPENROUTER_API_KEY"
+context_window = 1048576
+
+[model_providers.ox-command]
+base_url = "https://api.commandcode.ai/provider/v1"
+api_backend = "chat_completions"
+env_key = "COMMAND_CODE_API_KEY"
+context_window = 1048576
+
+[model_providers.ox-nous]
+base_url = "http://127.0.0.1:8645/v1"
+api_backend = "chat_completions"
+env_key = "NOUS_API_KEY"
+context_window = 1048576
+
+[model_providers.ox-venice]
+base_url = "https://api.venice.ai/api/v1"
+api_backend = "chat_completions"
+env_key = "VENICE_API_KEY"
+context_window = 1048576
+
+[model.ox-opencode]
+model = "x-preview-f-free"
+name = "Ox Alpha (OpenCode Zen; ZDR)"
+description = "Limited-time free stealth preview with zero retention"
+model_provider = "ox-opencode"
+max_completion_tokens = 131072
+
+[model.ox-openrouter]
+model = "stealth/ox-alpha"
+name = "Ox Alpha (OpenRouter)"
+description = "Free stealth preview; upstream retains prompts and completions"
+model_provider = "ox-openrouter"
+max_completion_tokens = 131072
+
+[model.ox-command]
+model = "stealth/ox-alpha"
+name = "Ox Alpha (Command Code)"
+description = "Limited-time free stealth preview; not ZDR"
+model_provider = "ox-command"
+max_completion_tokens = 131072
+
+[model.ox-nous]
+model = "stealth/ox-alpha"
+name = "Ox Alpha (Nous Portal)"
+description = "Free-tier route; enable Nous Privacy Mode separately"
+model_provider = "ox-nous"
+max_completion_tokens = 131072
+
+[model.ox-venice]
+model = "stealth-ox-alpha"
+name = "Ox Alpha (Venice)"
+description = "Free beta route; anonymized third-party inference"
+model_provider = "ox-venice"
+max_completion_tokens = 131072
+
+[models]
+default = "grok-4.6"

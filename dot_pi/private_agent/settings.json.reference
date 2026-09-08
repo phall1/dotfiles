@@ -6,13 +6,21 @@ Chezmoi manages:
 - `theme: blackwater-rust`
 - `defaultProjectTrust: always`
 - install telemetry disabled
-- reviewed package pins
-- model-neutral builtin subagent tool overrides
+- reviewed package pins, including the globally enabled Pi Workflows runtime and skills
+- explicit retirement of removed interaction packages
+- model-neutral builtin subagent tool overrides and watchdog behavior
 
-Pi/runtime owns everything else, including provider, model, thinking level,
+Pi/runtime owns everything else, including provider, model, thinking level
+(including the locally recommended complementary watchdog model),
 changelog state, authentication, trust records, sessions, caches, and unknown
 future keys. The merge preserves those keys.
 
-Package pins are declared in `modify_settings.json`. The optional local Phux
+Package pins are declared in `modify_settings.json`. Retired package names are
+also declared there so a package removed from the managed pins is not mistaken
+for a runtime-owned addition and preserved forever. The optional local Phux
 package is retained and added only when `$HOME/workspace/phux/integrations/pi`
 exists; it is not a portable dependency.
+
+Long-horizon continuation settings are tracked separately in `pi-goal.json`.
+The role-profile extension keeps user-question tools inactive even if another
+package tries to register them.

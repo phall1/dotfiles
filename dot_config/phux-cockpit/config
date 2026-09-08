@@ -1,0 +1,4 @@
+cursor-style = block
+tab-placement = top
+hide-chrome-when-single = true
+inherit-working-directory = true

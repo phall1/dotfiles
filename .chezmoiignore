@@ -22,3 +22,43 @@ plugins.bin
 plugins.lock
 renovate.json
 scripts
+tests
+provision
+mise*.toml
+mise*.lock
+.miserc.toml
+.dockerignore
+
+# Preserve existing preferences even on the first apply before enrollment.
+# After enrollment, missing paths stay ignored too, preserving deletions.
+{{ $history := include "provision/dotfiles-history.json" | fromJson }}
+{{ range concat $history.shared $history.macos }}
+{{ if or (get $ "history" | default false) (stat (joinPath $.chezmoi.homeDir .)) }}
+{{ . }}
+{{ end }}
+{{ end }}
+
+{{ $harnesses := get . "harnesses" | default (list "opencode") }}
+{{ if not (has "pi" $harnesses) }}
+.pi
+{{ end }}
+{{ if not (has "claude" $harnesses) }}
+.claude
+{{ end }}
+{{ if not (has "hermes" $harnesses) }}
+.hermes
+{{ end }}
+{{ if not (has "goose" $harnesses) }}
+.config/goose
+{{ end }}
+{{ if not (has "grok" $harnesses) }}
+.grok
+{{ end }}
+{{ if or (ne .chezmoi.os "darwin") (and (hasKey . "services") (not .services)) }}
+Library
+{{ end }}
+{{ if ne .chezmoi.os "darwin" }}
+.config/ghostty
+.config/phux-cockpit
+.config/token-tach
+{{ end }}

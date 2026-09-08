@@ -9,15 +9,20 @@ set -eu
 
 current="$(cat)"
 [ -n "$current" ] || current='{}'
-printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1 || current='{}'
+if ! printf '%s' "$current" | jq -e 'type == "object"' >/dev/null 2>&1; then
+  printf '%s\n' "$current"
+  exit 0
+fi
 
 managed_packages='[
+  "npm:blackbird-pi@0.1.1",
   "npm:pi-subagents@0.47.1",
-  "npm:@juicesharp/rpiv-ask-user-question@2.4.0",
   "npm:@narumitw/pi-goal@0.51.0",
   "npm:@ff-labs/pi-fff@0.10.3",
   "npm:pi-mcp-adapter@2.23.0",
-  "npm:pi-web-access@0.22.0"
+  "npm:pi-web-access@0.22.0",
+  "npm:@osolmaz/pi-workflows@0.13.4",
+  "https://github.com/ayghri/i-have-adhd"
 ]'
 
 # This developer checkout is deliberately a machine-local overlay, not a
@@ -25,6 +30,13 @@ managed_packages='[
 phux='../../workspace/phux/integrations/pi'
 add_phux=false
 [ -d "$HOME/workspace/phux/integrations/pi" ] && add_phux=true
+
+# Packages in this list are actively removed instead of being preserved as
+# runtime-owned additions. This keeps retired model-facing interaction tools
+# from silently returning after a later chezmoi apply.
+retired_packages='[
+  "@juicesharp/rpiv-ask-user-question"
+]'
 
 managed='{
   "theme": "blackwater-rust",
@@ -38,6 +50,13 @@ managed='{
       "reviewer": {"tools": ["read", "grep", "find", "ls", "intercom", "subagent"]},
       "oracle": {"tools": ["read", "grep", "find", "ls", "bash", "intercom", "subagent"]},
       "delegate": {"tools": ["read", "grep", "find", "ls", "bash", "edit", "write", "contact_supervisor", "subagent"]}
+    },
+    "watchdog": {
+      "enabled": true,
+      "main": {"enabled": true},
+      "children": {"enabled": false},
+      "autoFollow": {"blockers": true, "maxAttempts": 2, "stalemateRepeats": 2},
+      "cadence": {"everyNTools": null}
     }
   }
 }'
@@ -45,6 +64,7 @@ managed='{
 result=$(printf '%s' "$current" | jq \
   --argjson managed "$managed" \
   --argjson pins "$managed_packages" \
+  --argjson retired "$retired_packages" \
   --arg phux "$phux" \
   --argjson addPhux "$add_phux" '
     def managed_name:
@@ -57,7 +77,13 @@ result=$(printf '%s' "$current" | jq \
           end
         end;
     ($pins | map(managed_name)) as $names
-    | [(.packages // [])[] | select((managed_name as $n | ($n == null or ($names | index($n) | not))))] as $unmanaged
+    | [
+        (.packages // [])[]
+        | select(
+            managed_name as $n
+            | ($n == null or (($names | index($n) | not) and ($retired | index($n) | not)))
+          )
+      ] as $unmanaged
     | ($unmanaged + $pins) as $packages
     | ($packages | if ($addPhux and (index($phux) | not)) then . + [$phux] else . end) as $packages
     | . * $managed

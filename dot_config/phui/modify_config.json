@@ -1,0 +1,11 @@
+#!/bin/sh
+# Merge the portable mapping by entry, preserving exact repository mappings,
+# editor integration and other preferences written by Phui.
+set -eu
+current="$(cat)"
+[ -n "$current" ] || current='{}'
+printf '%s' "$current" | jq '. * {
+  "repoPaths": {":owner/:repo": "~/workspace/:repo"},
+  "themeMode": "fixed",
+  "theme": "cursor"
+}'

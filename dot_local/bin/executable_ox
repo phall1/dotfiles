@@ -17,7 +17,7 @@ Usage:
   ox each [--dir DIR] [--prompt-file FILE] [PROMPT...]
 
 Providers: auto, opencode, openrouter, command, nous, venice
-Harnesses: pi (default), opencode, hermes, goose, grok, codex
+Harnesses: pi (default), opencode, hermes, goose, grok
 
 `run` is a normal mutation-capable agent run. `ask` is one read-only Pi run.
 `each` fans the prompt out read-only to every authenticated provider and saves
@@ -193,7 +193,6 @@ supports_route() {
   local harness=$1 provider=$2
   case "$harness" in
     claude) return 1 ;;
-    codex) [[ "$provider" == openrouter || "$provider" == venice ]] ;;
     pi|opencode|hermes|goose|grok) return 0 ;;
     *) return 1 ;;
   esac
@@ -264,50 +263,66 @@ inject_credential() {
   export "$variable=$key"
 }
 
-run_harness() {
-  local harness=$1 provider=$2 prompt=$3 model pi_provider oc_model hermes_provider goose_provider
-  model=$(model_id "$provider")
+prepare_harness_route() {
+  local provider=$1 harness=$2
   if [[ "$provider" == nous && "$harness" != hermes ]]; then
     ensure_nous_proxy
   fi
   if [[ "$harness" != hermes || "$provider" != nous ]]; then
     inject_credential "$provider"
   fi
+}
+
+run_pi_harness() {
+  local provider=$1 model=$2 prompt=$3
+  local pi_provider=ox-$provider
+  if command -v pi-commander >/dev/null 2>&1; then
+    pi-commander -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
+  else
+    pi -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
+  fi
+}
+
+run_opencode_harness() {
+  local provider=$1 model=$2 prompt=$3 oc_model
+  case "$provider" in
+    opencode) oc_model=opencode/$model ;;
+    openrouter) oc_model=openrouter/$model ;;
+    *) oc_model=ox-$provider/$model ;;
+  esac
+  opencode2 run --model "$oc_model" "$prompt"
+}
+
+run_hermes_harness() {
+  local provider=$1 model=$2 prompt=$3 hermes_provider
+  case "$provider" in
+    opencode) hermes_provider=opencode-zen ;;
+    openrouter|nous) hermes_provider=$provider ;;
+    *) hermes_provider=custom:ox-$provider ;;
+  esac
+  hermes --provider "$hermes_provider" --model "$model" --oneshot "$prompt"
+}
+
+run_goose_harness() {
+  local provider=$1 model=$2 prompt=$3
+  goose run --no-session --provider "ox_$provider" --model "$model" --text "$prompt"
+}
+
+run_grok_harness() {
+  local provider=$1 prompt=$3
+  grok --single "$prompt" --model "ox-$provider"
+}
+
+run_harness() {
+  local harness=$1 provider=$2 prompt=$3 model
+  model=$(model_id "$provider")
+  prepare_harness_route "$provider" "$harness"
   case "$harness" in
-    pi)
-      pi_provider=ox-$provider
-      if command -v pi-commander >/dev/null 2>&1; then
-        pi-commander -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
-      else
-        pi -p --provider "$pi_provider" --model "$model" --thinking high "$prompt"
-      fi
-      ;;
-    opencode)
-      case "$provider" in
-        opencode) oc_model=opencode/$model ;;
-        openrouter) oc_model=openrouter/$model ;;
-        *) oc_model=ox-$provider/$model ;;
-      esac
-      opencode run --model "$oc_model" "$prompt"
-      ;;
-    hermes)
-      case "$provider" in
-        opencode) hermes_provider=opencode-zen ;;
-        openrouter|nous) hermes_provider=$provider ;;
-        *) hermes_provider=custom:ox-$provider ;;
-      esac
-      hermes --provider "$hermes_provider" --model "$model" --oneshot "$prompt"
-      ;;
-    goose)
-      goose_provider=ox_$provider
-      goose run --no-session --provider "$goose_provider" --model "$model" --text "$prompt"
-      ;;
-    grok)
-      grok --single "$prompt" --model "ox-$provider"
-      ;;
-    codex)
-      codex exec --profile "ox-$provider" "$prompt"
-      ;;
+    pi) run_pi_harness "$provider" "$model" "$prompt" ;;
+    opencode) run_opencode_harness "$provider" "$model" "$prompt" ;;
+    hermes) run_hermes_harness "$provider" "$model" "$prompt" ;;
+    goose) run_goose_harness "$provider" "$model" "$prompt" ;;
+    grok) run_grok_harness "$provider" "$model" "$prompt" ;;
     claude)
       printf '%s\n' 'ox: Claude Code requires Anthropic Messages and does not support Ox directly.' >&2
       return 2
@@ -360,11 +375,11 @@ Authenticate only the routes you want; keys remain local:
   nous       `hermes portal`                       NOUS_API_KEY or Hermes OAuth
   venice     https://venice.ai/settings/api        VENICE_API_KEY
 
-For OpenCode-backed reuse, run `opencode providers login`, select the matching
+For OpenCode-backed reuse, run `opencode2 auth login`, select the matching
 configured provider, and paste the key. `ox` can reuse those local API entries.
 EOF
       ;;
-    opencode) printf '%s\n' 'Create/copy a key at https://opencode.ai/auth, then run `opencode providers login` and select OpenCode Zen.' ;;
+    opencode) printf '%s\n' 'Create/copy a key at https://opencode.ai/auth, then run `opencode2 auth login` and select OpenCode Zen.' ;;
     openrouter) printf '%s\n' 'Create a key at https://openrouter.ai/keys, then export OPENROUTER_API_KEY or log in through OpenCode.' ;;
     command) printf '%s\n' 'Create a key at https://commandcode.ai/studio/api-keys, then export COMMAND_CODE_API_KEY or log in to ox-command through OpenCode.' ;;
     nous) printf '%s\n' 'Run `hermes portal`; ox reuses Hermes OAuth through a loopback-only proxy. Enable Portal Privacy Mode separately.' ;;

@@ -1,0 +1,3 @@
+# Optional Pi coding-agent harness, independent of the Raspberry Pi host.
+[tools]
+"npm:@earendil-works/pi-coding-agent" = "0.84.4"

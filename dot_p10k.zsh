@@ -1638,7 +1638,7 @@
   function prompt_mise() {
     local dir=$PWD
     while [[ $dir != / ]]; do
-      [[ -f $dir/.mise.toml ]] && { p10k segment -f 208 -t 'mise'; return }
+      [[ -f $dir/.mise.toml || -f $dir/mise.toml || -f $dir/.mise/config.toml ]] && { p10k segment -f 208 -t 'mise'; return }
       dir=${dir:h}
     done
   }

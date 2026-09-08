@@ -36,3 +36,7 @@ bun.lock
 
 # Compiled tool build artifacts (source is tracked, target/ is not)
 src/*/target/
+
+# Python test/import caches are runtime state, never chezmoi source.
+__pycache__/
+*.pyc

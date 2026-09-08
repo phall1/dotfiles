@@ -1,0 +1,5 @@
+cask "ghostty"
+cask "font-jetbrains-mono-nerd-font"
+cask "phall1/tap/phux-cockpit"
+cask "phall1/tap/token-tach"
+cask "phall1/tap/friday"

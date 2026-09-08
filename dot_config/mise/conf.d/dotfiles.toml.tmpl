@@ -1,0 +1,13 @@
+# Generated from the repository inventories. Project mise.toml files override
+# these personal defaults; app credentials and service state remain local.
+{{ $base := include "mise.toml" | fromToml -}}
+{{ $tools := get $base "tools" -}}
+{{ if eq .chezmoi.os "linux" -}}
+{{ $linux := include "mise.linux.toml" | fromToml -}}
+{{ $tools = mergeOverwrite $tools (get $linux "tools") -}}
+{{ end -}}
+{{ if has "pi" (get . "harnesses" | default (list "opencode")) -}}
+{{ $pi := include "mise.pi.toml" | fromToml -}}
+{{ $tools = mergeOverwrite $tools (get $pi "tools") -}}
+{{ end -}}
+{{ dict "tools" $tools "settings" (get $base "settings") | toToml }}

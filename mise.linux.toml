@@ -1,0 +1,22 @@
+[bootstrap.packages]
+"apt:zsh" = "latest"
+"apt:git" = "latest"
+"apt:curl" = "latest"
+"apt:ca-certificates" = "latest"
+"apt:jq" = "latest"
+"apt:age" = "latest"
+"apt:tmux" = "latest"
+"apt:tig" = "latest"
+"apt:direnv" = "latest"
+"apt:build-essential" = "latest"
+"apt:pkg-config" = "latest"
+"apt:procps" = "latest"
+"apt:libssl-dev" = "latest"
+
+[tools]
+"aqua:neovim/neovim" = "0.12.5"
+"aqua:eza-community/eza" = "0.23.5"
+"github:phall1/blackbird" = "0.5.0"
+"github:no-phux/phux" = { version = "0.26.1", asset_pattern = "phux-v*-aarch64-unknown-linux-gnu.tar.gz", platforms.linux-x64.asset_pattern = "phux-v*-x86_64-unknown-linux-gnu.tar.gz" }
+"github:phall1/phig" = "1.1.1"
+"github:phall1/phui" = "0.15.0"

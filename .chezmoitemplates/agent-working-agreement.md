@@ -2,7 +2,7 @@
 
 <!--
   Single source of truth. Materialized into every agent's global instruction
-  file by chezmoi (`dot_claude/CLAUDE.md.tmpl`, `dot_codex/AGENTS.md.tmpl`,
+  file by chezmoi (`dot_claude/CLAUDE.md.tmpl` and
   `dot_config/opencode/AGENTS.md.tmpl`). Edit HERE, then `chezmoi apply`.
   Editing the materialized copies is a no-op — they get overwritten.
 -->
@@ -49,3 +49,15 @@ reverse — pushing to a repo I don't own, force-pushing, cutting a release,
 deleting remote state, anything destructive or hard to walk back — still gets
 asked, every time. "Keep the ball rolling" governs the local, recoverable work
 sitting in front of you.
+
+## Complexity discipline
+
+- Load and follow the shared `cyclomatic-complexity` skill for refactoring,
+  simplification, cleanup, code-quality review, deeply nested logic, god
+  functions, or any new nontrivial function with heavy branching.
+- Measure touched functions before and after with project-native tooling and
+  thresholds when available. Preserve behavior and public APIs, run relevant
+  tests, and report the before/after complexity evidence.
+- Never game the number with dense expressions or broaden the task into an
+  unrelated rewrite. Prefer guard clauses, named predicates, and small,
+  single-responsibility helpers that improve human readability.

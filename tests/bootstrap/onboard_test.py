@@ -61,6 +61,7 @@ if [ "$3" = sync ]; then exit "${SYNC_RC:-0}"; fi''')
         self.assertLess(calls.index("dotfiles sync"), calls.index("doctor"))
         self.assertIn("Onboarding complete", result.stdout)
         self.assertNotIn("brew install", calls)
+        self.assertNotIn("gh auth setup-git", calls)
 
     def test_existing_directory_overrides_are_preserved(self):
         result = self.onboard(XDG_CACHE_HOME=str(self.root / "cache"), XDG_STATE_HOME=str(self.root / "state"))

@@ -75,7 +75,7 @@ onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise
 The command downloads the entire script before running it; a failed or interrupted
 download never executes a partial script. `scripts/onboard.sh` is standalone: it
 needs no existing checkout. It checks the
-prerequisites, configures the GitHub credential helper, sets cache/state roots
+prerequisites, uses the existing GitHub authentication, sets cache/state roots
 before the outer history transaction, and invokes native adoption. After bootstrap
 returns it checkpoints, synchronizes, displays status, and runs doctor plus bench.
 Failures stop the script or return a failed validation result; doctor warnings

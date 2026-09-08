@@ -56,7 +56,6 @@ verify_setup() {
 
 echo '[1/3] Checking your existing tools and GitHub login'
 check_prerequisites
-gh auth setup-git --hostname github.com
 
 echo '[2/3] Restoring shared preferences and provisioning this machine'
 mise bootstrap --adopt phall1/dotfiles-history --yes

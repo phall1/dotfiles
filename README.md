@@ -82,7 +82,7 @@ With your existing Homebrew/Git tooling, Git identity, GitHub login and mise
 onboard=$(curl -fsSL https://raw.githubusercontent.com/phall1/dotfiles/feat/mise-workstation/scripts/onboard.sh) && bash <<< "$onboard"
 ```
 
-It handles the directory environment and Git credential helper, adopts private
+It handles the directory environment, uses your existing GitHub login, adopts private
 `phall1/dotfiles-history`, provisions the machine, synchronizes preferences, and
 runs health/performance checks. Then open a new terminal. Re-running it preserves
 live edits. Any failed validation remains a nonzero exit with the failed check

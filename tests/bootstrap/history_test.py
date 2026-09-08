@@ -105,6 +105,23 @@ class HistoryTests(unittest.TestCase):
                 watcher.terminate()
                 watcher.wait(timeout=15)
 
+    def test_deleted_shell_sources_do_not_execute_stale_bytecode(self):
+        compiler = Path(__file__).resolve().parents[2] / "dot_local/bin/executable_dot-zcompile"
+        module = self.a.home / ".zsh/fixture.zsh"
+        module.parent.mkdir()
+        sources = [self.a.home / ".zshrc", self.a.home / ".zshenv", self.a.home / ".p10k.zsh", module]
+        for source in sources:
+            source.write_text('print -r -- stale-bytecode-fixture\n')
+        self.a.command("zsh", "-f", str(compiler))
+        for source in sources:
+            self.assertTrue(Path(str(source) + ".zwc").is_file())
+            source.unlink()
+        self.a.command("zsh", "-f", str(compiler))
+        for source in sources:
+            self.assertFalse(Path(str(source) + ".zwc").exists())
+        result = self.a.command("zsh", "-i", "-c", "exit")
+        self.assertNotIn("stale-bytecode-fixture", result.stdout)
+
     def wait_for_started(self, log, watcher):
         deadline = time.monotonic() + 30
         while time.monotonic() < deadline:

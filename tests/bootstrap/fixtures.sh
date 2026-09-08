@@ -87,7 +87,10 @@ email = "fixture@example.invalid"
 EOF
   jq -n --arg os "${target%/*}" --arg arch "${target#*/}" '{chezmoi:{os:$os,arch:$arch}}' > "$case_dir/override.json"
   seed_runtime
+  printf '%s\n' '# preexisting live preference' > "$home/.zshrc"
   cm apply --exclude scripts
+  grep -qx '# preexisting live preference' "$home/.zshrc"
+  [[ -f "$home/.config/lazygit/config.yml" ]]
   assert_runtime
   cm verify --exclude scripts
   [[ -z "$(cm diff --exclude scripts)" ]]

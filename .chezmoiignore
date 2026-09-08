@@ -29,11 +29,11 @@ mise*.lock
 .miserc.toml
 .dockerignore
 
-# The originals above are first-machine seeds. After native history enrollment,
-# live preferences (including deletions) belong exclusively to mise tracking.
-{{ if get . "history" | default false }}
+# Preserve existing preferences even on the first apply before enrollment.
+# After enrollment, missing paths stay ignored too, preserving deletions.
 {{ $history := include "provision/dotfiles-history.json" | fromJson }}
 {{ range concat $history.shared $history.macos }}
+{{ if or (get $ "history" | default false) (stat (joinPath $.chezmoi.homeDir .)) }}
 {{ . }}
 {{ end }}
 {{ end }}

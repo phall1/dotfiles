@@ -7,6 +7,13 @@ If a choice here is wrong, propose changing it — don't quietly work around it.
 
 ## Portable agent stack
 
+Editable shell, editor and shared-agent preferences are now live-owned by native
+mise history. The watcher saves and synchronizes them through a separate private
+origin. This provisioning repository retains first-install seeds, generated
+templates, tool inventories and integration code. Chezmoi excludes enrolled
+targets so bootstrap cannot overwrite edits or restore intentional deletions.
+See [ownership and recovery](SELF-SAVING-DOTFILES.md) for the exact boundary.
+
 The global agent substrate is layered rather than harness-specific:
 
 OpenCode V2 is installed by default. Other harnesses participate when selected

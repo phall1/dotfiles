@@ -6,7 +6,7 @@
 |---|---|
 | Native mise orchestration | `mise run check` and `mise bootstrap --yes` passed on macOS arm64 with mise 2026.9.1 |
 | Linux arm64 | Debian 13 non-root fresh HOME, `container,pi`; real installs, strict shell checks and second-run convergence passed |
-| Linux amd64 | Earlier installation/configuration/shell convergence passed. Final strengthened runtime check fails at `phui --version` under this Mac's emulator; native amd64 acceptance remains open |
+| Linux amd64 | Native GitHub CI passed the strengthened application/runtime checks on 2026-09-08; this Mac's non-AVX emulator remains unsuitable |
 | Runtime config preservation | Darwin arm64, Linux arm64 and Linux amd64 chezmoi fixtures each applied and verified twice |
 | Native applications | Phux composed configuration and Phig configuration passed; Phig performed repository status in containers and on the Mac |
 | Live services | Blackbird and Phux daemon PIDs were identical before and after Mac bootstrap |
@@ -62,7 +62,8 @@ comment-preserving parser instead of hand-written TOML text surgery.
 
 `PERF.md` was **not repinned**. All four pinned metrics already failed before
 the migration. Mac and Linux arm64 functional acceptance passed; absolute shell
-performance acceptance remains open alongside native amd64 runtime acceptance.
+performance acceptance remains open. Native amd64 runtime acceptance subsequently
+passed in CI (see below).
 
 | Measurement | Command | Input | First command | First prompt |
 |---|---:|---:|---:|---:|
@@ -89,7 +90,13 @@ required before claiming the performance gate is green; the available evidence
 does not justify changing its thresholds or redesigning activation to chase
 these noisy numbers.
 
-## Native amd64 runtime acceptance: pending
+## Native amd64 runtime acceptance: passed in CI
+
+[Bootstrap acceptance run 34253606391](https://github.com/phall1/dotfiles/actions/runs/34253606391)
+passed on 2026-09-08 at commit `6bb2056`. Both native architecture container jobs
+passed, including the actual Phui executable and native history tests. macOS and
+Linux configuration jobs passed as well. The emulator failure below is retained
+as diagnostic history, not an open acceptance gate.
 
 The final stricter `phui --version` smoke check exposes a crash in the published
 Phui v0.15.0 x64 executable under this Mac's emulator. The embedded Bun v1.3.14
@@ -97,8 +104,8 @@ reports missing AVX support and terminates with signal 4 (exit 132). The same
 application check passes on Linux arm64. Earlier amd64 convergence evidence did
 not execute Phui, so it is insufficient to declare the final amd64 lane green.
 
-Run `bash tests/bootstrap/container.sh linux/amd64` on a native amd64 host with
-AVX support, or run the configured native GitHub CI job after publication. No
+Use `bash tests/bootstrap/container.sh linux/amd64` on a native amd64 host with
+AVX support, as the configured native GitHub CI job does. No
 runtime check is bypassed for emulation. A missing Docker cache snapshot after
 a server restart was separately resolved by rebuilding this task's amd64 image
 with `--no-cache`; that did not resolve the CPU-instruction limitation.

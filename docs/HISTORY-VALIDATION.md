@@ -5,12 +5,18 @@
 - Official mise 2026.9.3 macOS arm64 archive verified against its published
   `SHASUMS256.txt` before use. Linux fresh installation uses the same release.
 - `mise run check` passed: all three platform fixtures preserve application
-  runtime fields, and live-owned edits/deletions survive two chezmoi applies.
+  runtime fields and preexisting preferences on first apply; missing preferences
+  receive seeds. Live-owned edits/deletions survive two later chezmoi applies.
 - `tests/bootstrap/history_test.py` passed with real native mise commands:
   autosave after atomic file replacement, rollback/undo, fresh adoption, two-home
   exchange, conflict resolution, deletion, and consistent watcher directories.
+- A real zsh regression compiles startup files and a module, deletes their source,
+  and verifies that bytecode cleanup prevents deleted configuration from running.
 - The final Linux arm64 `container,pi` run passed real installation, history
   enrollment, repeat convergence, native application checks and history tests.
+- Native [CI run 34253606391](https://github.com/phall1/dotfiles/actions/runs/34253606391)
+  passed amd64 and arm64/Pi container acceptance plus macOS/Linux configuration
+  and history tests at `6bb2056`. Dependency validation passed separately.
 - Independent source review identified the native bootstrap history-lock
   reentrancy issue, active-operation status semantics, service-off reconciliation,
   and the macOS cache-root mismatch. All were addressed without custom watchers
@@ -28,6 +34,9 @@
   both. A temporary five-second local fetch interval was removed afterward.
 - Chezmoi verification passed after enrollment. Doctor checks native history,
   watcher status, reported sync errors and the ownership-set intersection.
+- Live Mac repeat `mise bootstrap --yes` passed after enrollment and origin
+  connection. Native status reports a running watcher, zero pending operations,
+  zero conflicts and no synchronization errors.
 
 ## Complexity
 
@@ -40,10 +49,12 @@ Measured using `uvx --from radon==6.0.1 radon cc -s`:
 | `history_config` | — | 1 |
 | `watcher_directories` | — | 2 |
 | `enable_history` | — | 3 |
+| `_compile` (zsh, manual decision count) | 5 | 5 |
 
 No existing public API was removed. The new functions separate enrollment data,
 portable native configuration, and machine-local service directories. The
-existing private/atomic TOML writer is reused.
+existing private/atomic TOML writer is reused. The zsh guard retains its branching
+complexity while removing derived bytecode for absent sources.
 
 ## Performance
 
@@ -56,5 +67,5 @@ No performance baseline was repinned. The initial comparison shows no new
 | After history (`1788885195.json`) | 21.8 ms | 5.5 ms | 230.4 ms | 34.2 ms |
 
 The first-command ceiling is 220 ms. Other metrics pass. Records are in
-`~/.local/state/dotfiles/bench/`. Native amd64 runtime acceptance is separately
-carried forward from [the provisioning migration](BOOTSTRAP-VALIDATION.md).
+`~/.local/state/dotfiles/bench/`. Follow-up isolated profiling found no verified
+whole-shell improvement; no speculative performance changes were applied.

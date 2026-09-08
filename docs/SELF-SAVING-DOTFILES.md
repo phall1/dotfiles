@@ -71,6 +71,9 @@ the new machine. Configure its Git identity, then:
 ```sh
 gh auth login
 gh auth setup-git
+# Before the outer adoption transaction starts, match the restored shell's roots.
+export XDG_CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+export XDG_STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
 mise bootstrap --adopt phall1/dotfiles-history
 mise bootstrap dotfiles status
 ```
@@ -95,7 +98,9 @@ The watcher declaration explicitly supplies the same mise config/data/state/cach
 directories used by the shell. This matters on macOS: launchd otherwise defaults
 to `~/Library/Caches` while this shell uses `~/.cache`. Mise 2026.9.3 places its
 history locks in the cache directory; mismatched roots split the locks even when
-the history store is shared. Both native status and actual autosave are verified.
+the history store is shared. The exports in the adoption command are required
+on a fresh Mac before restored shell initialization exists; the ordinary bootstrap
+wrapper supplies them automatically. Both native status and actual autosave are verified.
 
 The Mac uses the official binary at `~/.local/bin/mise`; its shims were rebuilt
 against that binary. Homebrew only offered 2026.9.2 at cutover. Install or update

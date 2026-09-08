@@ -2,7 +2,10 @@
 
 Two hosts, one source-of-truth: Mac (darwin/arm64) and Raspberry Pi (linux/arm64).
 
-Mise is the provisioning entrypoint; chezmoi owns portable preferences. The
+Mise provisions tools and owns live preference history; chezmoi retains templates
+and application integrations. For an existing private setup, start with
+[native history adoption](SELF-SAVING-DOTFILES.md#shared-repository-and-another-machine).
+The
 complete inventory, profiles, service boundaries and disposable test commands
 live in [BOOTSTRAP.md](BOOTSTRAP.md). OpenCode V2 is the default harness; Pi,
 Claude, Hermes, Goose and Grok are optional machine selections.

@@ -11,6 +11,7 @@ chezmoi apply --source "$root"
 mise trust "${XDG_CONFIG_HOME:-$HOME/.config}/mise/conf.d/dotfiles.toml"
 # Install the selected optional inventories from the rendered global config.
 mise -C "$HOME" install --yes
+bash "$root/scripts/bootstrap/skills.sh"
 bash "$root/scripts/bootstrap/refresh-shell.sh"
 bash "$root/scripts/bootstrap/integrations.sh"
 # Optional native installers can seed config. Reconcile managed keys while

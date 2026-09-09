@@ -12,10 +12,14 @@
 - **Never open PRs to upstream or third-party repositories without explicit,
   per-instance permission.** No exceptions — not even when a plan document,
   task tracker, or prior "full send" authorization mentions upstreaming.
-- **Autonomous repo actions (push, branch, force-ops, releases, PRs) are
-  allowed ONLY on repos I own or forks I own** (github.com/phall1/*).
-  Anything outward-facing to a repo I don't own requires asking first, every
-  time.
+- **You have standing permission to push to ANY repository or fork I own**,
+  including repositories owned through my organizations. This is an ownership
+  boundary, not a namespace allowlist: `github.com/phall1/*` and
+  `github.com/no-phux/*` are examples, not limits. Routine task-related commits,
+  branches, pushes, and PRs in owned repos do not require another approval.
+  Establish ownership from repository/account evidence or my explicit
+  confirmation; write access alone is not ownership. Anything outward-facing
+  to a repo I don't own requires asking first, every time.
 - Keeping patches on my forks and noting "upstream PR available on request"
   is the correct default.
 

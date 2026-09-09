@@ -266,8 +266,8 @@ See **CLAUDE.md** for the full picture. Cheat sheet:
 |---|---|---|
 | Skill | `dot_claude/skills/<name>/SKILL.md` | Auto-loaded on next session by Claude Code's skill discovery |
 | Agent | `dot_claude/agents/<name>.md` | Tab to switch, or `@<name>` mention |
-| Hook | Edit `dot_claude/settings.json` → `hooks` | Harness-executed on configured events |
-| MCP server | Edit `dot_claude/settings.json` → `mcpServers` | Auto-connected on next session |
+| Hook | Add to the `managed` block in `dot_claude/modify_settings.json` → `hooks` | Harness-executed on configured events |
+| MCP server | Add to the `managed` block in `dot_claude/modify_settings.json` → `mcpServers` | Auto-connected on next session |
 | Slash command | `dot_claude/commands/<name>.md` | `/<name>` in-session |
 
 ```sh

@@ -28,6 +28,7 @@ definitions. Bootstrap never copies these between hosts.
 | Other selected harnesses | `scripts/bootstrap/harnesses.sh` | Native installer; existing installations are retained |
 | Rust | rustup | Native toolchains and project `rust-toolchain.toml` |
 | Editable preferences | Native mise tracking, initially selected by `provision/dotfiles-history.json` | Edit live → autosave → private two-way sync |
+| Shared skills | Live `~/.agents/skills/` (an editable preference); `dot_agents/skills/` seeds it via `scripts/bootstrap/skills.sh` | Missing files are seeded; an existing live file is never overwritten |
 | Templates and integrations | Remaining chezmoi `dot_*` sources | Preview → apply → verify |
 | Phux/Blackbird services | Native product installers | Healthy services are retained; Phux adoption preserves live panes |
 

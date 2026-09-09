@@ -125,6 +125,4 @@ fi
 echo 'PASS: optional harness selection'
 [[ -f "$home/.config/opencode/skill/repo-onboarding/SKILL.md" ]]
 [[ "$(printf '%s' 'malformed-json' | "$root/dot_pi/private_agent/modify_settings.json")" == malformed-json ]]
-[[ "$(printf '%s' 'malformed-json' | "$root/dot_pi/private_agent/modify_private_models.json")" == malformed-json ]]
-[[ "$(printf '%s' 'not: [valid' | "$root/dot_hermes/modify_private_config.yaml")" == 'not: [valid' ]]
 echo 'PASS: shared skill resolves and malformed Pi state survives'

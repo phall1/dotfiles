@@ -206,7 +206,7 @@ These are codified in `docs/PLAYBOOKS.md`. Cheat sheet:
 | Add a brew package | Edit `provision/Brewfile` (host/tap tools) or `provision/Brewfile.desktop` (GUI apps). Mise invokes real Homebrew. |
 | Onboard another machine | `bash ~/dotfiles/scripts/onboard.sh` (standalone download also documented in `docs/SELF-SAVING-DOTFILES.md`); assumes base tools and GitHub login exist. |
 | Provision a workstation | `mise bootstrap`; inventories and the isolated test rig are documented in `docs/BOOTSTRAP.md`. |
-| Add a CLAUDE.md hook / MCP server / skill | Edit `dot_claude/settings.json` for hooks/MCP. Drop a `dot_claude/skills/<name>/SKILL.md` for a skill. Run `/discover` after to confirm pickup. |
+| Add a CLAUDE.md hook / MCP server / skill | Add hooks/MCP to the `managed` block in `dot_claude/modify_settings.json`. Put a shared skill in `dot_agents/skills/<name>/SKILL.md` with a `symlink_SKILL.md` adapter per harness. Run `/discover` after to confirm pickup. |
 | Add a chezmoi template variable | Add to `~/.config/chezmoi/chezmoi.toml` under `[data]`. Reference as `{{ .key }}` in a `.tmpl` file. |
 | Add per-machine override | Three options in increasing specificity: chezmoi.toml per machine → hostname branch in `dot_gitconfig.tmpl` → `~/.gitconfig-work` via `includeIf`. See docs/setup.md. |
 | Set up the alt git identity on a new machine | `~/dotfiles/scripts/setup-alt-identity.sh` — interactive; writes `~/.gitconfig-alt`, generates `~/.ssh/id_ed25519_alt`, runs `gh auth login` into `~/.config/gh-alt/`. Untracked outputs are per-machine. |

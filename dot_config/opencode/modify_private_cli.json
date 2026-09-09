@@ -8,6 +8,6 @@ printf '%s' "$current" | jq '. * {
   "diffs": {"wrap": "word"},
   "session": {"sidebar": "auto", "scrollbar": false, "thinking": "hide", "grouping": "auto"},
   "animations": true,
-  "tabs": {"layout": "horizontal", "enabled": true, "scope": "cwd"},
+  "tabs": {"layout": "vertical", "enabled": true, "scope": "cwd"},
   "debug": {"devtools": true}
 }'

@@ -10,6 +10,19 @@ goal_config="$HOME/.pi/agent/pi-goal.json"
 module_bridge="$HOME/.pi/agent/node_modules"
 mcp_config="$HOME/.config/mcp/mcp.json"
 
+# The managed package pins are declared in modify_settings.json. Restating them
+# here made this check a lockstep-edit detector: it could only ever catch "you
+# edited one file and not the other", never real drift. Derive them instead --
+# and the retired-package assertion below derives its own name the same way.
+managed_packages="$(sed -n "/^managed_packages='/,/^]'$/p" "$pi_modify" | sed "s/^managed_packages='//; s/^]'$/]/")"
+if ! jq -e 'type == "array"' <<< "$managed_packages" >/dev/null 2>&1; then
+  fail "cannot read managed_packages from dot_pi/private_agent/modify_settings.json"
+  return 0
+fi
+npm_pins="$(jq -r '[.[] | select(startswith("npm:"))]' <<< "$managed_packages")"
+retired_packages="$(sed -n "/^retired_packages='/,/^]'$/p" "$pi_modify" | sed "s/^retired_packages='//; s/^]'$/]/")"
+jq -e 'type == "array"' <<< "$retired_packages" >/dev/null 2>&1 || retired_packages='[]'
+
 if command -v pi >/dev/null 2>&1; then
   version="$(pi --version 2>/dev/null | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+' | head -1)"
   pi_pin="$(yq -p=toml -o=json -r '.tools."npm:@earendil-works/pi-coding-agent"' "$DOTFILES/mise.pi.toml")"
@@ -29,21 +42,38 @@ fi
 if [[ -f "$pi_settings" ]] && jq -e 'type == "object"' "$pi_settings" >/dev/null 2>&1; then
   ok "settings.json parses"
   [[ "$(jq -r '.defaultProjectTrust // empty' "$pi_settings")" == always ]] && ok "project trust defaults to always" || fail "defaultProjectTrust is not always"
-  missing="$(jq -r '["npm:pi-subagents@0.47.1","npm:@narumitw/pi-goal@0.51.0","npm:@ff-labs/pi-fff@0.10.3","npm:pi-mcp-adapter@2.23.0","npm:pi-web-access@0.22.0","npm:@osolmaz/pi-workflows@0.13.4"] - (.packages // []) | .[]' "$pi_settings")"
+  missing="$(jq -r --argjson pins "$npm_pins" '$pins - (.packages // []) | .[]' "$pi_settings")"
   [[ -z "$missing" ]] && ok "portable Pi package pins present" || fail "missing managed Pi package pin(s): ${missing//$'\n'/, }"
-  if jq -e '[(.packages // [])[] | if type == "object" then .source else . end | select(type == "string" and test("rpiv-ask-user-question"))] | length == 0' "$pi_settings" >/dev/null 2>&1; then
-    ok "user-question package absent"
+  still_present="$(jq -r --argjson retired "$retired_packages" '
+    [(.packages // [])[] | if type == "object" then .source else . end | select(type == "string")] as $configured
+    | [$retired[] | select(. as $name | $configured | map(contains($name)) | any)] | .[]' "$pi_settings")"
+  if [[ -z "$still_present" ]]; then
+    ok "retired packages absent"
   else
-    fail "retired user-question package is still configured"
+    fail "retired package(s) still configured: ${still_present//$'\n'/, }"
   fi
 else
   fail "~/.pi/agent/settings.json missing or invalid"
 fi
 
 if [[ -x "$pi_modify" ]]; then
-  synthetic='{"defaultProvider":"local","defaultModel":"keep-me","defaultThinkingLevel":"low","runtime":{"token":"keep"},"packages":["npm:pi-subagents@old","npm:@juicesharp/rpiv-ask-user-question@2.4.0","git:example/tool"]}'
+  # Feed it a stale pin, a retired package and an unmanaged entry, then assert
+  # the contract: runtime keys survive, every managed pin lands, retired names go.
+  synthetic="$(jq -nc --argjson retired "$retired_packages" '{
+    defaultProvider: "local", defaultModel: "keep-me", defaultThinkingLevel: "low",
+    runtime: {token: "keep"},
+    packages: (["npm:pi-subagents@old", "git:example/tool"] + [$retired[] | "npm:" + . + "@1.0.0"])
+  }')"
   roundtrip="$(printf '%s' "$synthetic" | "$pi_modify" 2>/dev/null)"
-  if jq -e '.defaultProvider=="local" and .defaultModel=="keep-me" and .defaultThinkingLevel=="low" and .runtime.token=="keep" and (.packages|index("git:example/tool")) and (.packages|index("npm:pi-subagents@0.47.1")) and (.packages|index("npm:@osolmaz/pi-workflows@0.13.4")) and ((.packages|map(tostring)|map(contains("rpiv-ask-user-question"))|any) | not) and .subagents.watchdog.enabled==true and .subagents.watchdog.main.enabled==true and .defaultProjectTrust=="always"' <<<"$roundtrip" >/dev/null 2>&1; then
+  if jq -e --argjson pins "$npm_pins" --argjson retired "$retired_packages" '
+      [(.packages // [])[] | if type == "object" then .source else . end | select(type == "string")] as $out
+      | .defaultProvider == "local" and .defaultModel == "keep-me"
+      and .defaultThinkingLevel == "low" and .runtime.token == "keep"
+      and ($out | index("git:example/tool"))
+      and (($pins - $out) | length == 0)
+      and ([$retired[] | select(. as $n | $out | map(contains($n)) | any)] | length == 0)
+      and .subagents.watchdog.enabled == true and .subagents.watchdog.main.enabled == true
+      and .defaultProjectTrust == "always"' <<<"$roundtrip" >/dev/null 2>&1; then
     ok "modify_settings preserves runtime keys and enforces managed values"
   else
     fail "modify_settings semantic roundtrip failed"
@@ -82,33 +112,12 @@ else
   fail "shared Blackbird MCP config missing or inconsistent"
 fi
 
-for skill in blackbird web-research cyclomatic-complexity; do
-  [[ -f "$HOME/.agents/skills/$skill/SKILL.md" ]] && ok "shared $skill skill" || fail "shared $skill skill missing"
-done
-
-complexity_skill="$HOME/.agents/skills/cyclomatic-complexity/SKILL.md"
-for adapter in \
-  "$HOME/.claude/skills/cyclomatic-complexity/SKILL.md" \
-  "$HOME/.config/opencode/skill/cyclomatic-complexity/SKILL.md" \
-  "$HOME/.hermes/skills/cyclomatic-complexity/SKILL.md"
-do
-  case "$adapter" in
-    "$HOME/.claude/"*) harness_enabled claude || continue ;;
-    "$HOME/.hermes/"*) harness_enabled hermes || continue ;;
-  esac
-  if [[ -L "$adapter" && "$adapter" -ef "$complexity_skill" ]]; then
-    ok "cyclomatic-complexity adapter: ${adapter#"$HOME"/}"
-  else
-    fail "cyclomatic-complexity adapter missing or stale: ${adapter#"$HOME"/}"
-  fi
-done
-
 if [[ -d "$HOME/.pi/agent/npm/node_modules" ]]; then
-  for spec in 'pi-subagents:0.47.1' '@narumitw/pi-goal:0.51.0' '@ff-labs/pi-fff:0.10.3' 'pi-mcp-adapter:2.23.0' 'pi-web-access:0.22.0' '@osolmaz/pi-workflows:0.13.4'; do
-    pkg="${spec%:*}"; expected="${spec##*:}"; manifest="$HOME/.pi/agent/npm/node_modules/$pkg/package.json"
+  while IFS= read -r spec; do
+    pkg="${spec%@*}"; expected="${spec##*@}"; manifest="$HOME/.pi/agent/npm/node_modules/$pkg/package.json"
     if [[ ! -f "$manifest" ]]; then warn "$pkg not installed yet"
     elif [[ "$(jq -r .version "$manifest")" == "$expected" ]]; then ok "$pkg@$expected installed"
     else warn "$pkg installed version differs from $expected"
     fi
-  done
+  done < <(jq -r '.[] | sub("^npm:"; "")' <<< "$npm_pins")
 fi

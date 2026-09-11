@@ -1,0 +1,99 @@
+#!/usr/bin/env bash
+# dot-cleanup — scheduled disk reclamation for macOS (launchd, daily 3am).
+#
+# Runs three headless-safe cleanups, logging to ~/.local/state/dot-cleanup/:
+#   1. `mo clean` — user-level caches/logs/dev caches. Headless-safe: with
+#      stdin detached (launchd, or </dev/null below) mole skips the sudo
+#      prompt and cleans user-level items automatically. System caches are
+#      skipped without a cached sudo session — by design, never sudo here.
+#   2. `cargo clean-all -y --keep-days 4` over ~/workspace + ~/home-ops —
+#      stale cargo `target/` dirs. `mo purge` is deliberately NOT used: on
+#      mole stable (1.53.x) purge is interactive-only; --yes exists only on
+#      unreleased main, so scheduling purge would hang waiting on a TUI.
+#   3. `brew cleanup` + `brew autoremove` — old versions, unneeded deps.
+#
+# mole clean deletions are permanent; cargo targets are rebuildable (builds
+# touched within $KEEP_DAYS are always kept). Preview with --dry-run.
+# Extend scan roots with DOT_CLEANUP_SCAN_ROOTS (colon-separated) or adjust
+# staleness with DOT_CLEANUP_KEEP_DAYS. Never move this to cron(8) — launchd
+# owns scheduling on macOS (cron is deprecated and environment-poor).
+set -euo pipefail
+
+# launchd starts with a minimal PATH; resolve Homebrew/cargo tools for
+# scheduled runs without affecting interactive use.
+export PATH="/opt/homebrew/bin:$HOME/.cargo/bin:$HOME/.local/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+
+DRY_RUN=false
+if [[ "${1:-}" == "--dry-run" ]]; then DRY_RUN=true; fi
+
+KEEP_DAYS="${DOT_CLEANUP_KEEP_DAYS:-4}"
+LOG_DIR="$HOME/.local/state/dot-cleanup"
+mkdir -p "$LOG_DIR"
+LOG="$LOG_DIR/cleanup.log"
+
+log() { printf '%s %s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$*" | tee -a "$LOG"; }
+failures=0
+
+# Single-flight: a first full scan of ~/workspace can run long; never stack.
+if ! mkdir "$LOG_DIR/lock" 2>/dev/null; then
+  log "another dot-cleanup is running — exiting"
+  exit 0
+fi
+trap 'rmdir "$LOG_DIR/lock"' EXIT
+
+log "dot-cleanup start (dry-run=$DRY_RUN, keep-days=$KEEP_DAYS, free=$(df -h "$HOME" | awk 'NR==2 {print $4}'))"
+
+# 1. mole clean -------------------------------------------------------------
+if command -v mo >/dev/null 2>&1; then
+  if [[ "$DRY_RUN" == true ]]; then
+    mo clean --dry-run >>"$LOG" 2>&1 || { log "mo clean --dry-run failed"; failures=$((failures + 1)); }
+  else
+    # </dev/null forces mole's non-interactive path even for manual terminal
+    # runs: no sudo prompt, user-level cleanup proceeds automatically.
+    mo clean </dev/null >>"$LOG" 2>&1 || { log "mo clean failed"; failures=$((failures + 1)); }
+  fi
+  log "mo clean done"
+else
+  log "mo not found — skipping (brew install mole)"
+fi
+
+# 2. stale cargo targets -----------------------------------------------------
+if command -v cargo-clean-all >/dev/null 2>&1; then
+  roots=()
+  [[ -d "$HOME/workspace" ]] && roots+=("$HOME/workspace")
+  [[ -d "$HOME/home-ops" ]] && roots+=("$HOME/home-ops")
+  if [[ -n "${DOT_CLEANUP_SCAN_ROOTS:-}" ]]; then
+    IFS=':' read -r -a extra <<< "$DOT_CLEANUP_SCAN_ROOTS"
+    for r in "${extra[@]}"; do [[ -d "$r" ]] && roots+=("$r"); done
+  fi
+  for root in "${roots[@]}"; do
+    if [[ "$DRY_RUN" == true ]]; then
+      cargo-clean-all --dry-run --keep-days "$KEEP_DAYS" "$root" >>"$LOG" 2>&1 \
+        || { log "cargo clean-all --dry-run failed on $root"; failures=$((failures + 1)); }
+    else
+      cargo-clean-all -y --keep-days "$KEEP_DAYS" "$root" >>"$LOG" 2>&1 \
+        || { log "cargo clean-all failed on $root"; failures=$((failures + 1)); }
+    fi
+    log "cargo sweep done: $root"
+  done
+else
+  log "cargo-clean-all not found — skipping (cargo install cargo-clean-all)"
+fi
+
+# 3. homebrew ----------------------------------------------------------------
+if command -v brew >/dev/null 2>&1; then
+  export HOMEBREW_NO_ENV_HINTS=1
+  if [[ "$DRY_RUN" == true ]]; then
+    brew cleanup --dry-run >>"$LOG" 2>&1 || { log "brew cleanup --dry-run failed"; failures=$((failures + 1)); }
+  else
+    brew cleanup >>"$LOG" 2>&1 || { log "brew cleanup failed"; failures=$((failures + 1)); }
+    brew autoremove >>"$LOG" 2>&1 || { log "brew autoremove failed"; failures=$((failures + 1)); }
+  fi
+  log "brew cleanup done"
+else
+  log "brew not found — skipping"
+fi
+
+log "dot-cleanup finish (failures=$failures, free=$(df -h "$HOME" | awk 'NR==2 {print $4}'))"
+[[ "$failures" -gt 0 ]] && exit 1
+exit 0

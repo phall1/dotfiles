@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# (Re)loads the dot-cleanup LaunchAgent whenever its plist or script
+# changes. Hash comments below are the trigger. macOS only — no-op elsewhere.
+#
+# {{ include "Library/LaunchAgents/com.phall1.dot-cleanup.plist.tmpl" | sha256sum }}
+# {{ include "dot_local/bin/executable_dot-cleanup" | sha256sum }}
+
+set -euo pipefail
+
+{{ if and (hasKey . "services") (not .services) }}
+exit 0 # Explicit container/offline profile; never touch the host GUI domain.
+{{ end }}
+
+if ! command -v launchctl >/dev/null 2>&1; then
+  printf "dot-cleanup: launchctl not found — skipping (non-macOS host).\n" >&2
+  exit 0
+fi
+
+domain="gui/$(id -u)"
+plist="{{ .chezmoi.homeDir }}/Library/LaunchAgents/com.phall1.dot-cleanup.plist"
+
+launchctl bootout "$domain/com.phall1.dot-cleanup" >/dev/null 2>&1 || true
+launchctl bootstrap "$domain" "$plist"
+launchctl enable "$domain/com.phall1.dot-cleanup"

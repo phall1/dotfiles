@@ -106,7 +106,7 @@ description: <what the command does>
 ### Step 5: Wire It Up (if needed)
 - If it's a skill that should auto-load, note that the skill loader handles this via matching
 - If it needs a model assignment, use native V2 agent configuration in `opencode.jsonc`
-- If it needs a bin script for `opencode2 run`, create one
+- If it needs a bin script for `opencode run`, create one
 
 ### Step 6: Test & Iterate
 After writing, suggest how the user can test:

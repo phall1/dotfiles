@@ -24,7 +24,7 @@ definitions. Bootstrap never copies these between hosts.
 | Mac host tools/personal tap | `provision/Brewfile` | Real Homebrew; bootstrap installs missing packages without upgrading |
 | Mac desktop apps | `provision/Brewfile.desktop` | Real Homebrew casks and their native auto-updaters |
 | Pi coding harness | `mise.pi.toml`, `mise.pi.lock` | Optional exact CLI version; native Pi package installation |
-| OpenCode V2 | Official `@opencode-ai/cli` installer | Seed version in `integrations.sh`; then native auto-update |
+| OpenCode V2 | Official `@opencode/cli` installer | Seed version in `integrations.sh`; then native auto-update |
 | Other selected harnesses | `scripts/bootstrap/harnesses.sh` | Native installer; existing installations are retained |
 | Rust | rustup | Native toolchains and project `rust-toolchain.toml` |
 | Editable preferences | Native mise tracking, initially selected by `provision/dotfiles-history.json` | Edit live → autosave → private two-way sync |

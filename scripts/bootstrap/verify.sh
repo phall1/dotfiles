@@ -2,10 +2,10 @@
 set -euo pipefail
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
-for tool in mise node bun uv chezmoi jq yq zsh git opencode2 blackbird phux phux-mcp phig phui lstags; do
+for tool in mise node bun uv chezmoi jq yq zsh git opencode blackbird phux phux-mcp phig phui lstags; do
   command -v "$tool" >/dev/null || { echo "Missing required executable: $tool" >&2; exit 1; }
 done
-opencode2 --version
+opencode --version
 phui --version
 phux config check
 phig config check

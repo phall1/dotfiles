@@ -28,11 +28,11 @@ for config in "${bb_configs[@]}"; do
   jq -e 'any((.plugins // [])[]; type == "object" and (.package // "" | startswith("blackbird-opencode")))' "$config" >/dev/null 2>&1 && bb_plugin_declared=0
 done
 
-if ! command -v opencode2 >/dev/null 2>&1; then
+if ! command -v opencode >/dev/null 2>&1; then
   warn "OpenCode absent — Blackbird delivery integration unverified"
 elif services_enabled; then
   # A daemon is running, so resolved state is the stronger claim.
-  if ! mcp_list="$(opencode2 mcp list 2>/dev/null)"; then
+  if ! mcp_list="$(opencode mcp list 2>/dev/null)"; then
     fail "OpenCode could not enumerate MCP servers"
   elif grep -qE '^\s*✓\s+blackbird\b' <<< "$mcp_list"; then
     ok "Blackbird MCP endpoint connected"
@@ -41,10 +41,10 @@ elif services_enabled; then
   else
     fail "Blackbird MCP server is not registered with OpenCode"
   fi
-  if opencode2 plugin list 2>/dev/null | grep -qE '^\S*blackbird\s'; then
+  if opencode plugin list 2>/dev/null | grep -qE '^\S*blackbird\s'; then
     ok "Blackbird push-delivery plugin loaded"
   else
-    fail "Blackbird OpenCode plugin is not loaded — opencode2 plugin list"
+    fail "Blackbird OpenCode plugin is not loaded — opencode plugin list"
   fi
 else
   (( bb_declared )) && fail "Blackbird MCP endpoint is not declared in OpenCode config" \

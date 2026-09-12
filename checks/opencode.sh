@@ -4,13 +4,13 @@
 # OpenCode migrates legacy key names when it loads a config (permission ->
 # permissions, provider -> providers, attachment -> media), so asserting key
 # names against the raw file on disk reports a working config as broken. Ask
-# the runtime what it resolved instead: `opencode2 debug config` is the only
+# the runtime what it resolved instead: `opencode debug config` is the only
 # authority on the effective shape.
 
 hdr "opencode"
 
-if ! command -v opencode2 >/dev/null 2>&1; then
-  warn "opencode2 missing — run mise bootstrap"
+if ! command -v opencode >/dev/null 2>&1; then
+  warn "opencode missing — run mise bootstrap"
   return 0
 fi
 
@@ -20,8 +20,8 @@ for config in "$HOME/.config/opencode/opencode.jsonc" "$HOME/.config/opencode/op
     || fail "${config/#$HOME/\~} does not parse as JSON"
 done
 
-if ! resolved="$(opencode2 debug config 2>/dev/null)"; then
-  fail "OpenCode could not resolve its configuration — opencode2 debug config"
+if ! resolved="$(opencode debug config 2>/dev/null)"; then
+  fail "OpenCode could not resolve its configuration — opencode debug config"
   return 0
 fi
 
@@ -42,7 +42,7 @@ else
 fi
 
 if services_enabled; then
-  if ! opencode_models="$(opencode2 models 2>/dev/null)"; then
+  if ! opencode_models="$(opencode models 2>/dev/null)"; then
     fail "OpenCode could not enumerate its model catalog"
   elif grep -qx 'openai/gpt-6-astra' <<< "$opencode_models"; then
     ok "OpenAI GPT-6 Astra is selectable"

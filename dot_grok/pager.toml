@@ -1,0 +1,22 @@
+# TUI polish. Unset keys keep tracking Grok's defaults.
+
+[scrollback.display]
+sticky_headers = true
+expandable_indicator = true
+
+[scrollback.scroll]
+follow_indicator = "center"
+respect_manual_folds = true
+
+[scrollback.blocks.edit]
+indent = true
+dual_line_numbers = true
+hunk_separator = "…"
+
+[scrollback.blocks.thinking]
+animate = true
+truncated_lines = 3
+header = true
+
+[animation]
+fps = 30

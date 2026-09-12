@@ -1,0 +1,20 @@
+{
+  "rust-analyzer": {
+    "command": "rust-analyzer",
+    "extensionToLanguage": {
+      ".rs": "rust"
+    },
+    "startupTimeout": 60000,
+    "restartOnCrash": true,
+    "maxRestarts": 3
+  },
+  "sourcekit": {
+    "command": "sourcekit-lsp",
+    "extensionToLanguage": {
+      ".swift": "swift"
+    },
+    "startupTimeout": 60000,
+    "restartOnCrash": true,
+    "maxRestarts": 3
+  }
+}

@@ -1,3 +1,19 @@
+# Chezmoi-managed Grok defaults. Live ~/.grok/config.toml is a merge:
+# installer metadata, marketplaces, and BYOK providers on disk survive;
+# keys here win on conflict.
+
+[cli]
+auto_update = true
+show_tips = false
+session_picker_grouped = true
+session_registry = true
+worktree_type = "linked"
+
+[models]
+default = "grok-4.6"
+default_reasoning_effort = "high"
+web_search = "grok-4.6"
+
 [ui]
 max_thoughts_width = 120
 fork_secondary_model = "grok-4.6"
@@ -5,6 +21,106 @@ yolo = false
 compact_mode = false
 permission_mode = "always-approve"
 vim_mode = true
+theme = "tokyonight"
+screen_mode = "fullscreen"
+show_thinking_blocks = true
+show_timestamps = true
+group_tool_verbs = true
+collapsed_edit_blocks = true
+page_flip_on_send = true
+follow_up_behavior = "steer"
+combine_queued_prompts = true
+confirm_before_rewind = true
+remember_tool_approvals = true
+prompt_suggestions = false
+hunk_tracker_mode = "agent_only"
+render_mermaid = "auto"
+default_selected_permission = "always_allow_all_sessions"
+cancel_subagents_on_turn_cancel = "ask"
 
-[models]
-default = "grok-4.6"
+[ui.status_line]
+type = "command"
+command = "~/.grok/statusline.sh"
+refresh_interval = 20
+
+[features]
+telemetry = false
+feedback = true
+lsp_tools = true
+codebase_indexing = true
+two_pass_compaction = true
+web_fetch = true
+image_gen = true
+video_gen = true
+terminal_theme = true
+session_recap = true
+turn_summary = true
+mcp_auto_restart = true
+mcp_liveness_watchers = true
+remember_mode = true
+repo_status_in_system_prompt = true
+
+[memory_v2]
+enabled = true
+
+[session]
+auto_compact_threshold_percent = 85
+load_envrc = true
+
+[workflows]
+enabled = true
+
+[goal]
+enabled = true
+
+[subagents]
+enabled = true
+max_concurrent = 8
+max_depth = 3
+limit_behavior = "queue"
+
+[subagents.models]
+explore = "grok-4.6"
+plan = "grok-4.6"
+
+[hints]
+new_session_worktree_mode = "ask"
+fork_worktree_mode = "ask"
+
+[skills]
+disabled = [
+  "game-animation-frames",
+  "game-asset-core",
+  "game-character-consistency",
+  "game-tilesets",
+  "game-ui-icons",
+]
+
+[toolset.bash]
+timeout_secs = 180
+output_byte_limit = 40000
+auto_background_on_timeout = true
+
+[toolset.web_fetch]
+allow_local = true
+
+[toolset.ask_user_question]
+timeout_enabled = true
+timeout_secs = 1800
+
+[mcp_servers.blackbird]
+url = "http://127.0.0.1:8081"
+enabled = true
+startup_timeout_sec = 5
+
+[mcp_servers.linear-server]
+url = "https://mcp.linear.app/mcp"
+enabled = true
+startup_timeout_sec = 30
+
+# Global working agreement lives in ~/.grok/rules/. Claude skills still
+# load; skip Claude's duplicate home agents, hooks, and MCP servers.
+[compat.claude]
+agents = false
+hooks = false
+mcps = false

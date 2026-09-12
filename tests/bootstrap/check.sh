@@ -9,6 +9,7 @@ for file in mise*.toml mise*.lock .miserc.toml; do yq -p=toml -o=json '.' "$file
 find scripts/bootstrap tests/bootstrap -type f -name '*.sh' -print0 |
   while IFS= read -r -d '' file; do bash -n "$file"; done
 for file in dot_zshenv dot_zprofile dot_zshrc dot_zsh/aliases.zsh dot_zsh/functions.zsh; do zsh -n "$file"; done
+bash -n dot_local/bin/executable_agent checks/agent-clis.sh
 bash tests/bootstrap/fixtures.sh
 bash tests/bootstrap/services.sh
 bash tests/bootstrap/retirement.sh

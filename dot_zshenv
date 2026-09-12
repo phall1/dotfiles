@@ -20,5 +20,8 @@ export VISUAL="${VISUAL:-nvim}"
 typeset -U path
 path=("$HOME/.local/bin" "$XDG_DATA_HOME/mise/shims" "$HOME/.cargo/bin" $path)
 
+# Cursor CLI cannot read the login keychain over SSH (no Aqua session).
+[[ -n "${SSH_CONNECTION:-}" ]] && export AGENT_CLI_CREDENTIAL_STORE="${AGENT_CLI_CREDENTIAL_STORE:-file}"
+
 # Profiling gate — `ZSH_PROF=1 zsh -i -c exit` to capture zprof output.
 [[ -n "${ZSH_PROF:-}" ]] && zmodload zsh/zprof

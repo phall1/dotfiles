@@ -331,3 +331,8 @@ setopt HIST_REDUCE_BLANKS   # tidy whitespace before saving
 # Google Cloud SDK
 [ -f "$HOME/Downloads/google-cloud-sdk/path.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/path.zsh.inc"
 [ -f "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc" ] && source "$HOME/Downloads/google-cloud-sdk/completion.zsh.inc"
+
+# Installers (grok, kimi-code, cursor) append PATH prepends to the live
+# ~/.zshrc. Re-assert managed-bin precedence so those cannot shadow
+# ~/.local/bin, including the `agent` disambiguator.
+path=("$HOME/.local/bin" $path)

@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Grok (~/.grok/bin/agent) and Cursor (~/.local/bin/agent -> cursor-agent)
+# both ship a binary named `agent`. Do not guess. Use the real names.
+# Cursor's installer rewrites this path on update; `chezmoi apply` restores it.
+cat >&2 <<'EOF'
+error: `agent` is ambiguous on this machine.
+
+  grok           Grok CLI
+  cursor-agent   Cursor CLI
+EOF
+exit 2

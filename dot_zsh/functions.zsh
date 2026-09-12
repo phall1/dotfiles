@@ -33,6 +33,17 @@ shelp() {
   printf "\n"
 }
 
+# Grok and Cursor both ship a binary named `agent`. Never guess.
+# Cursor's installer rewrites ~/.local/bin/agent on update; this function
+# still wins in interactive zsh. Use the unique names.
+agent() {
+  print -u2 'error: `agent` is ambiguous on this machine.'
+  print -u2 ''
+  print -u2 '  grok           Grok CLI'
+  print -u2 '  cursor-agent   Cursor CLI'
+  return 2
+}
+
 # Custom functions
 function mkcd() {
     mkdir -p "$1" && cd "$1"

@@ -15,11 +15,11 @@ mise install --dry-run-code
 chezmoi verify --exclude scripts
 phig --repo "$HOME/fixture-repo" snapshot status >/dev/null
 nvim --clean --headless '+quit'
-opencode2 models > "$HOME/models.txt"
+opencode models > "$HOME/models.txt"
 # The account-scoped catalog may be empty before /connect; command success
 # still exercises the native CLI on this architecture without host credentials.
 for mode in -c -ic -lic; do
-  PATH=/usr/bin:/bin zsh "$mode" 'set -e; for tool in node uv opencode2 phux blackbird; do command -v "$tool"; done; node --version; uv --version; phux --version; blackbird --version' </dev/null
+  PATH=/usr/bin:/bin zsh "$mode" 'set -e; for tool in node uv opencode phux blackbird; do command -v "$tool"; done; node --version; uv --version; phux --version; blackbird --version' </dev/null
 done
 [[ ! -e "$HOME/.config/systemd/user/blackbird.service" ]]
 [[ ! -e "$HOME/.config/systemd/user/phux.service" ]]

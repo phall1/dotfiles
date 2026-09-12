@@ -12,6 +12,6 @@ cd "$scratch"
 npm ci --ignore-scripts
 npm test
 npm run check
-sdk="$(jq -r '.dependencies["@opencode-ai/plugin"]' "$root/dot_config/opencode/create_package.json")"
-npm install --ignore-scripts --no-save --package-lock=false "@opencode-ai/plugin@$sdk"
+sdk="$(jq -r '.dependencies["@opencode/plugin"]' "$root/dot_config/opencode/create_package.json")"
+npm install --ignore-scripts --no-save --package-lock=false "@opencode/plugin@$sdk"
 npm run check

@@ -44,7 +44,7 @@ case "${1:-}" in
     fi
     prompt="Load the agent-forge skill. I want to iterate on my existing agent named '${2}'. Read its current definition, then ask me what needs changing."
     cd "$DOTFILES"
-    opencode2 run "$prompt"
+    opencode run "$prompt"
     exit 0
     ;;
   --help|-h)
@@ -60,14 +60,14 @@ case "${1:-}" in
     ;;
   "")
     # No args — open TUI pointed at dotfiles
-    opencode2 "$DOTFILES"
+    opencode "$DOTFILES"
     exit 0
     ;;
   *)
     # Positional arg(s) = the agent idea description
     prompt="Load the agent-forge skill. Here is my agent idea: $*"
     cd "$DOTFILES"
-    opencode2 run "$prompt"
+    opencode run "$prompt"
     exit 0
     ;;
 esac

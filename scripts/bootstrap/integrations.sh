@@ -7,10 +7,11 @@ profile="${XDG_CONFIG_HOME:-$HOME/.config}/dotfiles/profile.json"
 export PATH="$HOME/.local/bin:${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims:$HOME/.cargo/bin:$PATH"
 
 install_opencode() {
-  command -v opencode2 >/dev/null && return
-  # V2 requires the official package's native-binary postinstall. It updates
-  # itself thereafter, outside mise's immutable tool-version directories.
-  npm install --global --prefix "$HOME/.local" '@opencode-ai/cli@0.0.0-beta-19157'
+  command -v opencode >/dev/null && return
+  # Official V2 CLI. Seed a released 2.x; native auto-update takes over,
+  # outside mise's immutable tool-version directories. The pre-release
+  # @opencode-ai/cli package only shipped `opencode2` and must not be reinstalled.
+  npm install --global --prefix "$HOME/.local" '@opencode/cli@2.0.2'
 }
 
 install_rust() {

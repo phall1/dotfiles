@@ -1,0 +1,4 @@
+#!/bin/sh
+# Stdio MCP for the private phux ops analytics pipeline.
+# Key: $PHUX_OPS_KEY or ~/.config/phux/ops.env (chmod 600, not in git).
+exec bun "$HOME/workspace/no-phux/ops/analytics/mcp-stdio.ts" "$@"

@@ -10,6 +10,11 @@
   ],
   "mcp": {
     "servers": {
+      "phux-ops": {
+        "type": "local",
+        "command": ["phux-ops-mcp"],
+        "timeout": { "catalog": 600000, "execution": 600000 }
+      },
       "linear": {
         "type": "remote",
         "url": "https://mcp.linear.app/mcp",
